@@ -1,0 +1,39 @@
+# Docker Compose — Base de datos PostgreSQL local para BarrioCircular
+# Uso:
+#   docker compose up -d        Levanta PostgreSQL en segundo plano
+#   docker compose logs -f db   Sigue los logs
+#   docker compose down         Detiene y elimina el contenedor (conserva el volumen)
+#   docker compose down -v      Detiene y BORRA también los datos del volumen
+#
+# La imagen postgis/postgis incluye la extensión PostGIS, requerida por
+# LogisticaRepositorio para las consultas geoespaciales (ST_DWithin).
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: barriocircular-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: barriocircular
+      POSTGRES_USER: barriocircular
+      POSTGRES_PASSWORD: barriocircular
+      # Codificación y locale recomendados
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      # host:contenedor — expone PostgreSQL en localhost:5432
+      - "5432:5432"
+    volumes:
+      # Persistencia de datos entre reinicios
+      - barriocircular_pgdata:/var/lib/postgresql/data
+      # Scripts ejecutados UNA sola vez al inicializar un volumen vacío
+      - ./backend/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U barriocircular -d barriocircular"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  barriocircular_pgdata:
+    name: barriocircular_pgdata
