@@ -1,0 +1,122 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import PaginadeSeleccionRol from "@/paginas/PaginadeSeleccionRol.jsx";
+import PaginaAutenticacion from "@/paginas/PaginaAutenticacion.jsx";
+import PaginaInicioRecolector from "@/paginas/PaginaInicioRecolector.jsx";
+
+import PaginaCrearPublicaciones from "@/paginas/PaginaCrearPublicaciones.jsx";
+import PaginaPublicacionesDisponibles from "@/paginas/PaginaPublicacionesDisponibles.jsx";
+import PaginadeReseniaOfertas from "./paginas/PaginadeReseniaOfertas.jsx";
+import PaginaPublicacionReservada from "@/paginas/PaginaPublicacionReservada.jsx";
+import PaginadeColeccionCoordenadas from "@/paginas/PaginadeColeccionCoordenadas.jsx";
+import PaginaEntregarMaterial from "@/paginas/PaginaEntregarMaterial.jsx";
+import PaginaResultadoOperacion from "@/paginas/PaginaResultadoOperacion.jsx";
+
+import PaginaOfertasRecomendadas from "@/paginas/PaginaOfertasRecomendadas.jsx";
+import PaginaDetallePublicacion from "@/paginas/PaginaDetallePublicacion.jsx";
+import PaginaRealizarOferta from "@/paginas/PaginaRealizarOferta.jsx";
+import PaginaEsperaOferta from "@/paginas/PaginaEsperaOferta.jsx";
+import PaginaCoordinarRecoleccion from "@/paginas/PaginaCoordinarRecoleccion.jsx";
+import PaginadeValidacionMaterial from "@/paginas/PaginadeValidacionMaterial.jsx";
+import PaginadeConfirmacionOperacion from "@/paginas/PaginadeConfirmacionOperacion.jsx";
+import PaginaResultadoFinalComprador from "@/paginas/PaginaResultadoFinalComprador.jsx";
+
+import PaginaCentroBuscarMateriales from "@/paginas/PaginaCentroBuscarMateriales.jsx";
+import PaginaCentroValidacionMaterial from "@/paginas/PaginaCentroValidacionMaterial.jsx";
+import PaginaCentroConfirmacionOperacion from "@/paginas/PaginaCentroConfirmacionOperacion.jsx";
+
+const PREFIJO_RECOLECTOR_VENDER = "/recolector/vender";
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Navigate to="/seleccionar-rol" replace />} />
+                <Route path="/seleccionar-rol" element={<PaginadeSeleccionRol />} />
+                <Route path="/auth/:rol" element={<PaginaAutenticacion />} />
+                <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
+                <Route path="/ciudadano/publicacion-disponible" element={<PaginaPublicacionesDisponibles />} />
+                <Route path="/ciudadano/ver-ofertas" element={<PaginadeReseniaOfertas />} />
+                <Route path="/ciudadano/publicacion-reservada" element={<PaginaPublicacionReservada />} />
+                <Route path="/ciudadano/coordinar" element={<PaginadeColeccionCoordenadas />} />
+                <Route path="/ciudadano/entregar-material" element={<PaginaEntregarMaterial />} />
+                <Route path="/ciudadano/resultado" element={<PaginaResultadoOperacion />} />
+
+                <Route path="/recolector/inicio" element={<PaginaInicioRecolector />} />
+
+                <Route
+                    path="/recolector/vender/crear-publicacion"
+                    element={<PaginaCrearPublicaciones prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/publicacion-disponible"
+                    element={<PaginaPublicacionesDisponibles prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/ver-ofertas"
+                    element={<PaginadeReseniaOfertas prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/publicacion-reservada"
+                    element={<PaginaPublicacionReservada prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/coordinar"
+                    element={<PaginadeColeccionCoordenadas prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/entregar-material"
+                    element={<PaginaEntregarMaterial prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+                />
+                <Route
+                    path="/recolector/vender/resultado"
+                    element={<PaginaResultadoOperacion />}
+                />
+
+                <Route
+                    path="/recolector/ofertas-recomendadas"
+                    element={<PaginaOfertasRecomendadas rol="recolector" />}
+                />
+                <Route
+                    path="/recolector/detalle/:id"
+                    element={<PaginaDetallePublicacion rol="recolector" />}
+                />
+                <Route
+                    path="/recolector/realizar-oferta/:id"
+                    element={<PaginaRealizarOferta rol="recolector" />}
+                />
+                <Route
+                    path="/recolector/espera/:id"
+                    element={<PaginaEsperaOferta rol="recolector" />}
+                />
+                <Route
+                    path="/recolector/coordinar/:id"
+                    element={<PaginaCoordinarRecoleccion rol="recolector" />}
+                />
+                <Route path="/recolector/verificar/:id" element={<PaginadeValidacionMaterial />} />
+                <Route path="/recolector/confirmar-operacion" element={<PaginadeConfirmacionOperacion />} />
+                <Route
+                    path="/recolector/resultado"
+                    element={<PaginaResultadoFinalComprador rol="recolector" />}
+                />
+
+                <Route path="/centro/buscar-materiales" element={<PaginaCentroBuscarMateriales />} />
+                <Route
+                    path="/centro/ofertas-recomendadas"
+                    element={<PaginaOfertasRecomendadas rol="centro" />}
+                />
+                <Route path="/centro/detalle/:id" element={<PaginaDetallePublicacion rol="centro" />} />
+                <Route path="/centro/realizar-oferta/:id" element={<PaginaRealizarOferta rol="centro" />} />
+                <Route path="/centro/espera/:id" element={<PaginaEsperaOferta rol="centro" />} />
+                <Route path="/centro/coordinar/:id" element={<PaginaCoordinarRecoleccion rol="centro" />} />
+                <Route path="/centro/verificar/:id" element={<PaginaCentroValidacionMaterial />} />
+                <Route path="/centro/confirmar-operacion" element={<PaginaCentroConfirmacionOperacion />} />
+                <Route path="/centro/resultado" element={<PaginaResultadoFinalComprador rol="centro" />} />
+
+                <Route path="*" element={<Navigate to="/seleccionar-rol" replace />} />
+            </Routes>
+        </BrowserRouter>
+    );
+}
+
+export default App;
