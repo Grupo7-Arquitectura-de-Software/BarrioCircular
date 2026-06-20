@@ -73,7 +73,7 @@ const FormularioAutenticacion = ({
             </VStack>
 
             {paso === 1 && (
-                <HStack gap={2} w="100%" bg="gray.100" p={1.5} borderRadius="xl">
+                <VStack gap={2} w="100%" bg="gray.100" p={1.5} borderRadius="xl">
                     <Boton
                         texto="Ingresar"
                         variante={esLogin ? "solid" : "ghost"}
@@ -90,7 +90,7 @@ const FormularioAutenticacion = ({
                         tamanio="sm"
                         alHacer={() => cambiarModo("registro")}
                     />
-                </HStack>
+                </VStack>
             )}
 
             <IndicadorProgreso />

@@ -13,7 +13,6 @@ const PaginaPublicacionReservada = ({ prefijoRuta = "/ciudadano" }) => {
     return (
         <DiseniodeAplicacion titulo="BarrioCircular" mostrarAtras={true}>
             <VStack gap={4} align="stretch" w="100%">
-                {/* Aceptar mejor oferta — pop-up visual */}
                 <Box
                     p={3}
                     border="2px solid"
@@ -30,11 +29,11 @@ const PaginaPublicacionReservada = ({ prefijoRuta = "/ciudadano" }) => {
                         <EtiquetaInformacion etiqueta="Monto:" valor="$4.80" />
                         <EtiquetaInformacion etiqueta="Distancia:" valor="2km" />
                         <EtiquetaInformacion etiqueta="Observación:" valor="Recogida rápida" />
-                        <HStack gap={2}>
+                        <VStack gap={2}>
                             <Boton texto="Aceptar" variante="solid" colorEsquema="gray" ancho="full" tamanio="sm"
                                 alHacer={() => navigate(`${prefijoRuta}/coordinar`)} />
                             <Boton texto="Rechazar" variante="outline" colorEsquema="red" ancho="full" tamanio="sm" />
-                        </HStack>
+                        </VStack>
                         <HStack justify="center" gap={1} color="green.500">
                             <Text fontSize="xs" color="green.600">✓ Oferta aceptada</Text>
                         </HStack>

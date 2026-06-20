@@ -1,21 +1,9 @@
-import { Box, VStack, HStack, Text } from "@chakra-ui/react";
+import { Box, VStack, Text } from "@chakra-ui/react";
 import AvatarUsuario from "../atomos/AvatarUsuario";
 import EtiquetaInformacion from "../moleculas/EtiquetaInformacion";
 import Divisor from "../atomos/Divisor";
 import Boton from "../atomos/Boton";
 
-/**
- * Organismo: Modal/popup de detalle de oferta con opción de aceptar o rechazar
- * Usado en la pantalla "Revisar Ofertas" del flujo Ciudadano
- * @param {string} nombreOfertante - Nombre del ofertante
- * @param {string} tipoOfertante - Tipo (ej. "Reciclador")
- * @param {string} monto - Monto ofertado
- * @param {string} distancia - Distancia
- * @param {string} observacion - Observación del ofertante
- * @param {boolean} esSeleccionada - Si esta oferta tiene la marca de "oferta aceptada"
- * @param {function} alAceptar - Callback para aceptar
- * @param {function} alRechazar - Callback para rechazar
- */
 const ModalOfertaAceptada = ({
     nombreOfertante = "Reciclador Juan",
     tipoOfertante = "Reciclador",
@@ -48,7 +36,7 @@ const ModalOfertaAceptada = ({
                     </Text>
                 )}
 
-                <HStack gap={2} mt={1}>
+                <VStack gap={2} mt={1}>
                     <Boton
                         texto="Aceptar"
                         variante="solid"
@@ -65,7 +53,7 @@ const ModalOfertaAceptada = ({
                         tamanio="sm"
                         alHacer={alRechazar}
                     />
-                </HStack>
+                </VStack>
             </VStack>
         </Box>
     );

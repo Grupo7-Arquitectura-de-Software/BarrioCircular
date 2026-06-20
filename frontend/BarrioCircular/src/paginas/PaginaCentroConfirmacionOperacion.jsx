@@ -2,7 +2,7 @@ import { VStack, Box, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import DiseniodeAplicacion from "@/componentes/plantillas/DiseniodeAplicacion.jsx";
 import Boton from "@/componentes/atomos/Boton";
-
+import EtiquetaInformacion from "@/componentes/moleculas/EtiquetaInformacion.jsx"
 const PaginaCentroConfirmacionOperacion = () => {
     const navigate = useNavigate();
 
