@@ -5,7 +5,7 @@ import com.barriocircular.backend.acceso.dominio.modelo.objetosValor.DatosUsuari
 import com.barriocircular.backend.acceso.dominio.modelo.objetosValor.TokenJWT;
 
 public interface ValidadorIdentidad {
-    DatosUsuarioVerificado validarUsuario(TokenJWT token);
+    DatosUsuarioVerificado validarUsuario(String tokenCrudo);
 
     DatosUsuarioVerificado obtenerUsuario(IdentificadorUsuarioClerk id);
 }
