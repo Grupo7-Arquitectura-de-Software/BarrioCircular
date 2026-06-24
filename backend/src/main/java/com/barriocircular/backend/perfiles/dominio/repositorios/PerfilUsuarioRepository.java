@@ -12,5 +12,9 @@ public interface PerfilUsuarioRepository {
 
     Optional<PerfilUsuario> buscarPorId(UUID id);
 
+    Optional<PerfilUsuario> buscarPorCuentaUsuarioId(UUID cuentaUsuarioId);
+
     boolean existePorDocumentoIdentificacion(DocumentoIdentificacion documentoIdentificacion);
+
+    boolean existePorCuentaUsuarioId(UUID cuentaUsuarioId);
 }
