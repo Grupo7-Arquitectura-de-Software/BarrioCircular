@@ -75,6 +75,21 @@ public final class PerfilUsuario {
         return perfil;
     }
 
+    public static PerfilUsuario reconstituir(
+            UUID id,
+            UUID cuentaUsuarioId,
+            DocumentoIdentificacion documentoIdentificacion,
+            String nombreCompleto,
+            String nombreComercial,
+            RolUsuario rol,
+            EstadoPerfil estadoPerfil,
+            InformacionContacto informacionContacto,
+            CoordenadaGPS ubicacionHabitual,
+            LocalDateTime fechaCreacion) {
+        return new PerfilUsuario(id, cuentaUsuarioId, documentoIdentificacion, nombreCompleto, nombreComercial, rol,
+                estadoPerfil, informacionContacto, ubicacionHabitual, fechaCreacion);
+    }
+
     public void actualizarInformacionContacto(InformacionContacto nuevaInformacionContacto) {
         verificarQueNoEsteSuspendido("actualizar su informacion de contacto");
         informacionContacto = Objects.requireNonNull(
