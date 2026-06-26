@@ -1,10 +1,12 @@
 package com.barriocircular.backend.publicacion.aplicacion.casosdeuso;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.barriocircular.backend.publicacion.aplicacion.comandos.CrearPublicacionCommand;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PublicacionResultado;
+import com.barriocircular.backend.publicacion.dominio.eventos.EventoDominio;
 import com.barriocircular.backend.publicacion.dominio.modelo.CiudadanoId;
 import com.barriocircular.backend.publicacion.dominio.modelo.DetalleMaterial;
 import com.barriocircular.backend.publicacion.dominio.modelo.EvidenciaVisual;
@@ -20,9 +22,13 @@ import com.barriocircular.backend.publicacion.dominio.repositorios.PublicacionRe
 public class CrearPublicacionUseCase {
 
     private final PublicacionRepositorio publicacionRepositorio;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CrearPublicacionUseCase(PublicacionRepositorio publicacionRepositorio) {
+    public CrearPublicacionUseCase(
+            PublicacionRepositorio publicacionRepositorio,
+            ApplicationEventPublisher eventPublisher) {
         this.publicacionRepositorio = publicacionRepositorio;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -39,8 +45,16 @@ public class CrearPublicacionUseCase {
         Publicacion publicacion = Publicacion.crear(id, creador, detalle, precioPorKilo, ubicacion, evidencia);
 
         publicacionRepositorio.guardar(publicacion);
+        publicarEventos(publicacion);
 
         return convertirResultado(publicacion);
+    }
+
+    private void publicarEventos(Publicacion publicacion) {
+        for (EventoDominio evento : publicacion.eventos()) {
+            eventPublisher.publishEvent(evento);
+        }
+        publicacion.limpiarEventos();
     }
 
     private PublicacionResultado convertirResultado(Publicacion publicacion) {
