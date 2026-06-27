@@ -63,9 +63,9 @@ const PaginadeSeleccionRol = () => {
                     }}
                 >
                     <SelectordeRol
-                        alSeleccionarCiudadano={() => navigate("/auth/ciudadano")}
-                        alSeleccionarRecolector={() => navigate("/auth/recolector")}
-                        alSeleccionarCentro={() => navigate("/auth/centro")}
+                        alSeleccionarCiudadano={() => navigate("/ciudadano/crear-publicacion")}
+                        alSeleccionarRecolector={() => navigate("/recolector/inicio")}
+                        alSeleccionarCentro={() => navigate("/centro/buscar-materiales")}
                     />
                 </Box>
             )}
