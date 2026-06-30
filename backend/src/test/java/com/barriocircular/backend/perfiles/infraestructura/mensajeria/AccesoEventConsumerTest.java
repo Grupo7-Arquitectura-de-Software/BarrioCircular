@@ -70,5 +70,12 @@ class AccesoEventConsumerTest {
         public boolean existePorCuentaId(UUID cuentaId) {
             return onboardingPendiente != null && onboardingPendiente.cuentaId().equals(cuentaId);
         }
+
+        @Override
+        public void eliminarPorCuentaId(UUID cuentaId) {
+            if (onboardingPendiente != null && onboardingPendiente.cuentaId().equals(cuentaId)) {
+                onboardingPendiente = null;
+            }
+        }
     }
 }

@@ -21,11 +21,6 @@ public class ValidadorIdentidadClerkAdapter implements ValidadorIdentidad {
     }
 
     @Override
-    public DatosUsuarioVerificado obtenerUsuario(IdentificadorUsuarioClerk id) {
-        return null;
-    }
-
-    @Override
     public DatosUsuarioVerificado validarUsuario(String tokenCrudo) {
         try {
             Jwt jwt = jwtDecoder.decode(tokenCrudo);
@@ -47,7 +42,7 @@ public class ValidadorIdentidadClerkAdapter implements ValidadorIdentidad {
                     emailVerificado);
 
         } catch (JwtException e) {
-            throw new TokenJWTExcepcion(tokenCrudo, "Token inválido o firma no verificada, el error es el siguiente"+e);
+            throw new TokenJWTExcepcion(tokenCrudo, "Token inválido o firma no verificada, el error es el siguiente" + e);
         }
     }
 }

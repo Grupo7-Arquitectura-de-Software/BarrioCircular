@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import com.barriocircular.backend.perfiles.aplicacion.comandos.RegistrarOnboardingPerfilPendienteCommand;
 import com.barriocircular.backend.perfiles.aplicacion.dto.PerfilOnboardingPendiente;
@@ -23,7 +24,7 @@ public class RegistrarOnboardingPerfilPendienteUseCase {
         this.onboardingPendienteRepository = onboardingPendienteRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void ejecutar(RegistrarOnboardingPerfilPendienteCommand command) {
         Objects.requireNonNull(command.cuentaId(), "El identificador de la cuenta es obligatorio");
 

@@ -1,26 +1,17 @@
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { SignIn } from "@clerk/clerk-react";
+import { Box, VStack } from "@chakra-ui/react";
 import DiseniodeAutenticacion from "../componentes/plantillas/DiseniodeAutenticacion.jsx";
-import FormularioAutenticacion from "../componentes/organismos/FormularioAutenticacion";
-import { ETIQUETAS_ROL, RUTAS_INICIO_ROL } from "../componentes/plantillas/estilosLayout";
-
-const ROLES_VALIDOS = ["ciudadano", "recolector", "centro"];
+import LogotipoApp from "../componentes/atomos/LogotipoApp";
 
 const PaginaAutenticacion = () => {
-    const { rol } = useParams();
-    const navigate = useNavigate();
-
-    if (!ROLES_VALIDOS.includes(rol)) {
-        return <Navigate to="/seleccionar-rol" replace />;
-    }
-
     return (
         <DiseniodeAutenticacion>
-            <FormularioAutenticacion
-                rol={rol}
-                etiquetaRol={ETIQUETAS_ROL[rol]}
-                alContinuar={() => navigate(RUTAS_INICIO_ROL[rol])}
-                alVolver={() => navigate("/seleccionar-rol")}
-            />
+            <VStack gap={6} align="center" justify="center">
+                <Box transform="scale(1.2)" mb={4}>
+                    <LogotipoApp tamanio="lg" />
+                </Box>
+                <SignIn routing="path" path="/auth" />
+            </VStack>
         </DiseniodeAutenticacion>
     );
 };

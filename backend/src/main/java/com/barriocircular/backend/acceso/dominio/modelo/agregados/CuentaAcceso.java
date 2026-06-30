@@ -2,9 +2,6 @@ package com.barriocircular.backend.acceso.dominio.modelo.agregados;
 
 import com.barriocircular.backend.acceso.dominio.eventos.EventoDominio;
 import com.barriocircular.backend.acceso.dominio.eventos.UsuarioRegistrado;
-import com.barriocircular.backend.acceso.dominio.modelo.excepciones.CuentaNoVerificadaException;
-import com.barriocircular.backend.acceso.dominio.modelo.excepciones.CuentaSuspendidaException;
-import com.barriocircular.backend.acceso.dominio.modelo.excepciones.EstadoTransicionInvalidaException;
 import com.barriocircular.backend.acceso.dominio.modelo.objetosValor.*;
 
 import java.time.Instant;
@@ -15,7 +12,7 @@ import java.util.List;
 public class CuentaAcceso {
     private final IdentificadorCuenta cuentaId;
     private final IdentificadorUsuarioClerk clerkId;
-    private CorreoElectronico correoElectronico;
+    private final CorreoElectronico correoElectronico;
     private EstadoSesion estadoSesion;
     private final List<EventoDominio> eventosDominio = new ArrayList<>();
 
@@ -48,38 +45,6 @@ public class CuentaAcceso {
     public static CuentaAcceso reconstruir(IdentificadorCuenta cuentaId, IdentificadorUsuarioClerk clerkId,
                                            CorreoElectronico correoElectronico, EstadoSesion estadoSesion) {
         return new CuentaAcceso(cuentaId, clerkId, correoElectronico, estadoSesion);
-    }
-
-    public void verificarAccesoPermitido() {
-        if (this.estadoSesion == EstadoSesion.ELIMINADA) {
-            throw new EstadoTransicionInvalidaException("Una cuenta en estado ELIMINADA no puede acceder a la plataforma.");
-        }
-        if (this.estadoSesion == EstadoSesion.SUSPENDIDA) {
-            throw new CuentaSuspendidaException(this.cuentaId.uuid().toString());
-        }
-        if (this.estadoSesion == EstadoSesion.PENDIENTE_VERIFICACION) {
-            throw new CuentaNoVerificadaException(this.cuentaId.uuid().toString());
-        }
-    }
-
-    public void activarCuenta() {
-        verificarNoEliminada();
-        this.estadoSesion = EstadoSesion.ACTIVA;
-    }
-
-    public void suspenderPorAdministrador() {
-        verificarNoEliminada();
-        this.estadoSesion = EstadoSesion.SUSPENDIDA;
-    }
-
-    public void marcarComoEliminada() {
-        this.estadoSesion = EstadoSesion.ELIMINADA;
-    }
-
-    private void verificarNoEliminada() {
-        if (this.estadoSesion == EstadoSesion.ELIMINADA) {
-            throw new EstadoTransicionInvalidaException("Una cuenta en estado ELIMINADA no puede modificar su estado operativo.");
-        }
     }
 
     public List<EventoDominio> obtenerEventosDominio() {
