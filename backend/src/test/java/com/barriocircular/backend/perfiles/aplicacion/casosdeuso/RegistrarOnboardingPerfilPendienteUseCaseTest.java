@@ -69,5 +69,10 @@ class RegistrarOnboardingPerfilPendienteUseCaseTest {
         public boolean existePorCuentaId(UUID cuentaId) {
             return onboardingPorCuenta.containsKey(cuentaId);
         }
+
+        @Override
+        public void eliminarPorCuentaId(UUID cuentaId) {
+            onboardingPorCuenta.remove(cuentaId);
+        }
     }
 }

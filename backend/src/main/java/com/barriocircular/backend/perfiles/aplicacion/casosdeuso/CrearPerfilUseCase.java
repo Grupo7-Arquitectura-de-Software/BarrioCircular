@@ -6,6 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.barriocircular.backend.perfiles.aplicacion.comandos.CrearPerfilCommand;
 import com.barriocircular.backend.perfiles.aplicacion.dto.PerfilResultado;
+import com.barriocircular.backend.perfiles.aplicacion.excepciones.PerfilYaExisteException;
+import com.barriocircular.backend.perfiles.aplicacion.mapeadores.PerfilResultadoMapper;
+import com.barriocircular.backend.perfiles.aplicacion.puertos.PerfilOnboardingPendienteRepository;
 import com.barriocircular.backend.perfiles.dominio.eventos.EventoDominio;
 import com.barriocircular.backend.perfiles.dominio.factories.PerfilUsuarioFactory;
 import com.barriocircular.backend.perfiles.dominio.modelo.PerfilUsuario;
@@ -19,50 +22,55 @@ import com.barriocircular.backend.perfiles.dominio.valueobjects.InformacionConta
 public class CrearPerfilUseCase {
 
     private final PerfilUsuarioRepository perfilUsuarioRepository;
-    private final ApplicationEventPublisher eventPublisher;
+    private final PerfilOnboardingPendienteRepository onboardingPendienteRepository;
+    private final ApplicationEventPublisher publicadorEventos;
 
     public CrearPerfilUseCase(
             PerfilUsuarioRepository perfilUsuarioRepository,
-            ApplicationEventPublisher eventPublisher) {
+            PerfilOnboardingPendienteRepository onboardingPendienteRepository,
+            ApplicationEventPublisher publicadorEventos) {
         this.perfilUsuarioRepository = perfilUsuarioRepository;
-        this.eventPublisher = eventPublisher;
+        this.onboardingPendienteRepository = onboardingPendienteRepository;
+        this.publicadorEventos = publicadorEventos;
     }
 
     @Transactional
-    public PerfilResultado ejecutar(CrearPerfilCommand command) {
-        DocumentoIdentificacion documento = new DocumentoIdentificacion(command.documentoIdentificacion());
-        InformacionContacto contacto = new InformacionContacto(command.correoElectronico(), command.telefono());
-        CoordenadaGPS ubicacion = new CoordenadaGPS(command.latitud(), command.longitud());
-        RolUsuario rol = RolUsuario.valueOf(command.rol());
-
-        PerfilUsuario perfil = PerfilUsuarioFactory.crearPerfil(command.cuentaUsuarioId(), documento,
-                command.nombreCompleto(), command.nombreComercial(), rol, contacto, ubicacion);
-
-        perfilUsuarioRepository.guardar(perfil);
-        publicarEventos(perfil);
-
-        return convertirResultado(perfil);
-    }
-
-    private void publicarEventos(PerfilUsuario perfil) {
-        for (EventoDominio evento : perfil.obtenerEventosDominio()) {
-            eventPublisher.publishEvent(evento);
+    public PerfilResultado ejecutar(CrearPerfilCommand comando) {
+        if (perfilUsuarioRepository.existePorCuentaUsuarioId(comando.cuentaUsuarioId())) {
+            throw new PerfilYaExisteException("La cuenta ya tiene un perfil de usuario registrado.");
         }
-        perfil.limpiarEventosDominio();
+
+        DocumentoIdentificacion documentoIdentificacion =
+                new DocumentoIdentificacion(comando.documentoIdentificacion());
+        if (perfilUsuarioRepository.existePorDocumentoIdentificacion(documentoIdentificacion)) {
+            throw new PerfilYaExisteException("El documento de identificación ya pertenece a otro perfil.");
+        }
+
+        InformacionContacto informacionContacto =
+                new InformacionContacto(comando.correoElectronico(), comando.telefono());
+        CoordenadaGPS ubicacionHabitual = new CoordenadaGPS(comando.latitud(), comando.longitud());
+        RolUsuario rolUsuario = RolUsuario.valueOf(comando.rol());
+
+        PerfilUsuario perfilUsuario = PerfilUsuarioFactory.crearPerfil(
+                comando.cuentaUsuarioId(),
+                documentoIdentificacion,
+                comando.nombreCompleto(),
+                comando.nombreComercial(),
+                rolUsuario,
+                informacionContacto,
+                ubicacionHabitual);
+
+        perfilUsuarioRepository.guardar(perfilUsuario);
+        onboardingPendienteRepository.eliminarPorCuentaId(comando.cuentaUsuarioId());
+        publicarEventos(perfilUsuario);
+
+        return PerfilResultadoMapper.desde(perfilUsuario);
     }
 
-    private PerfilResultado convertirResultado(PerfilUsuario perfil) {
-        return new PerfilResultado(
-                perfil.getId(),
-                perfil.getCuentaUsuarioId(),
-                perfil.getDocumentoIdentificacion().getValor(),
-                perfil.getNombreCompleto(),
-                perfil.getNombreComercial(),
-                perfil.getRol().name(),
-                perfil.getEstadoPerfil().name(),
-                perfil.getInformacionContacto().getCorreoElectronico(),
-                perfil.getInformacionContacto().getTelefono(),
-                perfil.getUbicacionHabitual().getLatitud(),
-                perfil.getUbicacionHabitual().getLongitud());
+    private void publicarEventos(PerfilUsuario perfilUsuario) {
+        for (EventoDominio eventoDominio : perfilUsuario.obtenerEventosDominio()) {
+            publicadorEventos.publishEvent(eventoDominio);
+        }
+        perfilUsuario.limpiarEventosDominio();
     }
 }

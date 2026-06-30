@@ -8,5 +8,5 @@ public record UsuarioRegistrado(
         String clerkId,
         String correoElectronico,
         Instant ocurridoEn
-) {
+) implements EventoDominio {
 }

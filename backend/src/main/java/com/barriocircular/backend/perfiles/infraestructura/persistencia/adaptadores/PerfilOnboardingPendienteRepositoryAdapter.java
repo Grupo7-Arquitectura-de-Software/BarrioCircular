@@ -34,4 +34,10 @@ public class PerfilOnboardingPendienteRepositoryAdapter implements PerfilOnboard
     public boolean existePorCuentaId(UUID cuentaId) {
         return springDataRepository.existsByCuentaId(cuentaId);
     }
+
+    @Override
+    public void eliminarPorCuentaId(UUID cuentaId) {
+        springDataRepository.findByCuentaId(cuentaId)
+                .ifPresent(springDataRepository::delete);
+    }
 }
