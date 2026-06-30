@@ -9,4 +9,6 @@ public interface PerfilOnboardingPendienteRepository {
     void guardar(PerfilOnboardingPendiente onboardingPendiente);
 
     boolean existePorCuentaId(UUID cuentaId);
+
+    void eliminarPorCuentaId(UUID cuentaId);
 }

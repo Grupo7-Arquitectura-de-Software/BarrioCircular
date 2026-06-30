@@ -1,161 +1,200 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, VStack, Text, Input, Select, Button } from "@chakra-ui/react";
 import { useAuth } from "@clerk/clerk-react";
-import { toaster } from "@/components/ui/toaster";
-import DiseniodeAutenticacion from "../componentes/plantillas/DiseniodeAutenticacion.jsx";
+import { Box, Button, Input, NativeSelect, Text, VStack } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+
 import LogotipoApp from "../componentes/atomos/LogotipoApp";
+import DiseniodeAutenticacion from "../componentes/plantillas/DiseniodeAutenticacion.jsx";
+import { toaster } from "@/components/ui/toaster";
+import { esErrorApiConEstado } from "@/servicios/clienteApi";
+import { completarPerfil } from "@/servicios/perfilService";
+import { obtenerRutaPrincipalPorRol } from "@/utilidades/rutasPerfil";
 
 const ROLES = [
     { value: "CIUDADANO", label: "Ciudadano" },
-    { value: "RECOLECTOR", label: "Recolector" },
-    { value: "CENTRO_ACOPIO", label: "Centro de Acopio" }
+    { value: "RECICLADOR", label: "Reciclador" },
+    { value: "CENTRO_RECOLECCION", label: "Centro de Recolección" },
 ];
+
+const COORDENADAS_QUITO = {
+    latitud: -0.1807,
+    longitud: -78.4678,
+};
+
+const obtenerMensajeError = (error) => {
+    if (esErrorApiConEstado(error, 403)) {
+        return "La sesión no está autorizada para completar este perfil.";
+    }
+    if (esErrorApiConEstado(error, 404)) {
+        return "No se encontró la cuenta asociada. Vuelve a iniciar sesión.";
+    }
+    if (esErrorApiConEstado(error, 409)) {
+        return "Ya existe un perfil o documento registrado con estos datos.";
+    }
+    return "No se pudo completar el perfil. Intenta nuevamente.";
+};
 
 const PaginaCompletarPerfil = () => {
     const navigate = useNavigate();
     const { getToken } = useAuth();
-    
-    const [formData, setFormData] = useState({
+    const [datosFormulario, setDatosFormulario] = useState({
         rol: "",
         documentoIdentificacion: "",
         nombreCompleto: "",
         nombreComercial: "",
         correoElectronico: "",
         telefono: "",
-        latitud: 0,
-        longitud: 0
+        ...COORDENADAS_QUITO,
     });
-    
-    const [isLoading, setIsLoading] = useState(false);
+    const [estaEnviando, setEstaEnviando] = useState(false);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const actualizarCampo = (evento) => {
+        const { name, value } = evento.target;
+        setDatosFormulario((datosActuales) => ({
+            ...datosActuales,
+            [name]: value,
+        }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
+    const enviarFormulario = async (evento) => {
+        evento.preventDefault();
+        setEstaEnviando(true);
 
         try {
             const token = await getToken();
-            const response = await fetch("http://localhost:8080/api/perfiles/completar", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
+            if (!token) throw new Error("No se obtuvo un token de sesión de Clerk.");
 
-            if (response.ok) {
-                toaster.create({
-                    title: "Perfil completado",
-                    description: "Tu perfil ha sido configurado exitosamente.",
-                    type: "success",
-                    duration: 3000,
-                });
-                
-                // Redirigir según el rol
-                if (formData.rol === "CIUDADANO") navigate("/ciudadano/crear-publicacion");
-                else if (formData.rol === "RECOLECTOR") navigate("/recolector/inicio");
-                else if (formData.rol === "CENTRO_ACOPIO") navigate("/centro/buscar-materiales");
-                else navigate("/");
-            } else {
-                toaster.create({
-                    title: "Error",
-                    description: "No se pudo completar el perfil. Intenta nuevamente.",
-                    type: "error",
-                    duration: 3000,
-                });
+            const datosPerfil = {
+                ...datosFormulario,
+                latitud: Number(datosFormulario.latitud),
+                longitud: Number(datosFormulario.longitud),
+            };
+            const perfilCreado = await completarPerfil(token, datosPerfil);
+            const rutaPrincipal = obtenerRutaPrincipalPorRol(perfilCreado.rol);
+
+            if (!rutaPrincipal) {
+                throw new Error(`El rol ${perfilCreado.rol} no tiene una ruta configurada.`);
             }
-        } catch (error) {
-            console.error("Error al completar perfil:", error);
+
             toaster.create({
-                title: "Error de red",
-                description: "Ocurrió un error al contactar al servidor.",
-                type: "error",
+                title: "Perfil completado",
+                description: "Tu perfil ha sido configurado exitosamente.",
+                type: "success",
                 duration: 3000,
             });
+
+            navigate(rutaPrincipal, { replace: true });
+        } catch (error) {
+            toaster.create({
+                title: "No se pudo completar el perfil",
+                description: obtenerMensajeError(error),
+                type: "error",
+                duration: 4000,
+            });
         } finally {
-            setIsLoading(false);
+            setEstaEnviando(false);
         }
     };
 
     return (
         <DiseniodeAutenticacion>
             <VStack gap={6} align="stretch" w="100%">
-                <Box align="center" mb={4}>
+                <Box textAlign="center" mb={4}>
                     <LogotipoApp tamanio="md" />
-                    <Text fontSize="xl" fontWeight="bold" mt={4}>Completa tu Perfil</Text>
-                    <Text fontSize="sm" color="gray.600">Necesitamos algunos datos para finalizar tu registro.</Text>
+                    <Text fontSize="xl" fontWeight="bold" mt={4}>Completa tu perfil</Text>
+                    <Text fontSize="sm" color="gray.600">
+                        Necesitamos algunos datos para finalizar tu registro.
+                    </Text>
                 </Box>
-                
-                <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+
+                <form onSubmit={enviarFormulario} style={{ width: "100%" }}>
                     <VStack gap={4}>
-                        <Select 
-                            name="rol" 
-                            placeholder="Selecciona tu rol" 
-                            value={formData.rol} 
-                            onChange={handleChange}
-                            required
-                        >
-                            {ROLES.map(r => (
-                                <option key={r.value} value={r.value}>{r.label}</option>
-                            ))}
-                        </Select>
-                        
-                        <Input 
-                            name="documentoIdentificacion" 
-                            placeholder="Documento de Identidad / NIT" 
-                            value={formData.documentoIdentificacion}
-                            onChange={handleChange}
-                            required
-                        />
-                        
-                        <Input 
-                            name="nombreCompleto" 
-                            placeholder="Nombre Completo" 
-                            value={formData.nombreCompleto}
-                            onChange={handleChange}
+                        <NativeSelect.Root>
+                            <NativeSelect.Field
+                                name="rol"
+                                value={datosFormulario.rol}
+                                onChange={actualizarCampo}
+                                required
+                            >
+                                <option value="">Selecciona tu rol</option>
+                                {ROLES.map((rol) => (
+                                    <option key={rol.value} value={rol.value}>{rol.label}</option>
+                                ))}
+                            </NativeSelect.Field>
+                        </NativeSelect.Root>
+
+                        <Input
+                            name="documentoIdentificacion"
+                            placeholder="Documento de identidad / RUC"
+                            value={datosFormulario.documentoIdentificacion}
+                            onChange={actualizarCampo}
                             required
                         />
-                        
-                        {formData.rol !== "CIUDADANO" && (
-                            <Input 
-                                name="nombreComercial" 
-                                placeholder="Nombre Comercial (Opcional)" 
-                                value={formData.nombreComercial}
-                                onChange={handleChange}
+
+                        <Input
+                            name="nombreCompleto"
+                            placeholder="Nombre completo"
+                            value={datosFormulario.nombreCompleto}
+                            onChange={actualizarCampo}
+                            required={datosFormulario.rol !== "CENTRO_RECOLECCION"}
+                        />
+
+                        {datosFormulario.rol === "CENTRO_RECOLECCION" && (
+                            <Input
+                                name="nombreComercial"
+                                placeholder="Nombre comercial"
+                                value={datosFormulario.nombreComercial}
+                                onChange={actualizarCampo}
+                                required
                             />
                         )}
-                        
-                        <Input 
-                            name="correoElectronico" 
+
+                        <Input
+                            name="correoElectronico"
                             type="email"
-                            placeholder="Correo Electrónico" 
-                            value={formData.correoElectronico}
-                            onChange={handleChange}
+                            placeholder="Correo electrónico"
+                            value={datosFormulario.correoElectronico}
+                            onChange={actualizarCampo}
                             required
                         />
-                        
-                        <Input 
-                            name="telefono" 
+
+                        <Input
+                            name="telefono"
                             type="tel"
-                            placeholder="Teléfono de contacto" 
-                            value={formData.telefono}
-                            onChange={handleChange}
+                            placeholder="Teléfono de contacto"
+                            value={datosFormulario.telefono}
+                            onChange={actualizarCampo}
                             required
                         />
-                        
-                        <Button 
-                            type="submit" 
-                            colorScheme="blue" 
-                            width="full" 
-                            isLoading={isLoading}
+
+                        <Input
+                            name="latitud"
+                            type="number"
+                            step="any"
+                            placeholder="Latitud"
+                            value={datosFormulario.latitud}
+                            onChange={actualizarCampo}
+                            required
+                        />
+
+                        <Input
+                            name="longitud"
+                            type="number"
+                            step="any"
+                            placeholder="Longitud"
+                            value={datosFormulario.longitud}
+                            onChange={actualizarCampo}
+                            required
+                        />
+
+                        <Button
+                            type="submit"
+                            colorPalette="blue"
+                            width="full"
+                            loading={estaEnviando}
+                            loadingText="Guardando perfil"
                         >
-                            Completar Registro
+                            Completar registro
                         </Button>
                     </VStack>
                 </form>

@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client'
 import App from './App.jsx'
 import {ChakraProvider} from "@chakra-ui/react";
 import {system} from "./theme";
+import {Toaster} from "./components/ui/toaster.jsx";
 
 import { ClerkProvider } from '@clerk/clerk-react'
 
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
             <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
                 <App/>
             </ClerkProvider>
+            <Toaster/>
         </ChakraProvider>
     </StrictMode>,
 )

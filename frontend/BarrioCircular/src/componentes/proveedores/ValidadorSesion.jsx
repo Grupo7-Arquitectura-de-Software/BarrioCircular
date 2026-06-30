@@ -1,78 +1,115 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Spinner, VStack, Text } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { Spinner, Text, VStack } from "@chakra-ui/react";
+
+import { registrarSesion } from "@/servicios/accesoService";
+import { esErrorApiConEstado } from "@/servicios/clienteApi";
+import { obtenerMiPerfil } from "@/servicios/perfilService";
+import { estaEnAreaDeRol, obtenerRutaPrincipalPorRol } from "@/utilidades/rutasPerfil";
+
+const RUTA_AUTENTICACION = "/auth";
+const RUTA_COMPLETAR_PERFIL = "/completar-perfil";
 
 const ValidadorSesion = ({ children }) => {
     const { isLoaded, isSignedIn, getToken } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
-    const [isVerifying, setIsVerifying] = useState(false);
+    const [estaVerificando, setEstaVerificando] = useState(true);
+    const [mensajeError, setMensajeError] = useState("");
+    const verificacionIniciadaRef = useRef(false);
+    const componenteActivoRef = useRef(true);
 
     useEffect(() => {
-        if (!isLoaded) return;
+        componenteActivoRef.current = true;
 
-        if (!isSignedIn) {
-            if (!location.pathname.startsWith("/auth")) {
-                navigate("/auth", { replace: true });
-            }
-            return;
+        if (!isLoaded) {
+            return () => {
+                componenteActivoRef.current = false;
+            };
         }
 
-        const verificarSesionBackend = async () => {
-            setIsVerifying(true);
+        if (!isSignedIn) {
+            verificacionIniciadaRef.current = false;
+
+            if (!window.location.pathname.startsWith(RUTA_AUTENTICACION)) {
+                navigate(RUTA_AUTENTICACION, { replace: true });
+            }
+
+            return () => {
+                componenteActivoRef.current = false;
+            };
+        }
+
+        if (verificacionIniciadaRef.current) {
+            return () => {
+                componenteActivoRef.current = false;
+            };
+        }
+
+        verificacionIniciadaRef.current = true;
+
+        const verificarSesionYPerfil = async () => {
+            setEstaVerificando(true);
+            setMensajeError("");
+
             try {
                 const token = await getToken();
-                const response = await fetch("http://localhost:8080/api/acceso/sesion", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ tokenClerk: token }),
-                });
+                if (!token) throw new Error("Clerk no entregó un token de sesión válido.");
 
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Si el backend dice que es nueva o falta completar el perfil
-                    if (data.esNueva || data.estado === "PENDIENTE_PERFIL") {
-                        if (location.pathname !== "/completar-perfil") {
-                            navigate("/completar-perfil", { replace: true });
+                await registrarSesion(token);
+
+                let perfilUsuario;
+                try {
+                    perfilUsuario = await obtenerMiPerfil(token);
+                } catch (error) {
+                    if (esErrorApiConEstado(error, 404)) {
+                        if (window.location.pathname !== RUTA_COMPLETAR_PERFIL) {
+                            navigate(RUTA_COMPLETAR_PERFIL, { replace: true });
                         }
-                    } else if (location.pathname === "/auth" || location.pathname === "/seleccionar-rol" || location.pathname === "/") {
-                        // Aquí idealmente sabríamos el rol del usuario para redirigirlo. 
-                        // Temporalmente podemos redirigirlo a un dashboard central o hacer un fetch a /api/perfiles/me
-                        // Como PaginadeSeleccionRol.jsx redirigía a roles, por ahora redirigimos según lo que sepamos
-                        // Si el rol no está en la sesión, habría que preguntar al backend.
-                        // Para simplificar, mandaremos a /seleccionar-rol pero sabiendo que ya está autenticado, 
-                        // Ojo, seleccion-rol no debe pedir auth de nuevo.
-                        // Modificaremos PaginadeSeleccionRol para que no redirija a /auth/:rol, sino que envíe al dashboard del rol.
-                        navigate("/seleccionar-rol", { replace: true });
+                        return;
                     }
-                } else {
-                    console.error("Error al verificar sesión en backend", response.status);
+                    throw error;
+                }
+
+                const rutaPrincipal = obtenerRutaPrincipalPorRol(perfilUsuario.rol);
+                if (!rutaPrincipal) {
+                    throw new Error(`El rol ${perfilUsuario.rol} no tiene una ruta configurada.`);
+                }
+
+                const rutaActual = window.location.pathname;
+                if (!estaEnAreaDeRol(rutaActual, perfilUsuario.rol)) {
+                    navigate(rutaPrincipal, { replace: true });
                 }
             } catch (error) {
-                console.error("Error de red al verificar sesión", error);
+                if (componenteActivoRef.current) {
+                    setMensajeError(error.message || "No fue posible validar la sesión.");
+                }
             } finally {
-                setIsVerifying(false);
+                if (componenteActivoRef.current) setEstaVerificando(false);
             }
         };
 
-        // Evitar bucles: Solo verificar si acabamos de iniciar sesión o estamos en rutas base
-        if (location.pathname.startsWith("/auth") || location.pathname === "/") {
-            verificarSesionBackend();
-        } else {
-             // Si el usuario recarga la página, validamos también
-             verificarSesionBackend();
-        }
-    }, [isLoaded, isSignedIn, getToken, navigate, location.pathname]);
+        verificarSesionYPerfil();
 
-    if (!isLoaded || isVerifying) {
+        return () => {
+            componenteActivoRef.current = false;
+        };
+    }, [getToken, isLoaded, isSignedIn, navigate]);
+
+    if (!isLoaded || (isSignedIn && estaVerificando)) {
         return (
             <VStack h="100vh" justify="center">
                 <Spinner size="xl" />
                 <Text>Validando sesión...</Text>
+            </VStack>
+        );
+    }
+
+    if (isSignedIn && mensajeError) {
+        return (
+            <VStack h="100vh" justify="center" px={6} textAlign="center">
+                <Text fontWeight="bold">No se pudo validar tu sesión</Text>
+                <Text color="gray.600">{mensajeError}</Text>
             </VStack>
         );
     }
