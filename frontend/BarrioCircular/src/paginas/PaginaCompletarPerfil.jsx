@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { Box, Button, Input, NativeSelect, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +37,8 @@ const obtenerMensajeError = (error) => {
 const PaginaCompletarPerfil = () => {
     const navigate = useNavigate();
     const { getToken } = useAuth();
+    const { isLoaded, user } = useUser();
+    const correoClerk = user?.primaryEmailAddress?.emailAddress;
     const [datosFormulario, setDatosFormulario] = useState({
         rol: "",
         documentoIdentificacion: "",
@@ -44,9 +46,20 @@ const PaginaCompletarPerfil = () => {
         nombreComercial: "",
         correoElectronico: "",
         telefono: "",
+        direccionTexto: "",
         ...COORDENADAS_QUITO,
     });
     const [estaEnviando, setEstaEnviando] = useState(false);
+    const [estaObteniendoUbicacion, setEstaObteniendoUbicacion] = useState(false);
+
+    useEffect(() => {
+        if (!correoClerk) return;
+
+        setDatosFormulario((datosActuales) => ({
+            ...datosActuales,
+            correoElectronico: correoClerk,
+        }));
+    }, [correoClerk]);
 
     const actualizarCampo = (evento) => {
         const { name, value } = evento.target;
@@ -54,6 +67,54 @@ const PaginaCompletarPerfil = () => {
             ...datosActuales,
             [name]: value,
         }));
+    };
+
+    const usarUbicacionActual = () => {
+        if (!navigator.geolocation) {
+            setDatosFormulario((datosActuales) => ({
+                ...datosActuales,
+                ...COORDENADAS_QUITO,
+            }));
+            toaster.create({
+                title: "Ubicación no disponible",
+                description: "No se pudo obtener tu ubicación. Puedes escribir una dirección o referencia manualmente.",
+                type: "warning",
+                duration: 4000,
+            });
+            return;
+        }
+
+        setEstaObteniendoUbicacion(true);
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+                setDatosFormulario((datosActuales) => ({
+                    ...datosActuales,
+                    latitud: coords.latitude,
+                    longitud: coords.longitude,
+                }));
+                setEstaObteniendoUbicacion(false);
+                toaster.create({
+                    title: "Ubicación detectada",
+                    description: "Ubicación actual detectada correctamente.",
+                    type: "success",
+                    duration: 3000,
+                });
+            },
+            () => {
+                setDatosFormulario((datosActuales) => ({
+                    ...datosActuales,
+                    ...COORDENADAS_QUITO,
+                }));
+                setEstaObteniendoUbicacion(false);
+                toaster.create({
+                    title: "No se pudo obtener la ubicación",
+                    description: "No se pudo obtener tu ubicación. Puedes escribir una dirección o referencia manualmente.",
+                    type: "warning",
+                    duration: 4000,
+                });
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+        );
     };
 
     const enviarFormulario = async (evento) => {
@@ -64,8 +125,14 @@ const PaginaCompletarPerfil = () => {
             const token = await getToken();
             if (!token) throw new Error("No se obtuvo un token de sesión de Clerk.");
 
+            // TODO: enviar direccionTexto cuando el contrato de Perfiles lo soporte.
             const datosPerfil = {
-                ...datosFormulario,
+                rol: datosFormulario.rol,
+                documentoIdentificacion: datosFormulario.documentoIdentificacion,
+                nombreCompleto: datosFormulario.nombreCompleto,
+                nombreComercial: datosFormulario.nombreComercial,
+                correoElectronico: correoClerk || datosFormulario.correoElectronico,
+                telefono: datosFormulario.telefono,
                 latitud: Number(datosFormulario.latitud),
                 longitud: Number(datosFormulario.longitud),
             };
@@ -155,8 +222,15 @@ const PaginaCompletarPerfil = () => {
                             placeholder="Correo electrónico"
                             value={datosFormulario.correoElectronico}
                             onChange={actualizarCampo}
+                            disabled={Boolean(correoClerk)}
                             required
                         />
+
+                        {isLoaded && !correoClerk && (
+                            <Text fontSize="sm" color="orange.700" alignSelf="flex-start">
+                                Clerk no proporcionó un correo. Ingrésalo manualmente para continuar.
+                            </Text>
+                        )}
 
                         <Input
                             name="telefono"
@@ -167,25 +241,33 @@ const PaginaCompletarPerfil = () => {
                             required
                         />
 
-                        <Input
-                            name="latitud"
-                            type="number"
-                            step="any"
-                            placeholder="Latitud"
-                            value={datosFormulario.latitud}
-                            onChange={actualizarCampo}
-                            required
-                        />
+                        {/* TODO: incorporar un selector con Google Maps/Places o Leaflet/OpenStreetMap. */}
+                        <Box width="full">
+                            <Text as="label" htmlFor="direccionTexto" fontSize="sm" fontWeight="medium">
+                                Dirección o referencia
+                            </Text>
+                            <Input
+                                id="direccionTexto"
+                                name="direccionTexto"
+                                placeholder="Ej: Av. Universitaria y Bolivia, Quito"
+                                value={datosFormulario.direccionTexto}
+                                onChange={actualizarCampo}
+                                mt={1}
+                                required
+                            />
+                        </Box>
 
-                        <Input
-                            name="longitud"
-                            type="number"
-                            step="any"
-                            placeholder="Longitud"
-                            value={datosFormulario.longitud}
-                            onChange={actualizarCampo}
-                            required
-                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            colorPalette="green"
+                            width="full"
+                            onClick={usarUbicacionActual}
+                            loading={estaObteniendoUbicacion}
+                            loadingText="Obteniendo ubicación"
+                        >
+                            Usar mi ubicación actual
+                        </Button>
 
                         <Button
                             type="submit"
