@@ -1,11 +1,13 @@
-import { Box } from "@chakra-ui/react";
+import {Box} from "@chakra-ui/react";
 import EncabezadoApp from "../organismos/EncabezadoApp";
-import { useNavigate } from "react-router-dom";
-import { fondoPagina, contenedorApp, paddingContenido } from "./estilosLayout";
+import {useNavigate} from "react-router-dom";
+import {fondoPagina, contenedorApp, paddingContenido} from "./estilosLayout";
+import {useCerrarSesion} from "@/utilidades/useCerrarSesion";
 
 
-const DiseniodePanelControl = ({ titulo = "BarrioCircular", mostrarAtras = true, children }) => {
+const DiseniodePanelControl = ({titulo = "BarrioCircular", mostrarAtras = true, children}) => {
     const navigate = useNavigate();
+    const cerrarSesion = useCerrarSesion();
 
     return (
         <Box {...fondoPagina}>
@@ -14,7 +16,9 @@ const DiseniodePanelControl = ({ titulo = "BarrioCircular", mostrarAtras = true,
                     titulo={titulo}
                     mostrarAtras={mostrarAtras}
                     alPresionarAtras={() => navigate(-1)}
-                    alPresionarMenu={() => {}}
+                    opcionesMenu={[
+                        {valor: "cerrar-sesion", etiqueta: "Cerrar sesión", alSeleccionar: cerrarSesion},
+                    ]}
                 />
                 <Box flex={1} overflowY="auto" {...paddingContenido} bg="white">
                     {children}

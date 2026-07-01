@@ -1,11 +1,11 @@
-import { HStack, Text, Box } from "@chakra-ui/react";
+import { HStack, Text, Box , Menu, Portal} from "@chakra-ui/react";
 import { LuChevronLeft, LuMenu } from "react-icons/lu";
 
 const EncabezadoApp = ({
     titulo = "BarrioCircular",
     mostrarAtras = true,
     alPresionarAtras,
-    alPresionarMenu,
+    opcionesMenu= [],
 }) => {
     return (
         <HStack
@@ -39,19 +39,28 @@ const EncabezadoApp = ({
                 {titulo}
             </Text>
 
-            {/* Menú hamburguesa */}
-            <Box
-                w="32px"
-                h="32px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                onClick={alPresionarMenu}
-                color="gray.700"
-            >
-                <LuMenu size={22} />
-            </Box>
+            <Menu.Root>
+                     <Menu.Trigger asChild>
+                         <Box
+                             w="32px" h="32px" display="flex" alignItems="center"
+                             justifyContent="center" cursor="pointer" color="gray.700"
+                         >
+                             <LuMenu size={22} />
+                         </Box>
+                     </Menu.Trigger>
+                 <Portal>
+                     <Menu.Positioner>
+                         <Menu.Content>
+                             {opcionesMenu.map(({ valor, etiqueta, alSeleccionar }) => (
+                                 <Menu.Item key={valor} value={valor} onSelect={alSeleccionar}>
+                                         {etiqueta}
+                                     </Menu.Item>
+                             ))}
+                         </Menu.Content>
+                     </Menu.Positioner>
+                 </Portal>
+             </Menu.Root>
+
         </HStack>
     );
 };
