@@ -25,3 +25,10 @@ replay_pid*
 
 # IntelliJ IDEA
 .idea/
+
+# Production environment
+.env.prod
+.env.prod.local
+
+# Root DevOps dependencies
+/node_modules/

@@ -6,4 +6,29 @@ dist/
 .tmp/
 .cache/
 README.md
-# =========================================
+
+# Environment files
+.env
+.env.*
+
+# Version control and IDEs
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+
+# Logs and temporary files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/
+*.tmp
+*.temp
+*~
+.DS_Store
+Thumbs.db

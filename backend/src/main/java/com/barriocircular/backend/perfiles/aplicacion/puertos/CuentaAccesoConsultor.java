@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public interface CuentaAccesoConsultor {
 
-    Optional<UUID> obtenerCuentaIdPorClerkId(String clerkId);
+  Optional<UUID> obtenerCuentaIdPorClerkId(String clerkId);
 }

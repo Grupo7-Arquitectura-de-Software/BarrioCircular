@@ -1,0 +1,39 @@
+name: barriocircular-production
+
+services:
+  backend:
+    image: barriocircular-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      SUPABASE_DB_URL: "${SUPABASE_DB_URL:?Define SUPABASE_DB_URL}"
+      SUPABASE_DB_USERNAME: "${SUPABASE_DB_USERNAME:?Define SUPABASE_DB_USERNAME}"
+      SUPABASE_DB_PASSWORD: "${SUPABASE_DB_PASSWORD:?Define SUPABASE_DB_PASSWORD}"
+      CLERK_JWKS_URI: "${CLERK_JWKS_URI:?Define CLERK_JWKS_URI}"
+      CLERK_ISSUER: "${CLERK_ISSUER:?Define CLERK_ISSUER}"
+    expose:
+      - "8080"
+    networks:
+      - application-network
+
+  frontend:
+    image: barriocircular-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./frontend/BarrioCircular
+      dockerfile: Dockerfile
+      args:
+        VITE_CLERK_PUBLISHABLE_KEY: "${VITE_CLERK_PUBLISHABLE_KEY:?Define VITE_CLERK_PUBLISHABLE_KEY}"
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:?Define VITE_API_BASE_URL}"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - application-network
+
+networks:
+  application-network:
+    driver: bridge

@@ -4,14 +4,14 @@ import com.barriocircular.backend.publicacion.dominio.excepciones.PublicacionInv
 
 public record EvidenciaVisual(String url) {
 
-    public EvidenciaVisual {
-        if (url == null || url.isBlank()) {
-            throw new PublicacionInvalidaException(
-                    "La evidencia visual (URL) es obligatoria al crear la publicación.");
-        }
-        if (!url.startsWith("https://")) {
-            throw new PublicacionInvalidaException(
-                    "La URL de evidencia debe ser HTTPS. Recibido: " + url);
-        }
+  public EvidenciaVisual {
+    if (url == null || url.isBlank()) {
+      throw new PublicacionInvalidaException(
+          "La evidencia visual (URL) es obligatoria al crear la publicación.");
     }
+    if (!url.startsWith("https://")) {
+      throw new PublicacionInvalidaException(
+          "La URL de evidencia debe ser HTTPS. Recibido: " + url);
+    }
+  }
 }

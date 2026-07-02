@@ -6,12 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import com.barriocircular.backend.perfiles.dominio.factories.PerfilUsuarioFactory;
 import com.barriocircular.backend.perfiles.dominio.modelo.PerfilUsuario;
 import com.barriocircular.backend.perfiles.dominio.modelo.RolUsuario;
@@ -21,36 +15,42 @@ import com.barriocircular.backend.perfiles.dominio.valueobjects.InformacionConta
 import com.barriocircular.backend.perfiles.infraestructura.persistencia.jpa.PerfilUsuarioEntity;
 import com.barriocircular.backend.perfiles.infraestructura.persistencia.jpa.SpringDataPerfilUsuarioRepository;
 import com.barriocircular.backend.perfiles.infraestructura.persistencia.mapeadores.PerfilUsuarioMapper;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class PerfilUsuarioRepositoryAdapterTest {
 
-    @Test
-    void guardarYBuscarPorIdConvierteEntreDominioYEntidad() {
-        SpringDataPerfilUsuarioRepository springDataRepository = org.mockito.Mockito.mock(
-                SpringDataPerfilUsuarioRepository.class);
-        PerfilUsuarioMapper mapper = new PerfilUsuarioMapper();
-        PerfilUsuarioRepositoryAdapter adapter = new PerfilUsuarioRepositoryAdapter(springDataRepository, mapper);
-        PerfilUsuario perfil = PerfilUsuarioFactory.crearPerfil(
-                UUID.randomUUID(),
-                new DocumentoIdentificacion("1712345678"),
-                "Ana Perez",
-                null,
-                RolUsuario.CIUDADANO,
-                new InformacionContacto("ana@correo.com", "0999999999"),
-                new CoordenadaGPS(-0.1807, -78.4678));
+  @Test
+  void guardarYBuscarPorIdConvierteEntreDominioYEntidad() {
+    SpringDataPerfilUsuarioRepository springDataRepository =
+        org.mockito.Mockito.mock(SpringDataPerfilUsuarioRepository.class);
+    PerfilUsuarioMapper mapper = new PerfilUsuarioMapper();
+    PerfilUsuarioRepositoryAdapter adapter =
+        new PerfilUsuarioRepositoryAdapter(springDataRepository, mapper);
+    PerfilUsuario perfil =
+        PerfilUsuarioFactory.crearPerfil(
+            UUID.randomUUID(),
+            new DocumentoIdentificacion("1712345678"),
+            "Ana Perez",
+            null,
+            RolUsuario.CIUDADANO,
+            new InformacionContacto("ana@correo.com", "0999999999"),
+            new CoordenadaGPS(-0.1807, -78.4678));
 
-        adapter.guardar(perfil);
+    adapter.guardar(perfil);
 
-        ArgumentCaptor<PerfilUsuarioEntity> captor = ArgumentCaptor.forClass(PerfilUsuarioEntity.class);
-        verify(springDataRepository).save(captor.capture());
-        when(springDataRepository.findById(perfil.getId())).thenReturn(Optional.of(captor.getValue()));
+    ArgumentCaptor<PerfilUsuarioEntity> captor = ArgumentCaptor.forClass(PerfilUsuarioEntity.class);
+    verify(springDataRepository).save(captor.capture());
+    when(springDataRepository.findById(perfil.getId())).thenReturn(Optional.of(captor.getValue()));
 
-        Optional<PerfilUsuario> recuperado = adapter.buscarPorId(perfil.getId());
+    Optional<PerfilUsuario> recuperado = adapter.buscarPorId(perfil.getId());
 
-        assertTrue(recuperado.isPresent());
-        assertEquals(perfil.getId(), recuperado.get().getId());
-        assertTrue(recuperado.get().obtenerEventosDominio().isEmpty());
-        verify(springDataRepository).findById(perfil.getId());
-        verify(springDataRepository).save(any(PerfilUsuarioEntity.class));
-    }
+    assertTrue(recuperado.isPresent());
+    assertEquals(perfil.getId(), recuperado.get().getId());
+    assertTrue(recuperado.get().obtenerEventosDominio().isEmpty());
+    verify(springDataRepository).findById(perfil.getId());
+    verify(springDataRepository).save(any(PerfilUsuarioEntity.class));
+  }
 }

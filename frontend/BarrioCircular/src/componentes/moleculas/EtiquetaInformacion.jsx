@@ -7,16 +7,16 @@ import { HStack, Text } from "@chakra-ui/react";
  * @param {boolean} negrita - Si el valor debe ir en negrita
  */
 const EtiquetaInformacion = ({ etiqueta = "Campo:", valor = "—", negrita = false }) => {
-    return (
-        <HStack gap={2} align="flex-start" flexWrap="wrap">
-            <Text fontSize="sm" color="gray.500" minW="80px" flexShrink={0}>
-                {etiqueta}
-            </Text>
-            <Text fontSize="sm" fontWeight={negrita ? "semibold" : "normal"} color="gray.800">
-                {valor}
-            </Text>
-        </HStack>
-    );
+  return (
+    <HStack gap={2} align="flex-start" flexWrap="wrap">
+      <Text fontSize="sm" color="gray.500" minW="80px" flexShrink={0}>
+        {etiqueta}
+      </Text>
+      <Text fontSize="sm" fontWeight={negrita ? "semibold" : "normal"} color="gray.800">
+        {valor}
+      </Text>
+    </HStack>
+  );
 };
 
 export default EtiquetaInformacion;

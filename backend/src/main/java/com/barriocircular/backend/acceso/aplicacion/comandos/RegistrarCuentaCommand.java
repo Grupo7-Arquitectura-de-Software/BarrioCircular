@@ -1,4 +1,3 @@
 package com.barriocircular.backend.acceso.aplicacion.comandos;
 
-public record RegistrarCuentaCommand(String tokenClerk) {
-}
+public record RegistrarCuentaCommand(String tokenClerk) {}

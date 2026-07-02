@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public interface EventoDominio {
 
-    UUID eventoId();
+  UUID eventoId();
 
-    LocalDateTime ocurridoEn();
+  LocalDateTime ocurridoEn();
 }
