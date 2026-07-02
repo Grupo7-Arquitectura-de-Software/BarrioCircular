@@ -1,4 +1,4 @@
-const URL_BASE_API = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080")
+const URL_BASE_API = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api")
     .replace(/\/$/, "");
 
 export class ErrorApi extends Error {
