@@ -5,15 +5,14 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record PublicacionResultado(
-        UUID publicacionId,
-        UUID creadorId,
-        String tipoResiduo,
-        double pesoKg,
-        BigDecimal precioPorKilo,
-        double latitud,
-        double longitud,
-        String evidenciaUrl,
-        String estado,
-        Instant fechaCreacion,
-        UUID reservadoPor) {
-}
+    UUID publicacionId,
+    UUID creadorId,
+    String tipoResiduo,
+    double pesoKg,
+    BigDecimal precioPorKilo,
+    double latitud,
+    double longitud,
+    String evidenciaUrl,
+    String estado,
+    Instant fechaCreacion,
+    UUID reservadoPor) {}

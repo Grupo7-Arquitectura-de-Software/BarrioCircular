@@ -5,7 +5,7 @@ import { Separator } from "@chakra-ui/react";
  * @param {string} margen - Margen vertical (ej. "2" = 8px)
  */
 const Divisor = ({ margen = "2" }) => {
-    return <Separator my={margen} />;
+  return <Separator my={margen} />;
 };
 
 export default Divisor;

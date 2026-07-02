@@ -27,7 +27,8 @@ docker compose down
 ```
 
 ### Ejecutar el frontend en modo desarrollo
-Si instalas una nueva dependencia o actualizas tu package.json, es recomendable reconstruir el contenedor 
+
+Si instalas una nueva dependencia o actualizas tu package.json, es recomendable reconstruir el contenedor
 para que el volumen anónimo de node_modules refleje los cambios:
 
 ```

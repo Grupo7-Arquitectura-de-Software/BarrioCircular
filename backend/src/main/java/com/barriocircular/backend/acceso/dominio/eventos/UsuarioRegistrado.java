@@ -4,9 +4,5 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record UsuarioRegistrado(
-        UUID cuentaId,
-        String clerkId,
-        String correoElectronico,
-        Instant ocurridoEn
-) implements EventoDominio {
-}
+    UUID cuentaId, String clerkId, String correoElectronico, Instant ocurridoEn)
+    implements EventoDominio {}

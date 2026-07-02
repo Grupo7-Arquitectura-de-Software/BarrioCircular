@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/acceso")
 public class CuentaAccesoController {
 
-    private final RegistrarCuentaCasoUso registrarCuentaCasoUso;
+  private final RegistrarCuentaCasoUso registrarCuentaCasoUso;
 
-    public CuentaAccesoController(RegistrarCuentaCasoUso registrarCuentaCasoUso) {
-        this.registrarCuentaCasoUso = registrarCuentaCasoUso;
-    }
+  public CuentaAccesoController(RegistrarCuentaCasoUso registrarCuentaCasoUso) {
+    this.registrarCuentaCasoUso = registrarCuentaCasoUso;
+  }
 
-    @PostMapping("/sesion")
-    public ResponseEntity<RegistrarCuentaRespuesta> iniciarSesion(@RequestBody RegistrarCuentaCommand comando) {
-        RegistrarCuentaRespuesta respuesta = registrarCuentaCasoUso.ejecutar(comando);
-        return ResponseEntity.ok(respuesta);
-    }
+  @PostMapping("/sesion")
+  public ResponseEntity<RegistrarCuentaRespuesta> iniciarSesion(
+      @RequestBody RegistrarCuentaCommand comando) {
+    RegistrarCuentaRespuesta respuesta = registrarCuentaCasoUso.ejecutar(comando);
+    return ResponseEntity.ok(respuesta);
+  }
 }

@@ -4,11 +4,10 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record CrearPublicacionCommand(
-        UUID creadorId,
-        String tipoResiduo,
-        double pesoKg,
-        BigDecimal precioPorKilo,
-        double latitud,
-        double longitud,
-        String evidenciaUrl) {
-}
+    UUID creadorId,
+    String tipoResiduo,
+    double pesoKg,
+    BigDecimal precioPorKilo,
+    double latitud,
+    double longitud,
+    String evidenciaUrl) {}
