@@ -10,6 +10,8 @@ import { estaEnAreaDeRol, obtenerRutaPrincipalPorRol } from "@/utilidades/rutasP
 
 const RUTA_AUTENTICACION = "/auth";
 const RUTA_COMPLETAR_PERFIL = "/completar-perfil";
+// Rutas visibles sin sesión (landing de selección de rol y autenticación).
+const RUTAS_PUBLICAS = [RUTA_AUTENTICACION, "/seleccionar-rol"];
 
 const ValidadorSesion = ({ children }) => {
   const { isLoaded, isSignedIn, getToken } = useAuth();
@@ -31,8 +33,8 @@ const ValidadorSesion = ({ children }) => {
     if (!isSignedIn) {
       verificacionIniciadaRef.current = false;
 
-      if (!window.location.pathname.startsWith(RUTA_AUTENTICACION)) {
-        navigate(RUTA_AUTENTICACION, { replace: true });
+      if (!RUTAS_PUBLICAS.some((ruta) => window.location.pathname.startsWith(ruta))) {
+        navigate("/seleccionar-rol", { replace: true });
       }
 
       return () => {

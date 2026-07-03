@@ -1,30 +1,32 @@
-import { Box, VStack, Text } from "@chakra-ui/react";
+import { HStack, Text, VStack } from "@chakra-ui/react";
+import { LuLeaf } from "react-icons/lu";
+import Icono from "./Icono.jsx";
 
-const LogotipoApp = ({ tamanio = "md" }) => {
-  const sizes = {
-    sm: { circulo: "48px", fuente: "lg", subtitulo: "xs" },
-    md: { circulo: "72px", fuente: "2xl", subtitulo: "sm" },
-    lg: { circulo: "96px", fuente: "4xl", subtitulo: "md" },
-  };
-  const s = sizes[tamanio] || sizes.md;
+const TAMANIOS = {
+  sm: { icono: "2xl", fuente: "xl" },
+  md: { icono: "3xl", fuente: "2xl" },
+  lg: { icono: "4xl", fuente: "3xl" },
+};
+
+const LogotipoApp = ({ tamanio = "md", orientacion = "vertical", mostrarNombre = true }) => {
+  const s = TAMANIOS[tamanio] || TAMANIOS.md;
+  const Contenedor = orientacion === "horizontal" ? HStack : VStack;
 
   return (
-    <VStack gap={2} align="center">
-      <Box
-        width={s.circulo}
-        height={s.circulo}
-        borderRadius="full"
-        border="3px solid"
-        borderColor="gray.700"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        bg="white"
-      ></Box>
-      <Text fontSize={s.subtitulo} fontWeight="semibold" color="gray.700">
-        BarrioCircular
-      </Text>
-    </VStack>
+    <Contenedor gap={2} align="center" justify="center">
+      <Icono componente={<LuLeaf />} tamanio={s.icono} color="marca.primario" />
+      {mostrarNombre && (
+        <Text
+          fontFamily="heading"
+          fontWeight="700"
+          fontSize={s.fuente}
+          color="marca.primario"
+          lineHeight="1"
+        >
+          BarrioCircular
+        </Text>
+      )}
+    </Contenedor>
   );
 };
 

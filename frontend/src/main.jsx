@@ -1,3 +1,8 @@
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
@@ -6,6 +11,7 @@ import { system } from "./theme";
 import { Toaster } from "./components/ui/toaster.jsx";
 
 import { ClerkProvider } from "@clerk/clerk-react";
+import { esES } from "@clerk/localizations";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -16,7 +22,7 @@ if (!PUBLISHABLE_KEY) {
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ChakraProvider value={system}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} localization={esES}>
         <App />
       </ClerkProvider>
       <Toaster />
