@@ -6,6 +6,7 @@ import PaginaCompletarPerfil from "@/paginas/PaginaCompletarPerfil.jsx";
 import PaginaInicioRecolector from "@/paginas/PaginaInicioRecolector.jsx";
 import ValidadorSesion from "@/componentes/proveedores/ValidadorSesion.jsx";
 
+import PaginaPanelCiudadano from "@/paginas/PaginaPanelCiudadano.jsx";
 import PaginaCrearPublicaciones from "@/paginas/PaginaCrearPublicaciones.jsx";
 import PaginaPublicacionesDisponibles from "@/paginas/PaginaPublicacionesDisponibles.jsx";
 import PaginadeReseniaOfertas from "./paginas/PaginadeReseniaOfertas.jsx";
@@ -38,6 +39,7 @@ function App() {
           <Route path="/seleccionar-rol" element={<PaginadeSeleccionRol />} />
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
           <Route path="/completar-perfil" element={<PaginaCompletarPerfil />} />
+          <Route path="/ciudadano/panel" element={<PaginaPanelCiudadano />} />
           <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
           <Route
             path="/ciudadano/publicacion-disponible"

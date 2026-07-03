@@ -1,59 +1,83 @@
-import { useState } from "react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { VStack, Text } from "@chakra-ui/react";
+import { MdArrowBack } from "react-icons/md";
+
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
-import ListadeOfertas from "../componentes/organismos/ListadeOfertas";
-import ModalOfertaAceptada from "../componentes/organismos/ModalOfertaAceptada";
+import TarjetaOferta from "../componentes/organismos/TarjetaOferta.jsx";
+import Icono from "../componentes/atomos/Icono.jsx";
+import {
+  NAVEGACION_CIUDADANO,
+  RUTA_NUEVA_PUBLICACION_CIUDADANO,
+} from "@/utilidades/navegacionPanel";
+
+// Ofertas de ejemplo alineadas al mockup "Ofertas Recibidas" (Entregable 3).
+const OFERTAS = [
+  {
+    id: 1,
+    nombreOfertante: "Reciclador Juan",
+    tipoOfertante: "Reciclador",
+    calificacion: "4.8",
+    monto: "$4.80",
+    distancia: "2km",
+    observacion: "Recogida rápida, llego en 20 mins.",
+  },
+  {
+    id: 2,
+    nombreOfertante: "Centro EcoAcopio Sur",
+    tipoOfertante: "Centro de Acopio",
+    calificacion: "4.6",
+    monto: "$6.20",
+    distancia: "5km",
+    observacion: "Podemos recoger mañana en la tarde.",
+  },
+];
 
 const PaginadeReseniaOfertas = ({ prefijoRuta = "/ciudadano" }) => {
   const navigate = useNavigate();
-  const [ofertaVista, setOfertaVista] = useState(null);
-
-  const OFERTAS = [
-    {
-      id: 1,
-      comprador: "Reciclador Juan",
-      tipoComprador: "Reciclador",
-      monto: "$4.50",
-      distancia: "2km",
-      observacion: "Recogida rápida",
-    },
-    {
-      id: 2,
-      comprador: "Centro de Recolección Norte",
-      tipoComprador: "Centro de Recolección",
-      monto: "$4.80",
-      distancia: "5km",
-      observacion: "Recogida rápida",
-    },
-  ];
+  const esCiudadano = prefijoRuta === "/ciudadano";
 
   return (
-    <DiseniodeAplicacion titulo="Ver ofertas recibidas" mostrarAtras={true}>
-      <VStack gap={4} align="stretch" w="100%">
-        <ListadeOfertas ofertas={OFERTAS} alVerDetalle={(id) => setOfertaVista(id)} />
+    <DiseniodeAplicacion
+      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : []}
+      rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
+      mostrarBuscador={false}
+      anchoContenido="680px"
+    >
+      <Box
+        bg="fondo.tarjeta"
+        border="1px solid"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={{ base: 5, md: 8 }}
+      >
+        <HStack gap={3} mb={6}>
+          <Icono
+            componente={
+              <MdArrowBack cursor="pointer" onClick={() => navigate(-1)} aria-label="Volver" />
+            }
+            tamanio="xl"
+          />
+          <Text fontFamily="heading" fontWeight="700" fontSize="2xl">
+            Ofertas Recibidas
+          </Text>
+        </HStack>
 
-        {/* Sección de revisión de ofertas */}
-        <Text fontSize="sm" fontWeight="semibold" color="gray.600" mt={2}>
-          Revisar ofertas:
-        </Text>
-
-        <VStack gap={3} align="stretch">
-          {OFERTAS.map((o) => (
-            <ModalOfertaAceptada
-              key={o.id}
-              nombreOfertante={o.comprador}
-              tipoOfertante={o.tipoComprador}
-              monto={o.monto}
-              distancia={o.distancia}
-              observacion={o.observacion}
-              esSeleccionada={ofertaVista === o.id}
+        <VStack align="stretch" gap={5}>
+          {OFERTAS.map((oferta) => (
+            <TarjetaOferta
+              key={oferta.id}
+              nombreOfertante={oferta.nombreOfertante}
+              tipoOfertante={oferta.tipoOfertante}
+              calificacion={oferta.calificacion}
+              monto={oferta.monto}
+              distancia={oferta.distancia}
+              observacion={oferta.observacion}
               alAceptar={() => navigate(`${prefijoRuta}/publicacion-reservada`)}
-              alRechazar={() => setOfertaVista(null)}
+              alRechazar={() => {}}
             />
           ))}
         </VStack>
-      </VStack>
+      </Box>
     </DiseniodeAplicacion>
   );
 };

@@ -1,14 +1,8 @@
-import { FileUpload, Icon, Button } from "@chakra-ui/react";
-import { LuUpload } from "react-icons/lu";
-import Titulos from "../atomos/Titulos";
-import Texto from "../atomos/Texto";
+import { FileUpload, Text, VStack } from "@chakra-ui/react";
+import { MdOutlineAddAPhoto } from "react-icons/md";
+import Icono from "../atomos/Icono.jsx";
 
-const AreaCargaImagenes = ({
-  etiqueta = "Subir imágenes",
-  maximoArchivos = 5,
-  tamanioMaximoMB = 5,
-  alCambiarArchivos,
-}) => {
+const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiarArchivos }) => {
   return (
     <FileUpload.Root
       accept="image/*"
@@ -18,32 +12,27 @@ const AreaCargaImagenes = ({
     >
       <FileUpload.HiddenInput />
 
-      <FileUpload.Label>
-        <Titulos Titulo={etiqueta} tamanio="md" volumendeFuente="semibold" />
-      </FileUpload.Label>
-
-      <FileUpload.Dropzone>
-        <FileUpload.DropzoneContent>
-          <Icon fontSize="2xl" color="gray.400">
-            <LuUpload />
-          </Icon>
-          <Texto
-            texto="Arrastra tus imágenes aquí o haz clic para buscarlas"
-            tamanio="sm"
-            volumendeFuente="medium"
-          />
-          <Texto
-            texto={`PNG, JPG o WEBP — máximo ${tamanioMaximoMB}MB por archivo`}
-            tamanio="xs"
-            volumendeFuente="normal"
-          />
-        </FileUpload.DropzoneContent>
-
-        <FileUpload.Trigger asChild>
-          <Button variant="outline" size="sm" mt={2}>
-            Seleccionar imágenes
-          </Button>
-        </FileUpload.Trigger>
+      <FileUpload.Dropzone
+        w="100%"
+        borderStyle="dashed"
+        borderColor="gray.300"
+        borderRadius="lg"
+        bg="fondo.tarjeta"
+        py={10}
+        cursor="pointer"
+      >
+        <VStack gap={2}>
+          <Icono componente={<MdOutlineAddAPhoto />} tamanio="3xl" color="gray.400" />
+          <Text fontSize="sm">
+            <Text as="span" color="marca.primario" fontWeight="600">
+              Subir Foto
+            </Text>{" "}
+            o arrastrar y soltar
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            PNG, JPG, GIF hasta {tamanioMaximoMB}MB
+          </Text>
+        </VStack>
       </FileUpload.Dropzone>
 
       <FileUpload.ItemGroup>

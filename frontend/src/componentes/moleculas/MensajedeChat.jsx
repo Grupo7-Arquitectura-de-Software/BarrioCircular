@@ -1,34 +1,55 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, HStack, Text } from "@chakra-ui/react";
+import { MdDoneAll } from "react-icons/md";
 
-const MensajedeChat = ({
-  texto = "Mensaje de ejemplo",
-  emisor = "otro",
-  hora = "14:30",
-  nombreEmisor = "",
-}) => {
+/**
+ * Burbuja de chat del sistema de diseño: mensajes propios en verde,
+ * ajenos en blanco y avisos de sistema como píldora centrada.
+ */
+const MensajedeChat = ({ texto = "", emisor = "otro", hora = "" }) => {
+  if (emisor === "sistema") {
+    return (
+      <Box display="flex" justifyContent="center" my={2}>
+        <Text
+          fontSize="xs"
+          color="gray.600"
+          bg="fondo.cabeceraTarjeta"
+          px={3}
+          py={1}
+          borderRadius="full"
+          textAlign="center"
+        >
+          {texto}
+        </Text>
+      </Box>
+    );
+  }
+
   const esPropio = emisor === "propio";
 
   return (
     <Box display="flex" justifyContent={esPropio ? "flex-end" : "flex-start"} mb={2}>
       <Box
         maxW="75%"
-        bg={esPropio ? "gray.700" : "gray.100"}
+        bg={esPropio ? "marca.primario" : "fondo.tarjeta"}
         color={esPropio ? "white" : "gray.800"}
-        px={3}
-        py={2}
-        borderRadius="lg"
-        borderBottomRightRadius={esPropio ? "2px" : "lg"}
-        borderBottomLeftRadius={esPropio ? "lg" : "2px"}
+        border={esPropio ? "none" : "1px solid"}
+        borderColor="gray.200"
+        px={4}
+        py={2.5}
+        borderRadius="xl"
+        borderBottomRightRadius={esPropio ? "sm" : "xl"}
+        borderBottomLeftRadius={esPropio ? "xl" : "sm"}
+        boxShadow="xs"
       >
-        {nombreEmisor && !esPropio && (
-          <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={0.5}>
-            {nombreEmisor}
-          </Text>
-        )}
         <Text fontSize="sm">{texto}</Text>
-        <Text fontSize="xs" color={esPropio ? "gray.300" : "gray.400"} textAlign="right" mt={0.5}>
-          {hora}
-        </Text>
+        {hora && (
+          <HStack justify="flex-end" gap={1} mt={1}>
+            <Text fontSize="xs" color={esPropio ? "verde.200" : "gray.400"}>
+              {hora}
+            </Text>
+            {esPropio && <MdDoneAll size={13} color="var(--chakra-colors-verde-200)" />}
+          </HStack>
+        )}
       </Box>
     </Box>
   );
