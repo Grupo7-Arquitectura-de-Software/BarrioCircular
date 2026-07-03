@@ -3,7 +3,7 @@ import { Button } from "@chakra-ui/react";
 const Boton = ({
   texto,
   variante = "solid",
-  colorEsquema = "gray",
+  colorEsquema = "verde",
   ancho = "auto",
   alHacer,
   icono,
@@ -20,7 +20,7 @@ const Boton = ({
       size={tamanio}
       disabled={deshabilitado}
       type={tipo}
-      rounded="md"
+      rounded="lg"
     >
       {icono && icono}
       {texto}
