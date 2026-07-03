@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend/BarrioCircular
+        working-directory: frontend
 
     steps:
       - name: Checkout repository
@@ -58,7 +58,7 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: frontend/BarrioCircular/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
         run: npm ci
@@ -125,8 +125,8 @@ jobs:
       - name: Build and publish frontend image
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend/BarrioCircular
-          file: ./frontend/BarrioCircular/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ steps.frontend-metadata.outputs.tags }}
           labels: ${{ steps.frontend-metadata.outputs.labels }}
