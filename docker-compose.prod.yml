@@ -2,7 +2,7 @@ name: barriocircular-production
 
 services:
   backend:
-    image: barriocircular-backend:${IMAGE_TAG:-latest}
+    image: "${DOCKERHUB_USERNAME:-local}/barriocircular-backend:${IMAGE_TAG:-latest}"
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -19,7 +19,7 @@ services:
       - application-network
 
   frontend:
-    image: barriocircular-frontend:${IMAGE_TAG:-latest}
+    image: "${DOCKERHUB_USERNAME:-local}/barriocircular-frontend:${IMAGE_TAG:-latest}"
     build:
       context: ./frontend/BarrioCircular
       dockerfile: Dockerfile
