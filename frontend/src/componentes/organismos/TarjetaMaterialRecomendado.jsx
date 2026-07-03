@@ -127,18 +127,20 @@ const TarjetaMaterialRecomendado = ({
               Puntuación de Conveniencia
             </Text>
           </HStack>
-          <Button
-            size="sm"
-            colorPalette="verde"
-            bg="marca.primario"
-            rounded="lg"
-            onClick={(evento) => {
-              evento.stopPropagation();
-              alHacerOferta?.();
-            }}
-          >
-            Hacer Oferta
-          </Button>
+          {alHacerOferta && (
+            <Button
+              size="sm"
+              colorPalette="verde"
+              bg="marca.primario"
+              rounded="lg"
+              onClick={(evento) => {
+                evento.stopPropagation();
+                alHacerOferta();
+              }}
+            >
+              Hacer Oferta
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Flex>

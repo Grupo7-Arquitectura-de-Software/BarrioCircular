@@ -23,7 +23,7 @@ const DiseniodeAplicacion = ({
   const manejarVolver = alVolver || (mostrarAtras ? () => navigate(-1) : undefined);
 
   return (
-    <Flex minH="100vh" w="100%" bg="fondo.pagina" align="stretch">
+    <Flex h="100vh" w="100%" bg="fondo.pagina" align="stretch" overflow="hidden">
       <BarraLateralNavegacion
         elementos={navegacion}
         subtitulo={subtituloMarca}
