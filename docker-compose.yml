@@ -19,20 +19,39 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
   frontend-dev:
     build:
-      context: ./frontend/BarrioCircular/
+      context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
       - "5173:5173"
+    env_file:
+      - ./frontend/.env
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
     volumes:
-      - ./frontend/BarrioCircular/src:/app/src
-      - ./frontend/BarrioCircular/public:/app/public
-      - ./frontend/BarrioCircular/index.html:/app/index.html
-      - ./frontend/BarrioCircular/vite.config.js:/app/vite.config.js
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
       - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/barriocircular
+      SPRING_DATASOURCE_USERNAME: barriocircular
+      SPRING_DATASOURCE_PASSWORD: barriocircular
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   barriocircular_pgdata:

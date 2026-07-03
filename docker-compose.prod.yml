@@ -21,7 +21,7 @@ services:
   frontend:
     image: barriocircular-frontend:${IMAGE_TAG:-latest}
     build:
-      context: ./frontend/BarrioCircular
+      context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_CLERK_PUBLISHABLE_KEY: "${VITE_CLERK_PUBLISHABLE_KEY:?Define VITE_CLERK_PUBLISHABLE_KEY}"
