@@ -1,5 +1,5 @@
 const RUTAS_PRINCIPALES_POR_ROL = Object.freeze({
-  CIUDADANO: "/ciudadano/crear-publicacion",
+  CIUDADANO: "/ciudadano/panel",
   RECICLADOR: "/recolector/inicio",
   CENTRO_RECOLECCION: "/centro/buscar-materiales",
 });

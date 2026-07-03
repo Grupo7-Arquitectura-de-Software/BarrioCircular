@@ -1,58 +1,84 @@
-import { VStack, Box, Text } from "@chakra-ui/react";
-import { LuCamera } from "react-icons/lu";
-import ItemVerificacion from "../moleculas/ItemVerificacion";
-import Boton from "../atomos/Boton";
+import { useState } from "react";
+import { Box, Button, Checkbox, Flex, Text, VStack } from "@chakra-ui/react";
+import { MdOutlineAddAPhoto, MdCheckCircleOutline } from "react-icons/md";
+import Icono from "../atomos/Icono.jsx";
 
-const ITEMS_ENTREGA = ["Confirmar entrega física", "Material en buen estado", "Peso verificado"];
+const ITEMS_ENTREGA = [
+  { clave: "entrega", etiqueta: "Confirmo la entrega física del material" },
+  { clave: "estado", etiqueta: "El material está en el estado publicado" },
+  { clave: "peso", etiqueta: "El peso fue verificado con el comprador" },
+];
 
 /**
- * Organismo: Formulario de entrega del material con checklist y foto
- * @param {function} alConfirmar - Callback al confirmar entrega
+ * Confirmación de entrega del material: lista de verificación y evidencia
+ * fotográfica antes de cerrar la operación.
  */
 const FormularioEntregaMaterial = ({ alConfirmar }) => {
+  const [confirmaciones, setConfirmaciones] = useState({});
+  const todoConfirmado = ITEMS_ENTREGA.every((item) => confirmaciones[item.clave]);
+
+  const alternar = (clave) => {
+    setConfirmaciones((actuales) => ({ ...actuales, [clave]: !actuales[clave] }));
+  };
+
   return (
-    <VStack gap={4} align="stretch" w="100%">
-      <Text fontSize="sm" fontWeight="medium" color="gray.700">
-        Confirme entregar física modo:
-      </Text>
+    <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={6}>
+      <VStack gap={6} align="stretch">
+        <Box>
+          <Text fontWeight="600" mb={3}>
+            Lista de verificación
+          </Text>
+          <VStack gap={3} align="stretch">
+            {ITEMS_ENTREGA.map((item) => (
+              <Checkbox.Root
+                key={item.clave}
+                checked={Boolean(confirmaciones[item.clave])}
+                onCheckedChange={() => alternar(item.clave)}
+                colorPalette="verde"
+              >
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label fontSize="sm">{item.etiqueta}</Checkbox.Label>
+              </Checkbox.Root>
+            ))}
+          </VStack>
+        </Box>
 
-      {/* Checklist */}
-      <VStack gap={2} align="stretch">
-        {ITEMS_ENTREGA.map((item) => (
-          <ItemVerificacion key={item} etiqueta={item} />
-        ))}
-        <ItemVerificacion etiqueta="Confirmar entregar" />
+        <Box>
+          <Text fontWeight="600" mb={3}>
+            Foto de confirmación (Opcional)
+          </Text>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            gap={2}
+            h="140px"
+            border="1px dashed"
+            borderColor="gray.300"
+            borderRadius="lg"
+            bg="fondo.pagina"
+            cursor="pointer"
+            color="gray.500"
+            _hover={{ borderColor: "marca.primario" }}
+          >
+            <Icono componente={<MdOutlineAddAPhoto />} tamanio="2xl" color="gray.400" />
+            <Text fontSize="sm">Tomar foto de la entrega</Text>
+          </Flex>
+        </Box>
+
+        <Button
+          size="lg"
+          colorPalette="verde"
+          bg="marca.primario"
+          rounded="xl"
+          disabled={!todoConfirmado}
+          onClick={alConfirmar}
+        >
+          <MdCheckCircleOutline /> Confirmar Entrega
+        </Button>
       </VStack>
-
-      {/* Área de foto */}
-      <Box
-        w="100%"
-        h="140px"
-        bg="gray.100"
-        borderRadius="md"
-        border="1px dashed"
-        borderColor="gray.400"
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        gap={2}
-        cursor="pointer"
-        _hover={{ bg: "gray.200" }}
-        color="gray.400"
-      >
-        <LuCamera size={32} />
-        <Text fontSize="xs">Tomar foto de confirmación</Text>
-      </Box>
-
-      <Boton
-        texto="Confirm Delivery"
-        variante="solid"
-        colorEsquema="gray"
-        ancho="full"
-        alHacer={alConfirmar}
-      />
-    </VStack>
+    </Box>
   );
 };
 

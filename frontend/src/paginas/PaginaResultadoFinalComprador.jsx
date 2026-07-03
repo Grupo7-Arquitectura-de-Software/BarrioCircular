@@ -1,44 +1,56 @@
-import { VStack, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion";
 import PanelResultadoFinal from "../componentes/organismos/PanelResultadoFinal";
-import Boton from "../componentes/atomos/Boton";
 
+/**
+ * Resultado final del comprador (mockup "Resultado Final - Centro de
+ * Recolección"): confirmación con resumen del material recibido.
+ */
 const PaginaResultadoFinalComprador = ({ rol = "recolector" }) => {
   const navigate = useNavigate();
-
-  if (rol === "centro") {
-    return (
-      <DiseniodeAplicacion titulo="Operación completada" mostrarAtras={true}>
-        <VStack gap={4} align="stretch">
-          <Text fontSize="xl" fontWeight="bold" textAlign="center">
-            Operación Completada
-          </Text>
-          <Text fontSize="sm" textAlign="center" color="gray.600">
-            Mat. Recibido: Cartón 250kg
-          </Text>
-          <Text fontSize="sm" textAlign="center" color="gray.600">
-            Pago Total: $25.00
-          </Text>
-          <Boton
-            texto="Finalizar"
-            variante="solid"
-            colorEsquema="gray"
-            ancho="full"
-            alHacer={() => navigate("/seleccionar-rol")}
-          />
-        </VStack>
-      </DiseniodeAplicacion>
-    );
-  }
+  const rutaInicio = rol === "centro" ? "/centro/buscar-materiales" : "/recolector/inicio";
 
   return (
-    <DiseniodeAplicacion titulo="Resultado final" mostrarAtras={true}>
-      <PanelResultadoFinal
-        transaccionId="TX-2026-001"
-        alVolver={() => navigate("/recolector/inicio")}
-      />
-    </DiseniodeAplicacion>
+    <Flex minH="100vh" bg="fondo.pagina" align="center" justify="center" p={{ base: 4, md: 8 }}>
+      <Box
+        w="100%"
+        maxW="440px"
+        bg="fondo.tarjeta"
+        border="1px solid"
+        borderColor="gray.200"
+        borderRadius="xl"
+        boxShadow="md"
+        p={{ base: 6, md: 8 }}
+      >
+        <PanelResultadoFinal
+          tituloResumen="Resumen de material recibido"
+          tipoMaterial="Cartón"
+          pesoKg={250}
+          monto="$25.00"
+        />
+
+        <VStack gap={3} mt={8}>
+          <Button
+            w="100%"
+            colorPalette="verde"
+            bg="marca.primario"
+            rounded="lg"
+            onClick={() => navigate(rutaInicio)}
+          >
+            Finalizar
+          </Button>
+          <Button
+            w="100%"
+            variant="outline"
+            colorPalette="verde"
+            rounded="lg"
+            onClick={() => navigate(rutaInicio)}
+          >
+            Volver al Inicio
+          </Button>
+        </VStack>
+      </Box>
+    </Flex>
   );
 };
 

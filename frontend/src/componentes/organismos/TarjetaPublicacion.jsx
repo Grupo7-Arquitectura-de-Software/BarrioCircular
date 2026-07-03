@@ -1,70 +1,116 @@
-import { Box, VStack, HStack, Text } from "@chakra-ui/react";
-import { LuBox } from "react-icons/lu";
-import EtiquetadeEstado from "../atomos/EtiquetadeEstado";
-import ResumenPublicacion from "../moleculas/ResumenPublicacion";
-import Boton from "../atomos/Boton";
+import { Badge, Box, Button, Flex, HStack, Image, Text, VStack } from "@chakra-ui/react";
+import { MdOutlineImage, MdOutlineLocationOn, MdOutlineScale } from "react-icons/md";
+import Icono from "../atomos/Icono.jsx";
 
+const ESTILOS_ESTADO = {
+  Disponible: { bg: "marca.primario", color: "white" },
+  "Recolección Pendiente": { bg: "fondo.tarjeta", color: "gray.700" },
+  "Acción Requerida": { bg: "red.50", color: "marca.error" },
+  Reservado: { bg: "azul.50", color: "marca.secundario" },
+  Completada: { bg: "verde.50", color: "marca.primario" },
+};
+
+/**
+ * Tarjeta de publicación del panel (mockup "Mis Publicaciones"):
+ * imagen con insignia de estado, título, descripción y pie con peso/ubicación.
+ */
 const TarjetaPublicacion = ({
-  tipoMaterial = "Cartón",
-  pesoKg = 10,
-  precio = "$5.00",
-  ubicacion = "La Mariscal",
+  titulo = "Publicación",
+  descripcion = "",
+  pesoKg,
+  ubicacion,
   estado = "Disponible",
-  cantidadOfertas = 0,
-  alVerOfertas,
+  imagenUrl,
+  etiquetaAccion,
+  alAccionar,
+  alHacerClick,
 }) => {
-  const colorEstado =
-    {
-      Disponible: "green",
-      Reservado: "blue",
-      Enrevision: "yellow",
-      Completada: "green",
-      Cancelada: "red",
-    }[estado] || "gray";
+  const estiloEstado = ESTILOS_ESTADO[estado] || ESTILOS_ESTADO.Disponible;
 
   return (
-    <VStack gap={3} align="stretch" w="100%">
-      {/* Imagen placeholder */}
-      <Box
-        w="100%"
-        h="160px"
-        bg="gray.200"
-        borderRadius="md"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        color="gray.400"
-        border="1px solid"
-        borderColor="gray.300"
-      >
-        <VStack gap={1}>
-          <LuBox size={40} />
-          <Text fontSize="xs" color="gray.400">
-            Foto del material
-          </Text>
-        </VStack>
+    <Flex
+      direction="column"
+      bg="fondo.tarjeta"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="xl"
+      overflow="hidden"
+      cursor={alHacerClick ? "pointer" : "default"}
+      onClick={alHacerClick}
+      transition="box-shadow 0.15s ease"
+      _hover={alHacerClick ? { boxShadow: "md" } : undefined}
+    >
+      {/* Imagen con insignia de estado */}
+      <Box position="relative" h="180px" bg="fondo.pagina">
+        {imagenUrl ? (
+          <Image src={imagenUrl} alt={titulo} w="100%" h="100%" fit="cover" />
+        ) : (
+          <Flex h="100%" align="center" justify="center" color="gray.300">
+            <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
+          </Flex>
+        )}
+        <Badge
+          position="absolute"
+          top={3}
+          right={3}
+          bg={estiloEstado.bg}
+          color={estiloEstado.color}
+          borderRadius="full"
+          px={3}
+          py={1}
+          boxShadow="sm"
+        >
+          ● {estado}
+        </Badge>
       </Box>
 
-      {/* Datos */}
-      <ResumenPublicacion
-        tipoMaterial={tipoMaterial}
-        pesoKg={pesoKg}
-        precio={precio}
-        ubicacion={ubicacion}
-      />
-
-      {/* Estado y ofertas */}
-      <HStack justify="space-between" align="center">
-        <EtiquetadeEstado color={colorEstado} texto={estado} />
-        <Text fontSize="xs" color="gray.400">
-          {cantidadOfertas} oferta{cantidadOfertas !== 1 ? "s" : ""}
+      {/* Contenido */}
+      <VStack align="stretch" gap={2} p={4} flex="1">
+        <Text fontFamily="heading" fontWeight="600" fontSize="lg">
+          {titulo}
         </Text>
-      </HStack>
+        {descripcion && (
+          <Text fontSize="sm" color="gray.600" flex="1">
+            {descripcion}
+          </Text>
+        )}
 
-      {alVerOfertas && (
-        <Boton texto="Ver Ofertas" variante="outline" ancho="full" alHacer={alVerOfertas} />
-      )}
-    </VStack>
+        {etiquetaAccion ? (
+          <Button
+            variant="outline"
+            colorPalette="azul"
+            rounded="lg"
+            size="sm"
+            mt={2}
+            onClick={(evento) => {
+              evento.stopPropagation();
+              alAccionar?.();
+            }}
+          >
+            {etiquetaAccion}
+          </Button>
+        ) : (
+          <HStack
+            justify="space-between"
+            borderTop="1px solid"
+            borderColor="gray.100"
+            pt={3}
+            mt={2}
+            color="gray.700"
+            fontSize="sm"
+          >
+            <HStack gap={1}>
+              <Icono componente={<MdOutlineScale />} tamanio="md" />
+              <Text fontWeight="600">{pesoKg} kg</Text>
+            </HStack>
+            <HStack gap={1}>
+              <Icono componente={<MdOutlineLocationOn />} tamanio="md" />
+              <Text>{ubicacion}</Text>
+            </HStack>
+          </HStack>
+        )}
+      </VStack>
+    </Flex>
   );
 };
 

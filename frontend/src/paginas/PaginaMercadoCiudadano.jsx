@@ -1,30 +1,25 @@
-import { Text, VStack } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
+import { MdOutlineInfo } from "react-icons/md";
 
-import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion";
+import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
 import TarjetaMaterialRecomendado from "../componentes/organismos/TarjetaMaterialRecomendado.jsx";
+import Icono from "../componentes/atomos/Icono.jsx";
 import {
-  NAVEGACION_CENTRO,
-  NAVEGACION_RECOLECTOR,
-  SUBTITULO_CENTRO,
-  SUBTITULO_RECOLECTOR,
+  NAVEGACION_CIUDADANO,
+  RUTA_NUEVA_PUBLICACION_CIUDADANO,
 } from "@/utilidades/navegacionPanel";
 import { MATERIALES_RECOMENDADOS } from "@/utilidades/datosMercado";
 
 /**
- * Mercado de materiales recomendados (mockup "Ofertas Recomendadas"),
- * compartido por el reciclador y el centro de recolección.
+ * Mercado comunitario del ciudadano: explora las publicaciones activas de la
+ * comunidad como referencia de precios y demanda de materiales.
  */
-const PaginaOfertasRecomendadas = ({ rol = "recolector" }) => {
-  const navigate = useNavigate();
-  const esCentro = rol === "centro";
-
+const PaginaMercadoCiudadano = () => {
   return (
     <DiseniodeAplicacion
-      navegacion={esCentro ? NAVEGACION_CENTRO : NAVEGACION_RECOLECTOR}
-      subtituloMarca={esCentro ? SUBTITULO_CENTRO : SUBTITULO_RECOLECTOR}
-      rutaNuevaPublicacion={esCentro ? undefined : "/recolector/vender/crear-publicacion"}
+      navegacion={NAVEGACION_CIUDADANO}
+      rutaNuevaPublicacion={RUTA_NUEVA_PUBLICACION_CIUDADANO}
       anchoContenido="960px"
     >
       <VStack align="stretch" gap={6}>
@@ -35,14 +30,30 @@ const PaginaOfertasRecomendadas = ({ rol = "recolector" }) => {
             fontSize={{ base: "2xl", md: "3xl" }}
             color="marca.primario"
           >
-            Ofertas Recomendadas
+            Mercado
           </Text>
           <Text color="gray.600">
-            Materiales reciclables de alta calidad verificados por la comunidad, cerca de ti.
+            Explora los materiales que publica la comunidad y sus precios de referencia.
           </Text>
         </VStack>
 
         <FormularioBuscarMateriales />
+
+        <HStack
+          bg="fondo.cabeceraTarjeta"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          px={4}
+          py={3}
+          gap={2}
+        >
+          <Icono componente={<MdOutlineInfo />} tamanio="lg" color="marca.secundario" />
+          <Text fontSize="sm" color="gray.700">
+            Usa estos precios como referencia para tus propias publicaciones. Los recicladores y
+            centros de acopio ofertan sobre publicaciones como estas.
+          </Text>
+        </HStack>
 
         <VStack align="stretch" gap={4}>
           {MATERIALES_RECOMENDADOS.map((material) => (
@@ -55,14 +66,14 @@ const PaginaOfertasRecomendadas = ({ rol = "recolector" }) => {
               distanciaKm={material.distanciaKm}
               descripcion={material.descripcion}
               puntuacion={material.puntuacion}
-              alVerDetalle={() => navigate(`/${rol}/detalle/${material.id}`)}
-              alHacerOferta={() => navigate(`/${rol}/realizar-oferta/${material.id}`)}
             />
           ))}
         </VStack>
+
+        <Box />
       </VStack>
     </DiseniodeAplicacion>
   );
 };
 
-export default PaginaOfertasRecomendadas;
+export default PaginaMercadoCiudadano;
