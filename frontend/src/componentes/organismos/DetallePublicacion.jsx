@@ -1,119 +1,129 @@
-import { VStack, Box, Text, HStack } from "@chakra-ui/react";
-import { LuMapPin, LuUser } from "react-icons/lu";
-import EtiquetaInformacion from "../moleculas/EtiquetaInformacion";
-import Boton from "../atomos/Boton";
+import { Badge, Box, Button, Flex, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import { MdOutlineImage, MdOutlineLocationOn, MdOutlineSell, MdVerified } from "react-icons/md";
+import Icono from "../atomos/Icono.jsx";
+import TarjetaVendedor from "../moleculas/TarjetaVendedor.jsx";
+
+const DatoMaterial = ({ etiqueta, valor, valorColor = "gray.900" }) => (
+  <Box bg="fondo.cabeceraTarjeta" borderRadius="lg" p={4}>
+    <Text fontSize="xs" color="gray.600" mb={1}>
+      {etiqueta}
+    </Text>
+    <Text fontFamily="heading" fontWeight="700" color={valorColor}>
+      {valor}
+    </Text>
+  </Box>
+);
 
 /**
- * Organismo: Detalle completo de una publicación para el flujo Recolector/Centro
- * @param {string} tipoMaterial - Tipo de material
- * @param {string} descripcion - Descripción del material
- * @param {number} pesoKg - Peso estimado en kg
- * @param {string} precio - Precio referencial
- * @param {string} vendedor - Nombre del vendedor
- * @param {string} ubicacion - Ubicación de recogida
- * @param {function} alRealizarOferta - Callback para ir a realizar oferta
+ * Detalle de material publicado (mockup "Detalle de Material"): imagen con
+ * estado, información del material, vendedor y ubicación con acción de oferta.
  */
 const DetallePublicacion = ({
-  tipoMaterial = "Plástico PET",
-  descripcion = "Material foto garantizado, plástico válido, detalle continuo sin errores, descripción, cuéllenme maíz/carne.",
-  pesoKg = 15,
-  precio = "$2.50/kg",
-  vendedor = "Juan P. (Reciclador)",
-  ubicacion = "Av. América, Quito",
+  tipoMaterial = "Cartón Corrugado",
+  pesoKg = 450,
+  precioPorKilo = "$0.18",
+  descripcion = "Aplanado y flejado. Gran volumen disponible semanalmente de un colectivo minorista local. El material está limpio y libre de contaminantes mayores, ideal para procesamiento directo.",
+  estado = "Disponible",
+  vendedor = "Colectivo La Carolina",
+  rotuloVendedor = "VENDEDOR (COLECTIVO)",
+  calificacionVendedor = "4.9",
+  detalleCalificacion = "(85 transacciones)",
+  ubicacion = "Sector La Carolina, Quito",
   alRealizarOferta,
 }) => {
   return (
-    <VStack gap={4} align="stretch" w="100%">
-      {/* Foto del material */}
-      <Box
-        w="100%"
-        h="180px"
-        bg="gray.300"
-        borderRadius="md"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        color="gray.500"
-        border="1px solid"
-        borderColor="gray.400"
-      >
-        <Text fontSize="sm">Material photo</Text>
-      </Box>
-
-      {/* Descripción */}
-      <Box>
-        <Text fontSize="sm" color="gray.600" lineHeight="1.5">
-          {descripcion}
-        </Text>
-      </Box>
-
-      {/* Mapa placeholder */}
-      <Box
-        w="100%"
-        h="120px"
-        bg="gray.200"
-        borderRadius="md"
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        color="gray.400"
-        border="1px dashed"
-        borderColor="gray.400"
-        gap={1}
-      >
-        <LuMapPin size={24} />
-        <Text fontSize="xs">Locación en el mapa</Text>
-      </Box>
-
-      {/* Datos del vendedor */}
-      <HStack
-        gap={3}
-        align="center"
-        p={3}
-        border="1px solid"
-        borderColor="gray.200"
-        borderRadius="md"
-      >
+    <SimpleGrid columns={{ base: 1, lg: 3 }} gap={6} alignItems="start">
+      {/* Columna principal */}
+      <VStack align="stretch" gap={6} gridColumn={{ lg: "span 2" }}>
         <Box
-          w="36px"
-          h="36px"
-          borderRadius="full"
-          bg="gray.200"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          position="relative"
+          h="340px"
+          bg="fondo.tarjeta"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="xl"
+          overflow="hidden"
         >
-          <LuUser size={18} color="gray" />
+          <Flex h="100%" align="center" justify="center" color="gray.300">
+            <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
+          </Flex>
+          <Badge
+            position="absolute"
+            top={4}
+            left={4}
+            bg="marca.primario"
+            color="white"
+            borderRadius="full"
+            px={3}
+            py={1}
+          >
+            <MdVerified /> {estado}
+          </Badge>
         </Box>
-        <VStack align="flex-start" gap={0}>
-          <Text fontSize="sm" fontWeight="semibold">
-            {vendedor}
-          </Text>
-          <Text fontSize="xs" color="gray.500">
-            Peso: {pesoKg}kg
-          </Text>
-        </VStack>
-      </HStack>
 
-      {/* Información clave */}
-      <VStack gap={1} align="stretch">
-        <EtiquetaInformacion etiqueta="Vendedor:" valor={vendedor} />
-        <EtiquetaInformacion etiqueta="Tipo Material:" valor={tipoMaterial} />
-        <EtiquetaInformacion etiqueta="Precio Ref.:" valor={precio} />
-        <EtiquetaInformacion etiqueta="Ubicación:" valor={ubicacion} />
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={6}>
+          <Text fontFamily="heading" fontWeight="700" fontSize="xl" mb={5}>
+            Información del Material
+          </Text>
+          <SimpleGrid columns={{ base: 1, md: 3 }} gap={4} mb={5}>
+            <DatoMaterial etiqueta="Tipo de Material" valor={tipoMaterial} />
+            <DatoMaterial etiqueta="Peso Estimado" valor={`${pesoKg} kg`} />
+            <DatoMaterial
+              etiqueta="Precio Referencial"
+              valor={`${precioPorKilo}/kg`}
+              valorColor="marca.primario"
+            />
+          </SimpleGrid>
+          <Text fontSize="sm" color="gray.600" borderTop="1px solid" borderColor="gray.100" pt={4}>
+            {descripcion}
+          </Text>
+        </Box>
       </VStack>
 
-      {alRealizarOferta && (
-        <Boton
-          texto="Realizar Oferta"
-          variante="solid"
-          colorEsquema="gray"
-          ancho="full"
-          alHacer={alRealizarOferta}
+      {/* Columna lateral */}
+      <VStack align="stretch" gap={5}>
+        <TarjetaVendedor
+          rotulo={rotuloVendedor}
+          nombre={vendedor}
+          calificacion={calificacionVendedor}
+          detalleCalificacion={detalleCalificacion}
         />
-      )}
-    </VStack>
+
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>
+          <HStack gap={2} mb={1}>
+            <Icono componente={<MdOutlineLocationOn />} tamanio="lg" color="marca.primario" />
+            <Text fontFamily="heading" fontWeight="700">
+              Ubicación del Material
+            </Text>
+          </HStack>
+          <Text fontSize="sm" color="gray.600" mb={3}>
+            {ubicacion}
+          </Text>
+          {/* TODO: integrar mapa (Leaflet/Google Maps) cuando esté disponible. */}
+          <Flex
+            h="220px"
+            bg="fondo.cabeceraTarjeta"
+            borderRadius="lg"
+            align="center"
+            justify="center"
+            color="gray.500"
+            fontSize="sm"
+          >
+            Mapa del sector
+          </Flex>
+        </Box>
+
+        <Button
+          size="lg"
+          colorPalette="verde"
+          bg="marca.primario"
+          rounded="xl"
+          onClick={alRealizarOferta}
+        >
+          <MdOutlineSell /> Enviar Oferta
+        </Button>
+      </VStack>
+    </SimpleGrid>
   );
 };
 

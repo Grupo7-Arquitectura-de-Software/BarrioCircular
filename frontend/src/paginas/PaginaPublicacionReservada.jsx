@@ -7,6 +7,7 @@ import TarjetaOferta from "../componentes/organismos/TarjetaOferta.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import {
   NAVEGACION_CIUDADANO,
+  NAVEGACION_RECOLECTOR,
   RUTA_NUEVA_PUBLICACION_CIUDADANO,
 } from "@/utilidades/navegacionPanel";
 
@@ -19,7 +20,7 @@ const PaginaPublicacionReservada = ({ prefijoRuta = "/ciudadano" }) => {
 
   return (
     <DiseniodeAplicacion
-      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : []}
+      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : NAVEGACION_RECOLECTOR}
       rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
       mostrarBuscador={false}
       anchoContenido="680px"

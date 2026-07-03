@@ -25,6 +25,7 @@ import ChatdeCoordinacion from "../componentes/organismos/ChatdeCoordinacion";
 import Icono from "../componentes/atomos/Icono.jsx";
 import {
   NAVEGACION_CIUDADANO,
+  NAVEGACION_RECOLECTOR,
   RUTA_NUEVA_PUBLICACION_CIUDADANO,
 } from "@/utilidades/navegacionPanel";
 
@@ -38,7 +39,7 @@ const PaginadeColeccionCoordenadas = ({ prefijoRuta = "/ciudadano" }) => {
 
   return (
     <DiseniodeAplicacion
-      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : []}
+      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : NAVEGACION_RECOLECTOR}
       rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
       etiquetaVolver="Volver al Mercado"
       alVolver={() => navigate(esCiudadano ? "/ciudadano/panel" : -1)}

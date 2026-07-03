@@ -1,51 +1,82 @@
-import { VStack, Box, Text } from "@chakra-ui/react";
-import CampoFormulario from "../moleculas/CampoFormulario";
-import BotonOpcionUnica from "../atomos/BotonOpcionUnica";
-import Boton from "../atomos/Boton";
+import {
+  Box,
+  Button,
+  Field,
+  Input,
+  InputGroup,
+  Text,
+  Textarea,
+  VStack,
+  createListCollection,
+} from "@chakra-ui/react";
+import SelectorDesplegable from "../atomos/SelectorDesplegable.jsx";
 
-const estadosMaterial = [
-  { value: "excelente", title: "Excelente" },
-  { value: "bueno", title: "Bueno" },
-  { value: "malo", title: "Malo" },
-];
+const estadosMaterial = createListCollection({
+  items: [
+    { label: "Óptimo - Listo para procesar", value: "OPTIMO" },
+    { label: "Aceptable - Requiere limpieza", value: "ACEPTABLE" },
+    { label: "Deficiente - Requiere reclasificación", value: "DEFICIENTE" },
+  ],
+});
 
-const FormulariodeVerificacion = ({ alConfirmar, alReportar }) => {
+/**
+ * Formulario "Confirmar Recepción" (mockup Entregable 4): peso real recibido,
+ * estado del material y observaciones adicionales.
+ */
+const FormulariodeVerificacion = ({
+  pesoEstimadoKg = 250,
+  etiquetaConfirmar = "Confirmar Recepción",
+  alConfirmar,
+}) => {
   return (
-    <VStack gap={4} align="stretch" w="100%">
-      <CampoFormulario
-        etiqueta="Peso real verificado:"
-        marcadorPosicion="Ingrese el peso real en kg"
-      />
+    <Box bg="fondo.tarjeta" border="1px solid" borderColor="verde.200" borderRadius="xl" p={6}>
+      <VStack align="stretch" gap={5}>
+        <Field.Root>
+          <Field.Label fontWeight="600">Peso Real Recibido (kg)</Field.Label>
+          <InputGroup endElement={<Text color="gray.500">kg</Text>}>
+            <Input
+              type="number"
+              defaultValue={pesoEstimadoKg}
+              size="lg"
+              bg="fondo.pagina"
+              rounded="lg"
+            />
+          </InputGroup>
+          <Field.HelperText>Peso estimado original: {pesoEstimadoKg} kg</Field.HelperText>
+        </Field.Root>
 
-      <Box>
-        <Text fontSize="sm" fontWeight="medium" mb={2}>
-          Estado del material:
-        </Text>
-        <BotonOpcionUnica Titulo="" items={estadosMaterial} />
-      </Box>
+        <Field.Root>
+          <Field.Label fontWeight="600">Estado del Material</Field.Label>
+          <SelectorDesplegable
+            titulo="Óptimo - Listo para procesar"
+            colecciondeDatos={estadosMaterial}
+            mostrarEtiqueta={false}
+          />
+        </Field.Root>
 
-      <CampoFormulario
-        etiqueta="Observaciones:"
-        marcadorPosicion="Describa el estado del material..."
-      />
+        <Field.Root>
+          <Field.Label fontWeight="600">Observaciones Adicionales (Opcional)</Field.Label>
+          <Textarea
+            placeholder="Añade cualquier detalle sobre la calidad, humedad o variaciones en el material..."
+            rows={4}
+            bg="fondo.pagina"
+            rounded="lg"
+            resize="none"
+          />
+        </Field.Root>
 
-      <VStack gap={2} align="stretch">
-        <Boton
-          texto="Confirmar operación"
-          variante="solid"
-          colorEsquema="gray"
-          ancho="full"
-          alHacer={alConfirmar}
-        />
-        <Boton
-          texto="Reportar problema"
-          variante="outline"
-          colorEsquema="red"
-          ancho="full"
-          alHacer={alReportar}
-        />
+        <Button
+          size="lg"
+          colorPalette="verde"
+          bg="marca.primario"
+          rounded="xl"
+          borderTop="1px solid"
+          onClick={alConfirmar}
+        >
+          {etiquetaConfirmar}
+        </Button>
       </VStack>
-    </VStack>
+    </Box>
   );
 };
 

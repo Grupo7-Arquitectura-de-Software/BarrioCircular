@@ -4,6 +4,7 @@ import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.j
 import FormularioCrearPublicacion from "../componentes/organismos/FormularioCrearPublicacion";
 import {
   NAVEGACION_CIUDADANO,
+  NAVEGACION_RECOLECTOR,
   RUTA_NUEVA_PUBLICACION_CIUDADANO,
 } from "@/utilidades/navegacionPanel";
 
@@ -13,7 +14,7 @@ const PaginaCrearPublicaciones = ({ prefijoRuta = "/ciudadano" }) => {
 
   return (
     <DiseniodeAplicacion
-      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : []}
+      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : NAVEGACION_RECOLECTOR}
       rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
       mostrarBuscador={false}
       anchoContenido="760px"

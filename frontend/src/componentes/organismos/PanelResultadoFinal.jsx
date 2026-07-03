@@ -2,13 +2,22 @@ import { Box, Circle, Flex, Text, VStack } from "@chakra-ui/react";
 import { MdCheck } from "react-icons/md";
 import Boton from "../atomos/Boton";
 
+const TONOS = {
+  verde: { circulo: "marca.primarioContenedor", icono: "marca.primario", titulo: "marca.primario" },
+  ambar: { circulo: "orange.500", icono: "orange.500", titulo: "orange.600" },
+};
+
 /**
- * Panel "Operación Completada" (mockup Entregable 3): círculo de éxito,
- * resumen de la publicación y monto destacado.
+ * Panel de resultado de operación (mockups Entregables 3-4): círculo de
+ * estado, resumen de la publicación y monto destacado. `tono` permite la
+ * variante ámbar de "Oferta Enviada".
  */
 const PanelResultadoFinal = ({
   titulo = "Operación Completada",
   subtitulo = "La transacción ha sido registrada exitosamente en tu historial.",
+  tono = "verde",
+  tituloResumen = "Resumen de la publicación",
+  etiquetaMonto = "Monto",
   tipoMaterial,
   pesoKg,
   monto,
@@ -16,11 +25,13 @@ const PanelResultadoFinal = ({
   etiquetaVolver = "Volver a Ofertas",
   alVolver,
 }) => {
+  const colores = TONOS[tono] || TONOS.verde;
+
   return (
     <VStack gap={6} align="stretch" w="100%">
       <VStack gap={4} textAlign="center">
-        <Circle size="96px" bg="marca.primarioContenedor" boxShadow="lg">
-          <Circle size="40px" bg="white" color="marca.primario">
+        <Circle size="96px" bg={colores.circulo} boxShadow="lg">
+          <Circle size="40px" bg="white" color={colores.icono}>
             <MdCheck size={26} />
           </Circle>
         </Circle>
@@ -28,7 +39,7 @@ const PanelResultadoFinal = ({
           fontFamily="heading"
           fontWeight="700"
           fontSize={{ base: "2xl", md: "3xl" }}
-          color="marca.primario"
+          color={colores.titulo}
           lineHeight="1.2"
         >
           {titulo}
@@ -53,7 +64,7 @@ const PanelResultadoFinal = ({
             letterSpacing="wide"
             mb={3}
           >
-            Resumen de la publicación
+            {tituloResumen}
           </Text>
           <VStack gap={0} align="stretch">
             <Flex justify="space-between" py={2} borderBottom="1px solid" borderColor="gray.200">
@@ -67,7 +78,7 @@ const PanelResultadoFinal = ({
             {monto && (
               <Flex justify="space-between" bg="verde.100" borderRadius="lg" px={3} py={3} mt={3}>
                 <Text fontWeight="600" color="marca.primario">
-                  Monto
+                  {etiquetaMonto}
                 </Text>
                 <Text fontFamily="heading" fontWeight="700" fontSize="xl" color="marca.primario">
                   {monto}

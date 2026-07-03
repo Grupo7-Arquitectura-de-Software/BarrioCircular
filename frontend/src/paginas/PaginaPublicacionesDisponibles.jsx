@@ -26,6 +26,7 @@ import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.j
 import Icono from "../componentes/atomos/Icono.jsx";
 import {
   NAVEGACION_CIUDADANO,
+  NAVEGACION_RECOLECTOR,
   RUTA_NUEVA_PUBLICACION_CIUDADANO,
 } from "@/utilidades/navegacionPanel";
 
@@ -50,7 +51,7 @@ const PaginaPublicacionesDisponibles = ({ prefijoRuta = "/ciudadano" }) => {
 
   return (
     <DiseniodeAplicacion
-      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : []}
+      navegacion={esCiudadano ? NAVEGACION_CIUDADANO : NAVEGACION_RECOLECTOR}
       rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
       etiquetaVolver="Volver a Publicaciones"
       alVolver={() => navigate(esCiudadano ? "/ciudadano/panel" : -1)}
