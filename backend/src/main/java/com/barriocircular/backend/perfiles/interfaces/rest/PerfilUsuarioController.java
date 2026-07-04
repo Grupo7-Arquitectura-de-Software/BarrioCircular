@@ -4,12 +4,8 @@ import com.barriocircular.backend.perfiles.aplicacion.casosdeuso.CrearPerfilUseC
 import com.barriocircular.backend.perfiles.aplicacion.casosdeuso.ObtenerPerfilPorClerkIdUseCase;
 import com.barriocircular.backend.perfiles.aplicacion.comandos.CrearPerfilCommand;
 import com.barriocircular.backend.perfiles.aplicacion.dto.PerfilResultado;
-import com.barriocircular.backend.perfiles.aplicacion.excepciones.CuentaAccesoNoEncontradaException;
-import com.barriocircular.backend.perfiles.aplicacion.excepciones.CuentaUsuarioNoAutorizadaException;
 import com.barriocircular.backend.perfiles.aplicacion.excepciones.IdentidadAutenticadaNoDisponibleException;
-import com.barriocircular.backend.perfiles.aplicacion.puertos.CuentaAccesoConsultor;
 import com.barriocircular.backend.perfiles.interfaces.rest.dto.CompletarPerfilRequest;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,15 +21,12 @@ public class PerfilUsuarioController {
 
   private final CrearPerfilUseCase crearPerfilUseCase;
   private final ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
-  private final CuentaAccesoConsultor cuentaAccesoConsultor;
 
   public PerfilUsuarioController(
       CrearPerfilUseCase crearPerfilUseCase,
-      ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase,
-      CuentaAccesoConsultor cuentaAccesoConsultor) {
+      ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase) {
     this.crearPerfilUseCase = crearPerfilUseCase;
     this.obtenerPerfilPorClerkIdUseCase = obtenerPerfilPorClerkIdUseCase;
-    this.cuentaAccesoConsultor = cuentaAccesoConsultor;
   }
 
   @GetMapping("/me")
@@ -45,33 +38,14 @@ public class PerfilUsuarioController {
   @PostMapping("/completar")
   public ResponseEntity<PerfilResultado> completarPerfil(
       @RequestBody CompletarPerfilRequest solicitud, Authentication autenticacion) {
-    UUID cuentaUsuarioAutenticadaId = obtenerCuentaUsuarioAutenticadaId(autenticacion);
-    validarPertenenciaCuentaSolicitada(solicitud.cuentaUsuarioId(), cuentaUsuarioAutenticadaId);
-
-    CrearPerfilCommand comandoCrearPerfil = crearComando(solicitud, cuentaUsuarioAutenticadaId);
-    PerfilResultado perfilCreado = crearPerfilUseCase.ejecutar(comandoCrearPerfil);
+    String clerkId = extraerClerkId(autenticacion);
+    CrearPerfilCommand comandoCrearPerfil = crearComando(solicitud);
+    PerfilResultado perfilCreado = crearPerfilUseCase.ejecutar(comandoCrearPerfil, clerkId);
     return ResponseEntity.ok(perfilCreado);
   }
 
-  private UUID obtenerCuentaUsuarioAutenticadaId(Authentication autenticacion) {
-    String clerkId = extraerClerkId(autenticacion);
-    return cuentaAccesoConsultor
-        .obtenerCuentaIdPorClerkId(clerkId)
-        .orElseThrow(CuentaAccesoNoEncontradaException::new);
-  }
-
-  private void validarPertenenciaCuentaSolicitada(
-      UUID cuentaUsuarioSolicitadaId, UUID cuentaUsuarioAutenticadaId) {
-    if (cuentaUsuarioSolicitadaId != null
-        && !cuentaUsuarioSolicitadaId.equals(cuentaUsuarioAutenticadaId)) {
-      throw new CuentaUsuarioNoAutorizadaException();
-    }
-  }
-
-  private CrearPerfilCommand crearComando(
-      CompletarPerfilRequest solicitud, UUID cuentaUsuarioAutenticadaId) {
+  private CrearPerfilCommand crearComando(CompletarPerfilRequest solicitud) {
     return new CrearPerfilCommand(
-        cuentaUsuarioAutenticadaId,
         solicitud.documentoIdentificacion(),
         solicitud.nombreCompleto(),
         solicitud.nombreComercial(),
