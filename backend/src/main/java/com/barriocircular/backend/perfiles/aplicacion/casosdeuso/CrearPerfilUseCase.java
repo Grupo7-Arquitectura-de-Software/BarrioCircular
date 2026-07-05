@@ -2,8 +2,10 @@ package com.barriocircular.backend.perfiles.aplicacion.casosdeuso;
 
 import com.barriocircular.backend.perfiles.aplicacion.comandos.CrearPerfilCommand;
 import com.barriocircular.backend.perfiles.aplicacion.dto.PerfilResultado;
+import com.barriocircular.backend.perfiles.aplicacion.excepciones.CuentaAccesoNoEncontradaException;
 import com.barriocircular.backend.perfiles.aplicacion.excepciones.PerfilYaExisteException;
 import com.barriocircular.backend.perfiles.aplicacion.mapeadores.PerfilResultadoMapper;
+import com.barriocircular.backend.perfiles.aplicacion.puertos.CuentaAccesoConsultor;
 import com.barriocircular.backend.perfiles.aplicacion.puertos.PerfilOnboardingPendienteRepository;
 import com.barriocircular.backend.perfiles.dominio.eventos.EventoDominio;
 import com.barriocircular.backend.perfiles.dominio.factories.PerfilUsuarioFactory;
@@ -13,6 +15,7 @@ import com.barriocircular.backend.perfiles.dominio.repositorios.PerfilUsuarioRep
 import com.barriocircular.backend.perfiles.dominio.valueobjects.CoordenadaGPS;
 import com.barriocircular.backend.perfiles.dominio.valueobjects.DocumentoIdentificacion;
 import com.barriocircular.backend.perfiles.dominio.valueobjects.InformacionContacto;
+import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +26,27 @@ public class CrearPerfilUseCase {
   private final PerfilUsuarioRepository perfilUsuarioRepository;
   private final PerfilOnboardingPendienteRepository onboardingPendienteRepository;
   private final ApplicationEventPublisher publicadorEventos;
+  private final CuentaAccesoConsultor cuentaAccesoConsultor;
 
   public CrearPerfilUseCase(
       PerfilUsuarioRepository perfilUsuarioRepository,
       PerfilOnboardingPendienteRepository onboardingPendienteRepository,
-      ApplicationEventPublisher publicadorEventos) {
+      ApplicationEventPublisher publicadorEventos,
+      CuentaAccesoConsultor cuentaAccesoConsultor) {
     this.perfilUsuarioRepository = perfilUsuarioRepository;
     this.onboardingPendienteRepository = onboardingPendienteRepository;
     this.publicadorEventos = publicadorEventos;
+    this.cuentaAccesoConsultor = cuentaAccesoConsultor;
   }
 
   @Transactional
-  public PerfilResultado ejecutar(CrearPerfilCommand comando) {
-    if (perfilUsuarioRepository.existePorCuentaUsuarioId(comando.cuentaUsuarioId())) {
+  public PerfilResultado ejecutar(CrearPerfilCommand comando, String clerkIdAutenticado) {
+    UUID cuentaIdDerivada =
+        cuentaAccesoConsultor
+            .obtenerCuentaIdPorClerkId(clerkIdAutenticado)
+            .orElseThrow(CuentaAccesoNoEncontradaException::new);
+
+    if (perfilUsuarioRepository.existePorCuentaUsuarioId(cuentaIdDerivada)) {
       throw new PerfilYaExisteException("La cuenta ya tiene un perfil de usuario registrado.");
     }
 
@@ -53,7 +64,7 @@ public class CrearPerfilUseCase {
 
     PerfilUsuario perfilUsuario =
         PerfilUsuarioFactory.crearPerfil(
-            comando.cuentaUsuarioId(),
+            cuentaIdDerivada,
             documentoIdentificacion,
             comando.nombreCompleto(),
             comando.nombreComercial(),
@@ -62,7 +73,7 @@ public class CrearPerfilUseCase {
             ubicacionHabitual);
 
     perfilUsuarioRepository.guardar(perfilUsuario);
-    onboardingPendienteRepository.eliminarPorCuentaId(comando.cuentaUsuarioId());
+    onboardingPendienteRepository.eliminarPorCuentaId(cuentaIdDerivada);
     publicarEventos(perfilUsuario);
 
     return PerfilResultadoMapper.desde(perfilUsuario);
