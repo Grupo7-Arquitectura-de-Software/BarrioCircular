@@ -1,8 +1,8 @@
-package com.barriocircular.backend.publicacion.aplicacion.comandos;
+package com.barriocircular.backend.publicacion.interfaces.rest.dto;
 
 import java.math.BigDecimal;
 
-public record CrearPublicacionCommand(
+public record CrearPublicacionRequest(
     String tipoResiduo,
     double pesoKg,
     BigDecimal precioPorKilo,
