@@ -38,7 +38,8 @@ class CrearPerfilUseCaseTest {
     EventosPublicados eventosPublicados = new EventosPublicados();
     CuentaAccesoConsultorFake cuentaAccesoConsultor = new CuentaAccesoConsultorFake();
     CrearPerfilUseCase casoUso =
-        new CrearPerfilUseCase(repositorioPerfiles, repositorioOnboarding, eventosPublicados,cuentaAccesoConsultor);
+        new CrearPerfilUseCase(
+            repositorioPerfiles, repositorioOnboarding, eventosPublicados, cuentaAccesoConsultor);
     UUID cuentaUsuarioId = UUID.randomUUID();
     repositorioOnboarding.cuentasPendientes.add(cuentaUsuarioId);
     String clerkId = "user_2test123";
@@ -54,7 +55,8 @@ class CrearPerfilUseCaseTest {
                 "ana@correo.com",
                 "0999999999",
                 -0.1807,
-                -78.4678), clerkId);
+                -78.4678),
+            clerkId);
 
     assertEquals(resultado.perfilId(), repositorioPerfiles.perfilGuardado.getId());
     assertEquals("CIUDADANO", resultado.rol());
@@ -74,8 +76,9 @@ class CrearPerfilUseCaseTest {
     EventosPublicados eventosPublicados = new EventosPublicados();
     CuentaAccesoConsultorFake cuentaAccesoConsultor = new CuentaAccesoConsultorFake();
     CrearPerfilUseCase casoUso =
-        new CrearPerfilUseCase(repositorioPerfiles, repositorioOnboarding, eventosPublicados, cuentaAccesoConsultor);
-    
+        new CrearPerfilUseCase(
+            repositorioPerfiles, repositorioOnboarding, eventosPublicados, cuentaAccesoConsultor);
+
     UUID cuentaUsuarioId = UUID.randomUUID();
     String clerkId = "user_2test123";
     cuentaAccesoConsultor.agregarCuenta(clerkId, cuentaUsuarioId);
@@ -92,7 +95,8 @@ class CrearPerfilUseCaseTest {
                     "ana@correo.com",
                     "0999999999",
                     -0.1807,
-                    -78.4678), clerkId));
+                    -78.4678),
+                clerkId));
 
     assertEquals(0, repositorioPerfiles.cantidadGuardados);
     assertTrue(eventosPublicados.eventos.isEmpty());
@@ -105,7 +109,11 @@ class CrearPerfilUseCaseTest {
         new PerfilOnboardingPendienteRepositoryFake();
     CuentaAccesoConsultorFake cuentaAccesoConsultor = new CuentaAccesoConsultorFake();
     CrearPerfilUseCase casoUso =
-        new CrearPerfilUseCase(repositorioPerfiles, repositorioOnboarding, new EventosPublicados(), cuentaAccesoConsultor);
+        new CrearPerfilUseCase(
+            repositorioPerfiles,
+            repositorioOnboarding,
+            new EventosPublicados(),
+            cuentaAccesoConsultor);
     UUID cuentaUsuarioId = UUID.randomUUID();
     String clerkId = "user_2test123";
     cuentaAccesoConsultor.agregarCuenta(clerkId, cuentaUsuarioId);
@@ -133,8 +141,12 @@ class CrearPerfilUseCaseTest {
         new PerfilOnboardingPendienteRepositoryFake();
     CuentaAccesoConsultorFake cuentaAccesoConsultor = new CuentaAccesoConsultorFake();
     CrearPerfilUseCase casoUso =
-        new CrearPerfilUseCase(repositorioPerfiles, repositorioOnboarding, new EventosPublicados(), cuentaAccesoConsultor);
-    
+        new CrearPerfilUseCase(
+            repositorioPerfiles,
+            repositorioOnboarding,
+            new EventosPublicados(),
+            cuentaAccesoConsultor);
+
     CrearPerfilCommand comando =
         new CrearPerfilCommand(
             "1712345678",
@@ -146,7 +158,9 @@ class CrearPerfilUseCaseTest {
             -0.1807,
             -78.4678);
 
-    assertThrows(CuentaAccesoNoEncontradaException.class, () -> casoUso.ejecutar(comando, "clerk_id_no_existe"));
+    assertThrows(
+        CuentaAccesoNoEncontradaException.class,
+        () -> casoUso.ejecutar(comando, "clerk_id_no_existe"));
     assertEquals(0, repositorioPerfiles.cantidadGuardados);
   }
 
@@ -215,7 +229,8 @@ class CrearPerfilUseCaseTest {
       cuentasPendientes.remove(cuentaId);
     }
   }
-  public static final class CuentaAccesoConsultorFake implements CuentaAccesoConsultor{
+
+  public static final class CuentaAccesoConsultorFake implements CuentaAccesoConsultor {
 
     private final Map<String, UUID> cuentas = new HashMap<>();
 

@@ -15,11 +15,10 @@ import com.barriocircular.backend.perfiles.dominio.repositorios.PerfilUsuarioRep
 import com.barriocircular.backend.perfiles.dominio.valueobjects.CoordenadaGPS;
 import com.barriocircular.backend.perfiles.dominio.valueobjects.DocumentoIdentificacion;
 import com.barriocircular.backend.perfiles.dominio.valueobjects.InformacionContacto;
+import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 public class CrearPerfilUseCase {
@@ -30,10 +29,10 @@ public class CrearPerfilUseCase {
   private final CuentaAccesoConsultor cuentaAccesoConsultor;
 
   public CrearPerfilUseCase(
-          PerfilUsuarioRepository perfilUsuarioRepository,
-          PerfilOnboardingPendienteRepository onboardingPendienteRepository,
-          ApplicationEventPublisher publicadorEventos,
-          CuentaAccesoConsultor cuentaAccesoConsultor) {
+      PerfilUsuarioRepository perfilUsuarioRepository,
+      PerfilOnboardingPendienteRepository onboardingPendienteRepository,
+      ApplicationEventPublisher publicadorEventos,
+      CuentaAccesoConsultor cuentaAccesoConsultor) {
     this.perfilUsuarioRepository = perfilUsuarioRepository;
     this.onboardingPendienteRepository = onboardingPendienteRepository;
     this.publicadorEventos = publicadorEventos;
@@ -42,7 +41,9 @@ public class CrearPerfilUseCase {
 
   @Transactional
   public PerfilResultado ejecutar(CrearPerfilCommand comando, String clerkIdAutenticado) {
-    UUID cuentaIdDerivada = cuentaAccesoConsultor.obtenerCuentaIdPorClerkId(clerkIdAutenticado)
+    UUID cuentaIdDerivada =
+        cuentaAccesoConsultor
+            .obtenerCuentaIdPorClerkId(clerkIdAutenticado)
             .orElseThrow(CuentaAccesoNoEncontradaException::new);
 
     if (perfilUsuarioRepository.existePorCuentaUsuarioId(cuentaIdDerivada)) {

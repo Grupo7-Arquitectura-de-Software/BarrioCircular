@@ -31,8 +31,7 @@ class PerfilUsuarioControllerTest {
     crearPerfilUseCase = mock(CrearPerfilUseCase.class);
     obtenerPerfilPorClerkIdUseCase = mock(ObtenerPerfilPorClerkIdUseCase.class);
     PerfilUsuarioController controlador =
-        new PerfilUsuarioController(
-            crearPerfilUseCase, obtenerPerfilPorClerkIdUseCase);
+        new PerfilUsuarioController(crearPerfilUseCase, obtenerPerfilPorClerkIdUseCase);
     mockMvc =
         MockMvcBuilders.standaloneSetup(controlador)
             .setControllerAdvice(new PerfilUsuarioExceptionHandler())
@@ -60,8 +59,6 @@ class PerfilUsuarioControllerTest {
         .perform(get("/api/perfiles/me").principal(autenticacion("user_123")))
         .andExpect(status().isNotFound());
   }
-
-
 
   private JwtAuthenticationToken autenticacion(String clerkId) {
     Jwt jwt =
