@@ -1,6 +1,6 @@
-import { Box, Button, Flex, HStack, Progress, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { MdCheckCircleOutline, MdOutlineGavel, MdOutlineWarningAmber } from "react-icons/md";
+import { MdCheckCircleOutline, MdOutlineGavel, MdOutlineSchedule } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
@@ -9,55 +9,44 @@ import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
 import { MATERIALES_RECOMENDADOS } from "@/utilidades/datosMercado";
 
+// Ofertas realizadas por el centro; el vendedor decide si las acepta o rechaza.
 const OFERTAS_ACTIVAS = [
   {
     id: 1,
     titulo: "Casco de Vidrio Mixto",
     precioPorKilo: "$0.12",
-    detalle: "200kg • 2 horas restantes",
-    progreso: 78,
-    estado: "ganando",
-    estadoTexto: "Eres el mejor postor",
+    detalle: "200kg • Enviada hace 2 horas",
+    estado: "ACEPTADA",
+    estadoTexto: "Oferta aceptada",
   },
   {
     id: 2,
     titulo: "Jarras de Leche HDPE",
     precioPorKilo: "$0.55",
-    detalle: "80kg • 45 mins restantes",
-    progreso: 92,
-    estado: "superado",
-    estadoTexto: "Superado por $0.02",
+    detalle: "80kg • Enviada hace 45 mins",
+    estado: "PENDIENTE",
+    estadoTexto: "Esperando respuesta del vendedor",
   },
 ];
 
 const TarjetaOfertaActiva = ({ oferta }) => {
-  const ganando = oferta.estado === "ganando";
+  const aceptada = oferta.estado === "ACEPTADA";
   return (
     <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
       <Flex justify="space-between" gap={2} mb={1}>
         <Text fontWeight="600" fontSize="sm">
           {oferta.titulo}
         </Text>
-        <Text fontWeight="700" fontSize="sm" color={ganando ? "marca.primario" : "marca.error"}>
+        <Text fontWeight="700" fontSize="sm" color="marca.primario">
           {oferta.precioPorKilo}/kg
         </Text>
       </Flex>
       <Text fontSize="xs" color="gray.600" mb={2}>
         {oferta.detalle}
       </Text>
-      <Progress.Root
-        value={oferta.progreso}
-        size="sm"
-        colorPalette={ganando ? "verde" : "red"}
-        mb={2}
-      >
-        <Progress.Track borderRadius="full">
-          <Progress.Range />
-        </Progress.Track>
-      </Progress.Root>
-      <HStack gap={1} color={ganando ? "marca.primario" : "marca.error"} fontSize="xs">
+      <HStack gap={1} color={aceptada ? "marca.primario" : "gray.600"} fontSize="xs">
         <Icono
-          componente={ganando ? <MdCheckCircleOutline /> : <MdOutlineWarningAmber />}
+          componente={aceptada ? <MdCheckCircleOutline /> : <MdOutlineSchedule />}
           tamanio="sm"
         />
         <Text fontWeight="600">{oferta.estadoTexto}</Text>

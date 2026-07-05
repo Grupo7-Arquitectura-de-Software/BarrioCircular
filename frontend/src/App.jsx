@@ -7,8 +7,6 @@ import PaginaInicioRecolector from "@/paginas/PaginaInicioRecolector.jsx";
 import ValidadorSesion from "@/componentes/proveedores/ValidadorSesion.jsx";
 
 import PaginaPanelCiudadano from "@/paginas/PaginaPanelCiudadano.jsx";
-import PaginaMercadoCiudadano from "@/paginas/PaginaMercadoCiudadano.jsx";
-import PaginaAnalisisCiudadano from "@/paginas/PaginaAnalisisCiudadano.jsx";
 import PaginaConfiguracionCiudadano from "@/paginas/PaginaConfiguracionCiudadano.jsx";
 import PaginaCrearPublicaciones from "@/paginas/PaginaCrearPublicaciones.jsx";
 import PaginaPublicacionesDisponibles from "@/paginas/PaginaPublicacionesDisponibles.jsx";
@@ -43,8 +41,6 @@ function App() {
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
           <Route path="/completar-perfil" element={<PaginaCompletarPerfil />} />
           <Route path="/ciudadano/panel" element={<PaginaPanelCiudadano />} />
-          <Route path="/ciudadano/mercado" element={<PaginaMercadoCiudadano />} />
-          <Route path="/ciudadano/analisis" element={<PaginaAnalisisCiudadano />} />
           <Route path="/ciudadano/configuracion" element={<PaginaConfiguracionCiudadano />} />
           <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
           <Route

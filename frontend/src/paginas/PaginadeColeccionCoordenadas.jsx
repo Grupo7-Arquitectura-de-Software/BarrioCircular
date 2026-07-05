@@ -41,7 +41,7 @@ const PaginadeColeccionCoordenadas = ({ prefijoRuta = "/ciudadano" }) => {
     <DiseniodeAplicacion
       navegacion={esCiudadano ? NAVEGACION_CIUDADANO : NAVEGACION_RECOLECTOR}
       rutaNuevaPublicacion={esCiudadano ? RUTA_NUEVA_PUBLICACION_CIUDADANO : undefined}
-      etiquetaVolver="Volver al Mercado"
+      etiquetaVolver={esCiudadano ? "Volver al Panel" : "Volver"}
       alVolver={() => navigate(esCiudadano ? "/ciudadano/panel" : -1)}
       mostrarBuscador={false}
       anchoContenido="1160px"
