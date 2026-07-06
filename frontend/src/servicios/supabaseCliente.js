@@ -7,9 +7,7 @@ let clienteSupabase = null;
 
 export const obtenerClienteSupabase = () => {
   if (!URL_SUPABASE || !CLAVE_ANONIMA_SUPABASE) {
-    throw new Error(
-      "Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY en el .env del frontend.",
-    );
+    throw new Error("Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY en el .env del frontend.");
   }
   if (!clienteSupabase) {
     clienteSupabase = createClient(URL_SUPABASE, CLAVE_ANONIMA_SUPABASE);

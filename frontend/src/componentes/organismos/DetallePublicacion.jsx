@@ -1,4 +1,14 @@
-import { Badge, Box, Button, Flex, HStack, Image, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Image,
+  SimpleGrid,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { MdOutlineImage, MdOutlineLocationOn, MdOutlineSell, MdVerified } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
 import TarjetaVendedor from "../moleculas/TarjetaVendedor.jsx";

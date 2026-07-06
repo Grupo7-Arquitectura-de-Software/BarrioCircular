@@ -47,5 +47,4 @@ export const ETIQUETAS_ESTADO_PUBLICACION = {
   CANCELADA: "Cancelada",
 };
 
-export const etiquetaEstadoPublicacion = (estado) =>
-  ETIQUETAS_ESTADO_PUBLICACION[estado] || estado;
+export const etiquetaEstadoPublicacion = (estado) => ETIQUETAS_ESTADO_PUBLICACION[estado] || estado;

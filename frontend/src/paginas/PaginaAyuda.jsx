@@ -78,9 +78,7 @@ const PaginaAyuda = ({ rol = "ciudadano" }) => {
               Centro de Ayuda
             </Text>
           </HStack>
-          <Text color="gray.600">
-            Preguntas frecuentes sobre cómo funciona BarrioCircular.
-          </Text>
+          <Text color="gray.600">Preguntas frecuentes sobre cómo funciona BarrioCircular.</Text>
         </VStack>
 
         <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={4}>

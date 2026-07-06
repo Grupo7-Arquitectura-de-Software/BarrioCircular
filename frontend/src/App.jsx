@@ -38,7 +38,10 @@ function App() {
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
           <Route path="/completar-perfil" element={<PaginaCompletarPerfil />} />
           <Route path="/ciudadano/panel" element={<PaginaPanelCiudadano />} />
-          <Route path="/ciudadano/configuracion" element={<PaginaConfiguracion rol="ciudadano" />} />
+          <Route
+            path="/ciudadano/configuracion"
+            element={<PaginaConfiguracion rol="ciudadano" />}
+          />
           <Route path="/ciudadano/ayuda" element={<PaginaAyuda rol="ciudadano" />} />
           <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
           <Route

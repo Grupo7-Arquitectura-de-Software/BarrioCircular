@@ -70,8 +70,7 @@ public class PublicacionController {
   }
 
   @GetMapping("/{publicacionId}")
-  public ResponseEntity<PublicacionResultado> obtenerPublicacion(
-      @PathVariable UUID publicacionId) {
+  public ResponseEntity<PublicacionResultado> obtenerPublicacion(@PathVariable UUID publicacionId) {
     return ResponseEntity.ok(obtenerPublicacionUseCase.ejecutar(publicacionId));
   }
 
