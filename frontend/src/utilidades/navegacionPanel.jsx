@@ -1,5 +1,4 @@
 import {
-  MdOutlineAnalytics,
   MdOutlineGridView,
   MdOutlineListAlt,
   MdOutlineLocalShipping,
@@ -9,28 +8,24 @@ import {
   MdOutlineStorefront,
 } from "react-icons/md";
 
-// Elementos de la barra lateral por rol. Sin `ruta` el elemento se muestra
-// deshabilitado (secciones aún no implementadas de los mockups).
+// Elementos de la barra lateral por rol, alineados a los casos de uso
+// documentados (05.1). Sin `ruta` el elemento se muestra deshabilitado.
 export const NAVEGACION_CIUDADANO = [
-  { etiqueta: "Mercado", icono: <MdOutlineStorefront />, ruta: "/ciudadano/mercado" },
   { etiqueta: "Panel de Control", icono: <MdOutlineGridView />, ruta: "/ciudadano/panel" },
   {
     etiqueta: "Publicaciones",
     icono: <MdOutlineListAlt />,
     ruta: "/ciudadano/publicacion-disponible",
   },
-  { etiqueta: "Análisis", icono: <MdOutlineAnalytics />, ruta: "/ciudadano/analisis" },
   { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/ciudadano/configuracion" },
 ];
 
 export const RUTA_NUEVA_PUBLICACION_CIUDADANO = "/ciudadano/crear-publicacion";
 
+// El centro solo compra: explora el mercado y gestiona su perfil comercial.
 export const NAVEGACION_CENTRO = [
   { etiqueta: "Mercado", icono: <MdOutlineStorefront />, ruta: "/centro/buscar-materiales" },
-  { etiqueta: "Panel", icono: <MdOutlineGridView /> },
-  { etiqueta: "Publicaciones", icono: <MdOutlineListAlt /> },
-  { etiqueta: "Estadísticas", icono: <MdOutlineAnalytics /> },
-  { etiqueta: "Configuración", icono: <MdOutlineSettings /> },
+  { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/centro/configuracion" },
 ];
 
 export const SUBTITULO_CENTRO = "Hub de Economía Circular";
@@ -41,11 +36,10 @@ export const NAVEGACION_RECOLECTOR = [
   {
     etiqueta: "Comprar",
     icono: <MdOutlineShoppingCart />,
-    ruta: "/recolector/ofertas-recomendadas",
+    ruta: "/recolector/publicaciones-recomendadas",
   },
   { etiqueta: "Vender", icono: <MdOutlineSell />, ruta: "/recolector/vender/crear-publicacion" },
-  { etiqueta: "Analíticas", icono: <MdOutlineAnalytics /> },
-  { etiqueta: "Configuración", icono: <MdOutlineSettings /> },
+  { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/recolector/configuracion" },
 ];
 
 export const SUBTITULO_RECOLECTOR = "Comunidad Circular";

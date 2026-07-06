@@ -5,8 +5,12 @@ import { MdOutlineLogout } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import {
+  NAVEGACION_CENTRO,
   NAVEGACION_CIUDADANO,
+  NAVEGACION_RECOLECTOR,
   RUTA_NUEVA_PUBLICACION_CIUDADANO,
+  SUBTITULO_CENTRO,
+  SUBTITULO_RECOLECTOR,
 } from "@/utilidades/navegacionPanel";
 import { obtenerMiPerfil } from "@/servicios/perfilService";
 import { useCerrarSesion } from "@/utilidades/useCerrarSesion";
@@ -17,8 +21,25 @@ const ETIQUETAS_ROL = {
   CENTRO_RECOLECCION: "Centro de Recolección",
 };
 
+// Configuración de layout por rol de la aplicación.
+const DISENIO_POR_ROL = {
+  ciudadano: {
+    navegacion: NAVEGACION_CIUDADANO,
+    rutaNuevaPublicacion: RUTA_NUEVA_PUBLICACION_CIUDADANO,
+  },
+  recolector: {
+    navegacion: NAVEGACION_RECOLECTOR,
+    subtituloMarca: SUBTITULO_RECOLECTOR,
+    rutaNuevaPublicacion: "/recolector/vender/crear-publicacion",
+  },
+  centro: {
+    navegacion: NAVEGACION_CENTRO,
+    subtituloMarca: SUBTITULO_CENTRO,
+  },
+};
+
 const PREFERENCIAS_INICIALES = [
-  { clave: "ofertas", etiqueta: "Nuevas ofertas en mis publicaciones", activa: true },
+  { clave: "reservas", etiqueta: "Reservas de mis publicaciones", activa: true },
   { clave: "mensajes", etiqueta: "Mensajes de coordinación", activa: true },
   { clave: "resumen", etiqueta: "Resumen semanal de impacto", activa: false },
 ];
@@ -44,10 +65,10 @@ const TarjetaSeccion = ({ titulo, children }) => (
 );
 
 /**
- * Configuración de la cuenta del ciudadano: datos del perfil (desde el
- * backend), preferencias de notificaciones y cierre de sesión.
+ * Configuración de la cuenta, compartida por los tres roles: datos del perfil
+ * (desde el backend), preferencias de notificaciones y cierre de sesión.
  */
-const PaginaConfiguracionCiudadano = () => {
+const PaginaConfiguracion = ({ rol = "ciudadano" }) => {
   const { getToken } = useAuth();
   const cerrarSesion = useCerrarSesion();
   const [perfil, setPerfil] = useState(null);
@@ -55,6 +76,8 @@ const PaginaConfiguracionCiudadano = () => {
   const [cargando, setCargando] = useState(true);
   const [preferencias, setPreferencias] = useState(PREFERENCIAS_INICIALES);
   const consultaIniciadaRef = useRef(false);
+
+  const disenio = DISENIO_POR_ROL[rol] || DISENIO_POR_ROL.ciudadano;
 
   useEffect(() => {
     if (consultaIniciadaRef.current) return;
@@ -85,8 +108,9 @@ const PaginaConfiguracionCiudadano = () => {
 
   return (
     <DiseniodeAplicacion
-      navegacion={NAVEGACION_CIUDADANO}
-      rutaNuevaPublicacion={RUTA_NUEVA_PUBLICACION_CIUDADANO}
+      navegacion={disenio.navegacion}
+      subtituloMarca={disenio.subtituloMarca}
+      rutaNuevaPublicacion={disenio.rutaNuevaPublicacion}
       mostrarBuscador={false}
       anchoContenido="720px"
     >
@@ -159,4 +183,4 @@ const PaginaConfiguracionCiudadano = () => {
   );
 };
 
-export default PaginaConfiguracionCiudadano;
+export default PaginaConfiguracion;

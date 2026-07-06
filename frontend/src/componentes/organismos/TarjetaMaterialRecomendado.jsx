@@ -1,10 +1,11 @@
-import { Badge, Box, Button, Circle, Flex, HStack, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Circle, Flex, HStack, Image, Text } from "@chakra-ui/react";
 import { MdOutlineImage, MdOutlineLocationOn, MdOutlineScale, MdVerified } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
 
 /**
  * Tarjeta horizontal de material recomendado (mockup "Abastecimiento de
- * Materiales"): imagen, título con precio/kg, chips, descripción y acción.
+ * Materiales"): imagen, título con precio/kg, chips, descripción y reserva.
+ * `distanciaKm` y `puntuacion` son opcionales (dependen del emparejamiento).
  */
 const TarjetaMaterialRecomendado = ({
   titulo,
@@ -14,9 +15,11 @@ const TarjetaMaterialRecomendado = ({
   distanciaKm,
   descripcion,
   puntuacion,
+  imagenUrl,
   verificado = true,
   alVerDetalle,
-  alHacerOferta,
+  alReservar,
+  reservando = false,
 }) => {
   const acentoPuntuacion = puntuacion >= 90 ? "marca.primario" : "marca.secundario";
 
@@ -41,9 +44,13 @@ const TarjetaMaterialRecomendado = ({
         bg="fondo.pagina"
         flexShrink={0}
       >
-        <Flex h="100%" align="center" justify="center" color="gray.300">
-          <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
-        </Flex>
+        {imagenUrl ? (
+          <Image src={imagenUrl} alt={titulo} w="100%" h="100%" fit="cover" />
+        ) : (
+          <Flex h="100%" align="center" justify="center" color="gray.300">
+            <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
+          </Flex>
+        )}
         {verificado && (
           <Badge
             position="absolute"
@@ -96,7 +103,8 @@ const TarjetaMaterialRecomendado = ({
             px={2}
             py={1}
           >
-            <MdOutlineLocationOn /> {ubicacion} - {distanciaKm}km
+            <MdOutlineLocationOn /> {ubicacion}
+            {distanciaKm !== undefined && ` - ${distanciaKm}km`}
           </Badge>
         </HStack>
 
@@ -112,33 +120,39 @@ const TarjetaMaterialRecomendado = ({
           pt={3}
           mt={1}
         >
-          <HStack gap={2}>
-            <Circle
-              size="34px"
-              border="2px solid"
-              borderColor={acentoPuntuacion}
-              color={acentoPuntuacion}
-            >
-              <Text fontSize="sm" fontWeight="700">
-                {puntuacion}
+          {puntuacion !== undefined ? (
+            <HStack gap={2}>
+              <Circle
+                size="34px"
+                border="2px solid"
+                borderColor={acentoPuntuacion}
+                color={acentoPuntuacion}
+              >
+                <Text fontSize="sm" fontWeight="700">
+                  {puntuacion}
+                </Text>
+              </Circle>
+              <Text fontSize="sm" color="gray.600">
+                Puntuación de Conveniencia
               </Text>
-            </Circle>
-            <Text fontSize="sm" color="gray.600">
-              Puntuación de Conveniencia
-            </Text>
-          </HStack>
-          {alHacerOferta && (
+            </HStack>
+          ) : (
+            <Box />
+          )}
+          {alReservar && (
             <Button
               size="sm"
               colorPalette="verde"
               bg="marca.primario"
               rounded="lg"
+              loading={reservando}
+              loadingText="Reservando"
               onClick={(evento) => {
                 evento.stopPropagation();
-                alHacerOferta();
+                alReservar();
               }}
             >
-              Hacer Oferta
+              Reservar
             </Button>
           )}
         </Flex>

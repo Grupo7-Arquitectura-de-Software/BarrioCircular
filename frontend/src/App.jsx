@@ -7,21 +7,16 @@ import PaginaInicioRecolector from "@/paginas/PaginaInicioRecolector.jsx";
 import ValidadorSesion from "@/componentes/proveedores/ValidadorSesion.jsx";
 
 import PaginaPanelCiudadano from "@/paginas/PaginaPanelCiudadano.jsx";
-import PaginaMercadoCiudadano from "@/paginas/PaginaMercadoCiudadano.jsx";
-import PaginaAnalisisCiudadano from "@/paginas/PaginaAnalisisCiudadano.jsx";
-import PaginaConfiguracionCiudadano from "@/paginas/PaginaConfiguracionCiudadano.jsx";
+import PaginaConfiguracion from "@/paginas/PaginaConfiguracion.jsx";
+import PaginaAyuda from "@/paginas/PaginaAyuda.jsx";
 import PaginaCrearPublicaciones from "@/paginas/PaginaCrearPublicaciones.jsx";
 import PaginaPublicacionesDisponibles from "@/paginas/PaginaPublicacionesDisponibles.jsx";
-import PaginadeReseniaOfertas from "./paginas/PaginadeReseniaOfertas.jsx";
-import PaginaPublicacionReservada from "@/paginas/PaginaPublicacionReservada.jsx";
 import PaginadeColeccionCoordenadas from "@/paginas/PaginadeColeccionCoordenadas.jsx";
 import PaginaEntregarMaterial from "@/paginas/PaginaEntregarMaterial.jsx";
 import PaginaResultadoOperacion from "@/paginas/PaginaResultadoOperacion.jsx";
 
-import PaginaOfertasRecomendadas from "@/paginas/PaginaOfertasRecomendadas.jsx";
+import PaginaPublicacionesRecomendadas from "@/paginas/PaginaPublicacionesRecomendadas.jsx";
 import PaginaDetallePublicacion from "@/paginas/PaginaDetallePublicacion.jsx";
-import PaginaRealizarOferta from "@/paginas/PaginaRealizarOferta.jsx";
-import PaginaEsperaOferta from "@/paginas/PaginaEsperaOferta.jsx";
 import PaginaCoordinarRecoleccion from "@/paginas/PaginaCoordinarRecoleccion.jsx";
 import PaginadeValidacionMaterial from "@/paginas/PaginadeValidacionMaterial.jsx";
 import PaginadeConfirmacionOperacion from "@/paginas/PaginadeConfirmacionOperacion.jsx";
@@ -43,21 +38,26 @@ function App() {
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
           <Route path="/completar-perfil" element={<PaginaCompletarPerfil />} />
           <Route path="/ciudadano/panel" element={<PaginaPanelCiudadano />} />
-          <Route path="/ciudadano/mercado" element={<PaginaMercadoCiudadano />} />
-          <Route path="/ciudadano/analisis" element={<PaginaAnalisisCiudadano />} />
-          <Route path="/ciudadano/configuracion" element={<PaginaConfiguracionCiudadano />} />
+          <Route
+            path="/ciudadano/configuracion"
+            element={<PaginaConfiguracion rol="ciudadano" />}
+          />
+          <Route path="/ciudadano/ayuda" element={<PaginaAyuda rol="ciudadano" />} />
           <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
           <Route
             path="/ciudadano/publicacion-disponible"
             element={<PaginaPublicacionesDisponibles />}
           />
-          <Route path="/ciudadano/ver-ofertas" element={<PaginadeReseniaOfertas />} />
-          <Route path="/ciudadano/publicacion-reservada" element={<PaginaPublicacionReservada />} />
           <Route path="/ciudadano/coordinar" element={<PaginadeColeccionCoordenadas />} />
           <Route path="/ciudadano/entregar-material" element={<PaginaEntregarMaterial />} />
           <Route path="/ciudadano/resultado" element={<PaginaResultadoOperacion />} />
 
           <Route path="/recolector/inicio" element={<PaginaInicioRecolector />} />
+          <Route
+            path="/recolector/configuracion"
+            element={<PaginaConfiguracion rol="recolector" />}
+          />
+          <Route path="/recolector/ayuda" element={<PaginaAyuda rol="recolector" />} />
 
           <Route
             path="/recolector/vender/crear-publicacion"
@@ -66,14 +66,6 @@ function App() {
           <Route
             path="/recolector/vender/publicacion-disponible"
             element={<PaginaPublicacionesDisponibles prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
-          />
-          <Route
-            path="/recolector/vender/ver-ofertas"
-            element={<PaginadeReseniaOfertas prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
-          />
-          <Route
-            path="/recolector/vender/publicacion-reservada"
-            element={<PaginaPublicacionReservada prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
           />
           <Route
             path="/recolector/vender/coordinar"
@@ -86,18 +78,13 @@ function App() {
           <Route path="/recolector/vender/resultado" element={<PaginaResultadoOperacion />} />
 
           <Route
-            path="/recolector/ofertas-recomendadas"
-            element={<PaginaOfertasRecomendadas rol="recolector" />}
+            path="/recolector/publicaciones-recomendadas"
+            element={<PaginaPublicacionesRecomendadas rol="recolector" />}
           />
           <Route
             path="/recolector/detalle/:id"
             element={<PaginaDetallePublicacion rol="recolector" />}
           />
-          <Route
-            path="/recolector/realizar-oferta/:id"
-            element={<PaginaRealizarOferta rol="recolector" />}
-          />
-          <Route path="/recolector/espera/:id" element={<PaginaEsperaOferta rol="recolector" />} />
           <Route
             path="/recolector/coordinar/:id"
             element={<PaginaCoordinarRecoleccion rol="recolector" />}
@@ -113,16 +100,13 @@ function App() {
           />
 
           <Route path="/centro/buscar-materiales" element={<PaginaCentroBuscarMateriales />} />
+          <Route path="/centro/configuracion" element={<PaginaConfiguracion rol="centro" />} />
+          <Route path="/centro/ayuda" element={<PaginaAyuda rol="centro" />} />
           <Route
-            path="/centro/ofertas-recomendadas"
-            element={<PaginaOfertasRecomendadas rol="centro" />}
+            path="/centro/publicaciones-recomendadas"
+            element={<PaginaPublicacionesRecomendadas rol="centro" />}
           />
           <Route path="/centro/detalle/:id" element={<PaginaDetallePublicacion rol="centro" />} />
-          <Route
-            path="/centro/realizar-oferta/:id"
-            element={<PaginaRealizarOferta rol="centro" />}
-          />
-          <Route path="/centro/espera/:id" element={<PaginaEsperaOferta rol="centro" />} />
           <Route
             path="/centro/coordinar/:id"
             element={<PaginaCoordinarRecoleccion rol="centro" />}

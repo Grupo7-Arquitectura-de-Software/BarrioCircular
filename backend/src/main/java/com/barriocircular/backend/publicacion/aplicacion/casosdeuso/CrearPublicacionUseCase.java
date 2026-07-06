@@ -64,7 +64,7 @@ public class CrearPublicacionUseCase {
     publicacionRepositorio.guardar(publicacion);
     publicarEventos(publicacion);
 
-    return convertirResultado(publicacion);
+    return PublicacionResultado.desde(publicacion);
   }
 
   private void publicarEventos(Publicacion publicacion) {
@@ -72,20 +72,5 @@ public class CrearPublicacionUseCase {
       eventPublisher.publishEvent(evento);
     }
     publicacion.limpiarEventos();
-  }
-
-  private PublicacionResultado convertirResultado(Publicacion publicacion) {
-    return new PublicacionResultado(
-        publicacion.id().valor(),
-        publicacion.creador().valor(),
-        publicacion.detalle().tipo().name(),
-        publicacion.detalle().peso().valorKg(),
-        publicacion.precioPorKilo().valor(),
-        publicacion.ubicacion().latitud(),
-        publicacion.ubicacion().longitud(),
-        publicacion.evidencia().url(),
-        publicacion.estado().name(),
-        publicacion.fechaCreacion(),
-        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor());
   }
 }

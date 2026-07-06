@@ -27,7 +27,7 @@ const PanelInicioRecolector = ({ alVender, alComprar }) => {
               Vender material
             </Text>
             <Text fontSize="sm" color="gray.600" textAlign="center">
-              Publica materiales reciclables y recibe ofertas de compradores.
+              Publica materiales reciclables para que los compradores los reserven.
             </Text>
             <Boton
               texto="Ir a vender"
@@ -48,7 +48,7 @@ const PanelInicioRecolector = ({ alVender, alComprar }) => {
               Comprar material
             </Text>
             <Text fontSize="sm" color="gray.600" textAlign="center">
-              Explora ofertas recomendadas y realiza ofertas de compra.
+              Explora publicaciones recomendadas y reserva materiales.
             </Text>
             <Boton
               texto="Ir a comprar"

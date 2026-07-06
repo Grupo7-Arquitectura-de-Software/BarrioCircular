@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -10,30 +11,23 @@ import {
   VStack,
   createListCollection,
 } from "@chakra-ui/react";
-import { MdOutlineFileUpload, MdOutlineInfo, MdOutlineLocationOn } from "react-icons/md";
+import { MdOutlineFileUpload, MdOutlineLocationOn } from "react-icons/md";
 import SelectorDesplegable from "../atomos/SelectorDesplegable.jsx";
 import AreaCargaImagenes from "../moleculas/AreaCargaImagenes.jsx";
 import Icono from "../atomos/Icono.jsx";
+import { toaster } from "@/components/ui/toaster-instance";
+import {
+  BARRIOS_QUITO,
+  ETIQUETAS_TIPO_RESIDUO,
+  obtenerCoordenadasDeBarrio,
+} from "@/utilidades/barriosQuito";
 
 const tiposMaterial = createListCollection({
-  items: [
-    { label: "Cartón", value: "carton" },
-    { label: "Plástico PET", value: "plastico_pet" },
-    { label: "Vidrio", value: "vidrio" },
-    { label: "Metal", value: "metal" },
-    { label: "Papel", value: "papel" },
-  ],
+  items: Object.entries(ETIQUETAS_TIPO_RESIDUO).map(([value, label]) => ({ label, value })),
 });
 
 const barriosQuito = createListCollection({
-  items: [
-    { label: "La Floresta", value: "la_floresta" },
-    { label: "Cumbayá", value: "cumbaya" },
-    { label: "La Carolina", value: "la_carolina" },
-    { label: "La Mariscal", value: "la_mariscal" },
-    { label: "Centro Histórico", value: "centro_historico" },
-    { label: "Quitumbe", value: "quitumbe" },
-  ],
+  items: BARRIOS_QUITO.map((barrio) => ({ label: barrio.etiqueta, value: barrio.valor })),
 });
 
 const TarjetaSeccion = ({ titulo, children }) => (
@@ -54,39 +48,98 @@ const TarjetaSeccion = ({ titulo, children }) => (
 );
 
 /**
- * Formulario "Nueva Publicación" (mockup Entregable 3): tarjetas de
- * Detalles del Material y Ubicación y Multimedia.
+ * Formulario "Nueva Publicación": recolecta los datos alineados al contrato
+ * del backend (POST /api/publicaciones) y los entrega vía `alPublicar`.
  */
-const FormularioCrearPublicacion = ({ alPublicar, alCancelar }) => {
+const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = false }) => {
+  const [tipoResiduo, setTipoResiduo] = useState("");
+  const [pesoKg, setPesoKg] = useState("");
+  const [precioPorKilo, setPrecioPorKilo] = useState("");
+  const [barrio, setBarrio] = useState("");
+  const [archivoEvidencia, setArchivoEvidencia] = useState(null);
+
+  const advertir = (titulo, descripcion) => {
+    toaster.create({ title: titulo, description: descripcion, type: "warning", duration: 3500 });
+  };
+
+  const enviarFormulario = (evento) => {
+    evento.preventDefault();
+
+    if (!tipoResiduo) {
+      advertir("Selecciona el tipo de material", "Elige una categoría del catálogo.");
+      return;
+    }
+    if (!(Number(pesoKg) > 0)) {
+      advertir("Peso inválido", "El peso estimado debe ser mayor que 0 kg.");
+      return;
+    }
+    if (!(Number(precioPorKilo) > 0)) {
+      advertir("Precio inválido", "El precio por kilo debe ser mayor que 0.");
+      return;
+    }
+    if (!barrio) {
+      advertir("Selecciona la ubicación", "Indica el barrio de recogida.");
+      return;
+    }
+    if (!archivoEvidencia) {
+      advertir("Falta la foto de evidencia", "Sube una foto del material para publicar.");
+      return;
+    }
+
+    alPublicar?.({
+      tipoResiduo,
+      pesoKg: Number(pesoKg),
+      precioPorKilo: Number(precioPorKilo),
+      ...obtenerCoordenadasDeBarrio(barrio),
+      archivoEvidencia,
+    });
+  };
+
   return (
-    <VStack gap={6} align="stretch" w="100%">
+    <VStack as="form" onSubmit={enviarFormulario} gap={6} align="stretch" w="100%">
       <TarjetaSeccion titulo="Detalles del Material">
         <VStack gap={5} align="stretch">
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-            <Field.Root>
+            <Field.Root required>
               <Field.Label fontWeight="600">Tipo de Material</Field.Label>
               <SelectorDesplegable
                 titulo="Seleccionar categoría"
                 colecciondeDatos={tiposMaterial}
                 mostrarEtiqueta={false}
+                valor={tipoResiduo}
+                alCambiar={setTipoResiduo}
               />
             </Field.Root>
-            <Field.Root>
+            <Field.Root required>
               <Field.Label fontWeight="600">Peso Estimado (kg)</Field.Label>
-              <Input placeholder="ej., 5" type="number" bg="fondo.pagina" rounded="lg" />
+              <Input
+                placeholder="ej., 5"
+                type="number"
+                min="0.1"
+                step="0.1"
+                bg="fondo.pagina"
+                rounded="lg"
+                value={pesoKg}
+                onChange={(evento) => setPesoKg(evento.target.value)}
+                required
+              />
             </Field.Root>
           </SimpleGrid>
 
-          <Field.Root>
-            <Field.Label fontWeight="600">
-              Precio Referencial{" "}
-              <Text as="span" color="gray.500" fontWeight="400">
-                (Opcional)
-              </Text>{" "}
-              <Icono componente={<MdOutlineInfo />} tamanio="sm" color="gray.500" />
-            </Field.Label>
+          <Field.Root required>
+            <Field.Label fontWeight="600">Precio por Kilo</Field.Label>
             <InputGroup startElement={<Text color="gray.500">$</Text>}>
-              <Input placeholder="0.00" type="number" step="0.01" bg="fondo.pagina" rounded="lg" />
+              <Input
+                placeholder="0.00"
+                type="number"
+                min="0.01"
+                step="0.01"
+                bg="fondo.pagina"
+                rounded="lg"
+                value={precioPorKilo}
+                onChange={(evento) => setPrecioPorKilo(evento.target.value)}
+                required
+              />
             </InputGroup>
           </Field.Root>
         </VStack>
@@ -94,21 +147,29 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar }) => {
 
       <TarjetaSeccion titulo="Ubicación y Multimedia">
         <VStack gap={5} align="stretch">
-          <Field.Root>
+          <Field.Root required>
             <Field.Label fontWeight="600">Ubicación de Recogida (Barrios de Quito)</Field.Label>
             <SelectorDesplegable
               titulo="Seleccionar barrio"
               colecciondeDatos={barriosQuito}
               mostrarEtiqueta={false}
+              valor={barrio}
+              alCambiar={setBarrio}
               iconoInicio={
                 <Icono componente={<MdOutlineLocationOn />} tamanio="md" color="marca.primario" />
               }
             />
           </Field.Root>
 
-          <Field.Root>
-            <Field.Label fontWeight="600">Foto (Altamente Recomendado)</Field.Label>
-            <AreaCargaImagenes maximoArchivos={3} tamanioMaximoMB={10} />
+          <Field.Root required>
+            <Field.Label fontWeight="600">Foto de Evidencia</Field.Label>
+            <AreaCargaImagenes
+              maximoArchivos={1}
+              tamanioMaximoMB={10}
+              alCambiarArchivos={({ acceptedFiles }) =>
+                setArchivoEvidencia(acceptedFiles[0] ?? null)
+              }
+            />
           </Field.Root>
         </VStack>
       </TarjetaSeccion>
@@ -121,10 +182,24 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar }) => {
         pt={5}
         align="center"
       >
-        <Button variant="ghost" colorPalette="gray" rounded="lg" onClick={alCancelar}>
+        <Button
+          variant="ghost"
+          colorPalette="gray"
+          rounded="lg"
+          onClick={alCancelar}
+          disabled={estaEnviando}
+        >
           Cancelar
         </Button>
-        <Button colorPalette="verde" bg="marca.primario" rounded="lg" px={5} onClick={alPublicar}>
+        <Button
+          type="submit"
+          colorPalette="verde"
+          bg="marca.primario"
+          rounded="lg"
+          px={5}
+          loading={estaEnviando}
+          loadingText="Publicando"
+        >
           <MdOutlineFileUpload /> Publicar Material
         </Button>
       </Flex>

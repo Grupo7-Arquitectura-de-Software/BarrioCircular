@@ -10,7 +10,7 @@ const TONOS = {
 /**
  * Panel de resultado de operación (mockups Entregables 3-4): círculo de
  * estado, resumen de la publicación y monto destacado. `tono` permite la
- * variante ámbar de "Oferta Enviada".
+ * variante ámbar para estados intermedios.
  */
 const PanelResultadoFinal = ({
   titulo = "Operación Completada",
@@ -22,7 +22,7 @@ const PanelResultadoFinal = ({
   pesoKg,
   monto,
   transaccionId = null,
-  etiquetaVolver = "Volver a Ofertas",
+  etiquetaVolver = "Volver a Publicaciones",
   alVolver,
 }) => {
   const colores = TONOS[tono] || TONOS.verde;

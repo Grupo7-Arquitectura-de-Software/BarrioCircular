@@ -1,4 +1,14 @@
-import { Badge, Box, Button, Flex, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Image,
+  SimpleGrid,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { MdOutlineImage, MdOutlineLocationOn, MdOutlineSell, MdVerified } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
 import TarjetaVendedor from "../moleculas/TarjetaVendedor.jsx";
@@ -16,7 +26,8 @@ const DatoMaterial = ({ etiqueta, valor, valorColor = "gray.900" }) => (
 
 /**
  * Detalle de material publicado (mockup "Detalle de Material"): imagen con
- * estado, información del material, vendedor y ubicación con acción de oferta.
+ * estado, información del material, vendedor y ubicación con acción de
+ * reserva directa (documento 04: DISPONIBLE → RESERVADA).
  */
 const DetallePublicacion = ({
   tipoMaterial = "Cartón Corrugado",
@@ -29,7 +40,9 @@ const DetallePublicacion = ({
   calificacionVendedor = "4.9",
   detalleCalificacion = "(85 transacciones)",
   ubicacion = "Sector La Carolina, Quito",
-  alRealizarOferta,
+  imagenUrl,
+  alReservar,
+  reservando = false,
 }) => {
   return (
     <SimpleGrid columns={{ base: 1, lg: 3 }} gap={6} alignItems="start">
@@ -44,9 +57,13 @@ const DetallePublicacion = ({
           borderRadius="xl"
           overflow="hidden"
         >
-          <Flex h="100%" align="center" justify="center" color="gray.300">
-            <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
-          </Flex>
+          {imagenUrl ? (
+            <Image src={imagenUrl} alt={tipoMaterial} w="100%" h="100%" fit="cover" />
+          ) : (
+            <Flex h="100%" align="center" justify="center" color="gray.300">
+              <Icono componente={<MdOutlineImage />} tamanio="4xl" color="gray.300" />
+            </Flex>
+          )}
           <Badge
             position="absolute"
             top={4}
@@ -118,9 +135,12 @@ const DetallePublicacion = ({
           colorPalette="verde"
           bg="marca.primario"
           rounded="xl"
-          onClick={alRealizarOferta}
+          loading={reservando}
+          loadingText="Reservando"
+          disabled={estado !== "Disponible"}
+          onClick={alReservar}
         >
-          <MdOutlineSell /> Enviar Oferta
+          <MdOutlineSell /> {estado === "Disponible" ? "Reservar Material" : "No disponible"}
         </Button>
       </VStack>
     </SimpleGrid>
