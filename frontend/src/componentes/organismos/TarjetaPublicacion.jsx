@@ -8,6 +8,7 @@ const ESTILOS_ESTADO = {
   "Acción Requerida": { bg: "red.50", color: "marca.error" },
   Reservado: { bg: "azul.50", color: "marca.secundario" },
   Completada: { bg: "verde.50", color: "marca.primario" },
+  Cancelada: { bg: "red.50", color: "marca.error" },
 };
 
 /**

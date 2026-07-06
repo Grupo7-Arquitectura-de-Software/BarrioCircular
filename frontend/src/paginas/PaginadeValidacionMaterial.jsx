@@ -64,7 +64,7 @@ const PaginadeValidacionMaterial = () => {
         </VStack>
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
-          {/* Resumen de la oferta */}
+          {/* Resumen de la operación */}
           <Box
             w={{ base: "100%", lg: "300px" }}
             flexShrink={0}
@@ -77,7 +77,7 @@ const PaginadeValidacionMaterial = () => {
             <Flex justify="space-between" align="flex-start" mb={1}>
               <Box>
                 <Text fontFamily="heading" fontWeight="700" fontSize="xl">
-                  Oferta #103380
+                  Operación #103380
                 </Text>
                 <Text fontSize="sm" color="gray.600">
                   Juan Pérez
@@ -123,7 +123,7 @@ const PaginadeValidacionMaterial = () => {
                 </Text>
                 <Text>
                   <Text as="span" fontWeight="600">
-                    Oferta acordada:
+                    Precio acordado:
                   </Text>{" "}
                   $35.00
                 </Text>

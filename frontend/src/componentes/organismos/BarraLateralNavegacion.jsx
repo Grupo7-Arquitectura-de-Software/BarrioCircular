@@ -43,6 +43,11 @@ const BarraLateralNavegacion = ({
   const { pathname } = useLocation();
   const cerrarSesion = useCerrarSesion();
 
+  // La ruta de ayuda vive bajo el prefijo del rol (/ciudadano, /recolector, /centro),
+  // que se deriva del primer elemento de navegación con ruta.
+  const prefijoRol = elementos.find((elemento) => elemento.ruta)?.ruta.split("/")[1];
+  const rutaAyuda = prefijoRol ? `/${prefijoRol}/ayuda` : null;
+
   return (
     <Flex
       as="aside"
@@ -94,8 +99,9 @@ const BarraLateralNavegacion = ({
         <ElementoNavegacion
           etiqueta="Ayuda"
           icono={<MdOutlineHelpOutline />}
-          deshabilitado
-          alHacerClick={() => {}}
+          activo={Boolean(rutaAyuda && pathname.startsWith(rutaAyuda))}
+          deshabilitado={!rutaAyuda}
+          alHacerClick={() => rutaAyuda && navigate(rutaAyuda)}
         />
         <ElementoNavegacion
           etiqueta="Cerrar Sesión"

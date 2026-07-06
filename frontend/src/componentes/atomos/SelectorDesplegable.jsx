@@ -7,9 +7,16 @@ const SelectorDesplegable = ({
   mostrarEtiqueta = true,
   ancho = "100%",
   iconoInicio,
+  valor,
+  alCambiar,
 }) => {
+  const propsControladas =
+    valor !== undefined
+      ? { value: valor ? [valor] : [], onValueChange: ({ value }) => alCambiar?.(value[0] ?? "") }
+      : {};
+
   return (
-    <Select.Root collection={colecciondeDatos} size="md" width={ancho}>
+    <Select.Root collection={colecciondeDatos} size="md" width={ancho} {...propsControladas}>
       <Select.HiddenSelect />
       {mostrarEtiqueta && <Select.Label>{titulo}</Select.Label>}
       <Select.Control>

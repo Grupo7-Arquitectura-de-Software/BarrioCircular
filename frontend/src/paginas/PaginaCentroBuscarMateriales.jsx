@@ -1,66 +1,51 @@
-import { Box, Button, Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { MdCheckCircleOutline, MdOutlineGavel, MdOutlineSchedule } from "react-icons/md";
+import { MdOutlineEventAvailable, MdOutlineInbox } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
 import TarjetaMaterialRecomendado from "../componentes/organismos/TarjetaMaterialRecomendado.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
-import { MATERIALES_RECOMENDADOS } from "@/utilidades/datosMercado";
+import { barrioMasCercano, etiquetaTipoResiduo } from "@/utilidades/barriosQuito";
+import {
+  obtenerMisReservas,
+  obtenerPublicacionesDisponibles,
+} from "@/servicios/publicacionService";
+import { usePublicaciones } from "@/utilidades/usePublicaciones";
+import { useReservarPublicacion } from "@/utilidades/useReservarPublicacion";
 
-// Ofertas realizadas por el centro; el vendedor decide si las acepta o rechaza.
-const OFERTAS_ACTIVAS = [
-  {
-    id: 1,
-    titulo: "Casco de Vidrio Mixto",
-    precioPorKilo: "$0.12",
-    detalle: "200kg • Enviada hace 2 horas",
-    estado: "ACEPTADA",
-    estadoTexto: "Oferta aceptada",
-  },
-  {
-    id: 2,
-    titulo: "Jarras de Leche HDPE",
-    precioPorKilo: "$0.55",
-    detalle: "80kg • Enviada hace 45 mins",
-    estado: "PENDIENTE",
-    estadoTexto: "Esperando respuesta del vendedor",
-  },
-];
-
-const TarjetaOfertaActiva = ({ oferta }) => {
-  const aceptada = oferta.estado === "ACEPTADA";
-  return (
-    <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
-      <Flex justify="space-between" gap={2} mb={1}>
-        <Text fontWeight="600" fontSize="sm">
-          {oferta.titulo}
-        </Text>
-        <Text fontWeight="700" fontSize="sm" color="marca.primario">
-          {oferta.precioPorKilo}/kg
-        </Text>
-      </Flex>
-      <Text fontSize="xs" color="gray.600" mb={2}>
-        {oferta.detalle}
+const TarjetaReservaActiva = ({ reserva, alCoordinar }) => (
+  <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
+    <Flex justify="space-between" gap={2} mb={1}>
+      <Text fontWeight="600" fontSize="sm">
+        {reserva.pesoKg}kg de {etiquetaTipoResiduo(reserva.tipoResiduo)}
       </Text>
-      <HStack gap={1} color={aceptada ? "marca.primario" : "gray.600"} fontSize="xs">
-        <Icono
-          componente={aceptada ? <MdCheckCircleOutline /> : <MdOutlineSchedule />}
-          tamanio="sm"
-        />
-        <Text fontWeight="600">{oferta.estadoTexto}</Text>
-      </HStack>
-    </Box>
-  );
-};
+      <Text fontWeight="700" fontSize="sm" color="marca.primario">
+        ${Number(reserva.precioPorKilo).toFixed(2)}/kg
+      </Text>
+    </Flex>
+    <Text fontSize="xs" color="gray.600" mb={2}>
+      {barrioMasCercano(reserva.latitud, reserva.longitud)}
+    </Text>
+    <Button size="xs" variant="outline" colorPalette="verde" rounded="lg" onClick={alCoordinar}>
+      Coordinar recolección
+    </Button>
+  </Box>
+);
 
 /**
- * Buscador de materiales del Centro de Recolección (mockup "Abastecimiento
- * de Materiales"): filtros, recomendaciones y panel de ofertas activas.
+ * Buscador de materiales del Centro de Recolección: publicaciones disponibles
+ * reales con reserva directa y panel con las reservas activas del centro.
  */
 const PaginaCentroBuscarMateriales = () => {
   const navigate = useNavigate();
+  const { publicaciones, cargando, mensajeError } = usePublicaciones(
+    obtenerPublicacionesDisponibles,
+  );
+  const { publicaciones: reservas, cargando: cargandoReservas } =
+    usePublicaciones(obtenerMisReservas);
+  const { reservar, reservandoId } = useReservarPublicacion("centro");
 
   return (
     <DiseniodeAplicacion
@@ -79,45 +64,56 @@ const PaginaCentroBuscarMateriales = () => {
             Abastecimiento de Materiales
           </Text>
           <Text color="gray.600">
-            Descubre y oferta por materiales reciclables de alta calidad verificados por la
-            comunidad.
+            Descubre y reserva materiales reciclables publicados por la comunidad.
           </Text>
         </VStack>
 
         <FormularioBuscarMateriales />
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
-          {/* Recomendaciones */}
+          {/* Publicaciones disponibles */}
           <VStack align="stretch" gap={4} flex="1" minW={0} w="100%">
-            <Flex justify="space-between" align="center">
-              <Text fontFamily="heading" fontWeight="700" fontSize="xl">
-                Ofertas Recomendadas
-              </Text>
-              <Text fontSize="sm" color="gray.600">
-                Ordenar por:{" "}
-                <Text as="span" color="marca.primario" fontWeight="600">
-                  Conveniencia
-                </Text>
-              </Text>
-            </Flex>
+            <Text fontFamily="heading" fontWeight="700" fontSize="xl">
+              Materiales Disponibles
+            </Text>
 
-            {MATERIALES_RECOMENDADOS.map((material) => (
-              <TarjetaMaterialRecomendado
-                key={material.id}
-                titulo={material.titulo}
-                precioPorKilo={material.precioPorKilo}
-                pesoKg={material.pesoKg}
-                ubicacion={material.ubicacion}
-                distanciaKm={material.distanciaKm}
-                descripcion={material.descripcion}
-                puntuacion={material.puntuacion}
-                alVerDetalle={() => navigate(`/centro/detalle/${material.id}`)}
-                alHacerOferta={() => navigate(`/centro/realizar-oferta/${material.id}`)}
-              />
-            ))}
+            {cargando ? (
+              <Flex justify="center" py={12}>
+                <Spinner size="lg" color="marca.primario" />
+              </Flex>
+            ) : mensajeError ? (
+              <Text color="marca.error">{mensajeError}</Text>
+            ) : publicaciones.length === 0 ? (
+              <VStack
+                border="1px dashed"
+                borderColor="gray.300"
+                borderRadius="xl"
+                py={12}
+                gap={3}
+                textAlign="center"
+              >
+                <Icono componente={<MdOutlineInbox />} tamanio="4xl" color="gray.400" />
+                <Text fontWeight="600">No hay materiales disponibles por ahora</Text>
+              </VStack>
+            ) : (
+              publicaciones.map((publicacion) => (
+                <TarjetaMaterialRecomendado
+                  key={publicacion.publicacionId}
+                  titulo={`${publicacion.pesoKg}kg de ${etiquetaTipoResiduo(publicacion.tipoResiduo)}`}
+                  precioPorKilo={`$${Number(publicacion.precioPorKilo).toFixed(2)}`}
+                  pesoKg={publicacion.pesoKg}
+                  ubicacion={barrioMasCercano(publicacion.latitud, publicacion.longitud)}
+                  descripcion={`Publicado el ${new Date(publicacion.fechaCreacion).toLocaleDateString()}`}
+                  imagenUrl={publicacion.evidenciaUrl}
+                  alVerDetalle={() => navigate(`/centro/detalle/${publicacion.publicacionId}`)}
+                  alReservar={() => reservar(publicacion.publicacionId)}
+                  reservando={reservandoId === publicacion.publicacionId}
+                />
+              ))
+            )}
           </VStack>
 
-          {/* Ofertas activas */}
+          {/* Reservas activas del centro */}
           <Box
             w={{ base: "100%", lg: "300px" }}
             flexShrink={0}
@@ -128,16 +124,49 @@ const PaginaCentroBuscarMateriales = () => {
             p={4}
           >
             <HStack gap={2} mb={4}>
-              <Icono componente={<MdOutlineGavel />} tamanio="lg" color="marca.secundario" />
+              <Icono
+                componente={<MdOutlineEventAvailable />}
+                tamanio="lg"
+                color="marca.secundario"
+              />
               <Text fontFamily="heading" fontWeight="700">
-                Ofertas Activas
+                Reservas Activas
               </Text>
             </HStack>
-            <VStack align="stretch" gap={3}>
-              {OFERTAS_ACTIVAS.map((oferta) => (
-                <TarjetaOfertaActiva key={oferta.id} oferta={oferta} />
-              ))}
-            </VStack>
+            {cargandoReservas ? (
+              <Flex justify="center" py={6}>
+                <Spinner color="marca.primario" />
+              </Flex>
+            ) : reservas.length === 0 ? (
+              <VStack
+                border="1px dashed"
+                borderColor="gray.300"
+                borderRadius="lg"
+                py={8}
+                px={3}
+                gap={2}
+                textAlign="center"
+                bg="fondo.tarjeta"
+              >
+                <Icono componente={<MdOutlineInbox />} tamanio="2xl" color="gray.400" />
+                <Text fontSize="sm" fontWeight="600">
+                  Aún no tienes reservas
+                </Text>
+                <Text fontSize="xs" color="gray.600">
+                  Cuando reserves un material aparecerá aquí para coordinar su recolección.
+                </Text>
+              </VStack>
+            ) : (
+              <VStack align="stretch" gap={3}>
+                {reservas.map((reserva) => (
+                  <TarjetaReservaActiva
+                    key={reserva.publicacionId}
+                    reserva={reserva}
+                    alCoordinar={() => navigate(`/centro/coordinar/${reserva.publicacionId}`)}
+                  />
+                ))}
+              </VStack>
+            )}
             <Button
               mt={4}
               w="100%"
@@ -145,9 +174,9 @@ const PaginaCentroBuscarMateriales = () => {
               colorPalette="azul"
               bg="fondo.tarjeta"
               rounded="lg"
-              onClick={() => navigate("/centro/ofertas-recomendadas")}
+              onClick={() => navigate("/centro/publicaciones-recomendadas")}
             >
-              Ver Todas las Ofertas
+              Ver Todas las Publicaciones
             </Button>
           </Box>
         </Flex>

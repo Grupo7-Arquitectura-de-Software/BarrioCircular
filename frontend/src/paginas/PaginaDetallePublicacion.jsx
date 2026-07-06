@@ -1,4 +1,6 @@
-import { HStack, Text, VStack } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 
@@ -11,11 +13,43 @@ import {
   SUBTITULO_CENTRO,
   SUBTITULO_RECOLECTOR,
 } from "@/utilidades/navegacionPanel";
+import {
+  barrioMasCercano,
+  etiquetaEstadoPublicacion,
+  etiquetaTipoResiduo,
+} from "@/utilidades/barriosQuito";
+import { obtenerPublicacion } from "@/servicios/publicacionService";
+import { useReservarPublicacion } from "@/utilidades/useReservarPublicacion";
 
 const PaginaDetallePublicacion = ({ rol = "recolector" }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { getToken } = useAuth();
   const esCentro = rol === "centro";
+  const [publicacion, setPublicacion] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [mensajeError, setMensajeError] = useState("");
+  const consultaIniciadaRef = useRef(false);
+  const { reservar, reservandoId } = useReservarPublicacion(rol);
+
+  useEffect(() => {
+    if (consultaIniciadaRef.current) return;
+    consultaIniciadaRef.current = true;
+
+    const cargar = async () => {
+      try {
+        const token = await getToken();
+        if (!token) throw new Error("No se obtuvo un token de sesión de Clerk.");
+        setPublicacion(await obtenerPublicacion(token, id));
+      } catch (error) {
+        setMensajeError(error.message || "No fue posible cargar la publicación.");
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargar();
+  }, [getToken, id]);
 
   return (
     <DiseniodeAplicacion
@@ -37,12 +71,29 @@ const PaginaDetallePublicacion = ({ rol = "recolector" }) => {
           </Text>
         </HStack>
 
-        <DetallePublicacion
-          vendedor={esCentro ? "Colectivo La Carolina" : "Maria L."}
-          rotuloVendedor={esCentro ? "VENDEDOR (COLECTIVO)" : "VENDEDOR (CIUDADANO)"}
-          detalleCalificacion={esCentro ? "(85 transacciones)" : "(120 operaciones)"}
-          alRealizarOferta={() => navigate(`/${rol}/realizar-oferta/${id ?? "1"}`)}
-        />
+        {cargando ? (
+          <Flex justify="center" py={16}>
+            <Spinner size="lg" color="marca.primario" />
+          </Flex>
+        ) : mensajeError ? (
+          <Text color="marca.error">{mensajeError}</Text>
+        ) : (
+          <DetallePublicacion
+            tipoMaterial={etiquetaTipoResiduo(publicacion.tipoResiduo)}
+            pesoKg={publicacion.pesoKg}
+            precioPorKilo={`$${Number(publicacion.precioPorKilo).toFixed(2)}`}
+            descripcion={`Publicado el ${new Date(publicacion.fechaCreacion).toLocaleDateString()}.`}
+            estado={etiquetaEstadoPublicacion(publicacion.estado)}
+            vendedor="Vendedor de la comunidad"
+            rotuloVendedor="VENDEDOR"
+            calificacionVendedor="—"
+            detalleCalificacion="Sin calificaciones aún"
+            ubicacion={`${barrioMasCercano(publicacion.latitud, publicacion.longitud)}, Quito`}
+            imagenUrl={publicacion.evidenciaUrl}
+            alReservar={() => reservar(id)}
+            reservando={reservandoId === id}
+          />
+        )}
       </VStack>
     </DiseniodeAplicacion>
   );

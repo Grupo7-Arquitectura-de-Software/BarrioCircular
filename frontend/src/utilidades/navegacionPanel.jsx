@@ -25,7 +25,7 @@ export const RUTA_NUEVA_PUBLICACION_CIUDADANO = "/ciudadano/crear-publicacion";
 // El centro solo compra: explora el mercado y gestiona su perfil comercial.
 export const NAVEGACION_CENTRO = [
   { etiqueta: "Mercado", icono: <MdOutlineStorefront />, ruta: "/centro/buscar-materiales" },
-  { etiqueta: "Configuración", icono: <MdOutlineSettings /> },
+  { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/centro/configuracion" },
 ];
 
 export const SUBTITULO_CENTRO = "Hub de Economía Circular";
@@ -36,10 +36,10 @@ export const NAVEGACION_RECOLECTOR = [
   {
     etiqueta: "Comprar",
     icono: <MdOutlineShoppingCart />,
-    ruta: "/recolector/ofertas-recomendadas",
+    ruta: "/recolector/publicaciones-recomendadas",
   },
   { etiqueta: "Vender", icono: <MdOutlineSell />, ruta: "/recolector/vender/crear-publicacion" },
-  { etiqueta: "Configuración", icono: <MdOutlineSettings /> },
+  { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/recolector/configuracion" },
 ];
 
 export const SUBTITULO_RECOLECTOR = "Comunidad Circular";

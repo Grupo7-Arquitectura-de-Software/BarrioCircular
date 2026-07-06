@@ -52,7 +52,7 @@ const PaginaCoordinarRecoleccion = ({ rol = "recolector" }) => {
 
           <VStack align="stretch" gap={5} w={{ base: "100%", lg: "340px" }} flexShrink={0}>
             <PanelDetalleOperacion
-              insignia="Oferta Aceptada"
+              insignia="Reservado"
               material="Cartón Corrugado"
               filas={[{ etiqueta: "Peso Estimado", valor: "250 kg" }]}
               monto="$25.00"
