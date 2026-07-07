@@ -6,9 +6,11 @@ import com.barriocircular.backend.emparejamiento.dominio.repositorios.Emparejami
 import com.barriocircular.backend.emparejamiento.infraestructura.persistencia.jpa.ResultadoEmparejamientoEntity;
 import com.barriocircular.backend.emparejamiento.infraestructura.persistencia.jpa.SpringDataEmparejamientoRepository;
 import com.barriocircular.backend.emparejamiento.infraestructura.persistencia.mapeadores.ResultadoEmparejamientoMapper;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -37,9 +39,7 @@ public class EmparejamientoRepositorioAdapter implements EmparejamientoRepositor
 
   @Override
   public List<ResultadoEmparejamiento> listarPorComprador(CompradorId compradorId) {
-    return springDataRepository
-        .findByCompradorIdOrderByFechaCalculoDesc(compradorId.valor())
-        .stream()
+    return springDataRepository.findByCompradorIdOrderByFechaCalculoDesc(compradorId.valor()).stream()
         .map(mapper::toDomain)
         .toList();
   }

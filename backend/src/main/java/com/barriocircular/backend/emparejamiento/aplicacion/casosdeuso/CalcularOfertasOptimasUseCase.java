@@ -20,9 +20,11 @@ import com.barriocircular.backend.emparejamiento.dominio.modelo.objetosValor.Tip
 import com.barriocircular.backend.emparejamiento.dominio.repositorios.EmparejamientoRepositorio;
 import com.barriocircular.backend.emparejamiento.dominio.servicios.AlgoritmoEmparejamientoGeografico;
 import com.barriocircular.backend.emparejamiento.dominio.servicios.CalculadorDistanciaGeografica;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,103 +32,103 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CalcularOfertasOptimasUseCase {
 
-  private final CatalogoPublicacionesPort catalogoPublicacionesPort;
-  private final PerfilConsultor perfilConsultor;
-  private final EmparejamientoRepositorio emparejamientoRepositorio;
-  private final ApplicationEventPublisher eventPublisher;
-  private final AlgoritmoEmparejamientoGeografico algoritmo;
+    private final CatalogoPublicacionesPort catalogoPublicacionesPort;
+    private final PerfilConsultor perfilConsultor;
+    private final EmparejamientoRepositorio emparejamientoRepositorio;
+    private final ApplicationEventPublisher eventPublisher;
+    private final AlgoritmoEmparejamientoGeografico algoritmo;
 
-  public CalcularOfertasOptimasUseCase(
-      CatalogoPublicacionesPort catalogoPublicacionesPort,
-      PerfilConsultor perfilConsultor,
-      EmparejamientoRepositorio emparejamientoRepositorio,
-      ApplicationEventPublisher eventPublisher) {
-    this.catalogoPublicacionesPort = catalogoPublicacionesPort;
-    this.perfilConsultor = perfilConsultor;
-    this.emparejamientoRepositorio = emparejamientoRepositorio;
-    this.eventPublisher = eventPublisher;
-    this.algoritmo = new AlgoritmoEmparejamientoGeografico(new CalculadorDistanciaGeografica());
-  }
-
-  @Transactional
-  public ResultadoEmparejamientoResultado ejecutar(
-      BuscarOfertasOptimasCommand comando, String clerkIdAutenticado) {
-    PerfilCapacidadesComprador perfil =
-        perfilConsultor
-            .obtenerCapacidadesPorClerkId(clerkIdAutenticado)
-            .orElseThrow(PerfilNoEncontradoException::new);
-
-    if (!perfil.puedeComprarMateriales()) {
-      throw new PerfilNoAutorizadoException(
-          "El perfil autenticado no esta autorizado para buscar materiales.");
+    public CalcularOfertasOptimasUseCase(
+            CatalogoPublicacionesPort catalogoPublicacionesPort,
+            PerfilConsultor perfilConsultor,
+            EmparejamientoRepositorio emparejamientoRepositorio,
+            ApplicationEventPublisher eventPublisher) {
+        this.catalogoPublicacionesPort = catalogoPublicacionesPort;
+        this.perfilConsultor = perfilConsultor;
+        this.emparejamientoRepositorio = emparejamientoRepositorio;
+        this.eventPublisher = eventPublisher;
+        this.algoritmo = new AlgoritmoEmparejamientoGeografico(new CalculadorDistanciaGeografica());
     }
 
-    CompradorId compradorId = CompradorId.de(perfil.perfilId());
-    CoordenadaGPS posicionOrigen = new CoordenadaGPS(comando.latitud(), comando.longitud());
-    Set<TipoMaterialFiltro> tiposMaterial = convertirTipos(comando.tiposMaterial());
-    PreferenciaFiltro filtro =
-        new PreferenciaFiltro(tiposMaterial, comando.radioMaximoKm(), comando.zonaDescriptiva());
+    @Transactional
+    public ResultadoEmparejamientoResultado ejecutar(
+            BuscarOfertasOptimasCommand comando, String clerkIdAutenticado) {
+        PerfilCapacidadesComprador perfil =
+                perfilConsultor
+                        .obtenerCapacidadesPorClerkId(clerkIdAutenticado)
+                        .orElseThrow(PerfilNoEncontradoException::new);
 
-    List<OfertaCatalogo> catalogoDisponible = obtenerCatalogoDisponible();
+        if (!perfil.puedeComprarMateriales()) {
+            throw new PerfilNoAutorizadoException(
+                    "El perfil autenticado no esta autorizado para buscar materiales.");
+        }
 
-    List<PuntajeOferta> ofertasOrdenadas =
-        algoritmo.calcularOfertasOptimas(posicionOrigen, filtro, catalogoDisponible);
+        CompradorId compradorId = CompradorId.de(perfil.perfilId());
+        CoordenadaGPS posicionOrigen = new CoordenadaGPS(comando.latitud(), comando.longitud());
+        Set<TipoMaterialFiltro> tiposMaterial = convertirTipos(comando.tiposMaterial());
+        PreferenciaFiltro filtro =
+                new PreferenciaFiltro(tiposMaterial, comando.radioMaximoKm(), comando.zonaDescriptiva());
 
-    ResultadoEmparejamiento resultado =
-        ResultadoEmparejamiento.calcular(compradorId, posicionOrigen, filtro, ofertasOrdenadas);
+        List<OfertaCatalogo> catalogoDisponible = obtenerCatalogoDisponible();
 
-    ResultadoEmparejamiento guardado = emparejamientoRepositorio.guardar(resultado);
-    publicarEventos(resultado);
+        List<PuntajeOferta> ofertasOrdenadas =
+                algoritmo.calcularOfertasOptimas(posicionOrigen, filtro, catalogoDisponible);
 
-    return convertirResultado(guardado);
-  }
+        ResultadoEmparejamiento resultado =
+                ResultadoEmparejamiento.calcular(compradorId, posicionOrigen, filtro, ofertasOrdenadas);
 
-  private List<OfertaCatalogo> obtenerCatalogoDisponible() {
-    try {
-      return catalogoPublicacionesPort.obtenerCatalogoDisponible();
-    } catch (RuntimeException causa) {
-      throw new CatalogoPublicacionesNoDisponibleException(
-          "No fue posible obtener el catalogo de publicaciones disponibles desde "
-              + "Publicacion de Materiales.",
-          causa);
+        ResultadoEmparejamiento guardado = emparejamientoRepositorio.guardar(resultado);
+        publicarEventos(resultado);
+
+        return convertirResultado(guardado);
     }
-  }
 
-  private Set<TipoMaterialFiltro> convertirTipos(Set<String> tiposMaterial) {
-    if (tiposMaterial == null) {
-      return Set.of();
+    private List<OfertaCatalogo> obtenerCatalogoDisponible() {
+        try {
+            return catalogoPublicacionesPort.obtenerCatalogoDisponible();
+        } catch (RuntimeException causa) {
+            throw new CatalogoPublicacionesNoDisponibleException(
+                    "No fue posible obtener el catalogo de publicaciones disponibles desde "
+                            + "Publicacion de Materiales.",
+                    causa);
+        }
     }
-    return tiposMaterial.stream()
-        .map(TipoMaterialFiltro::valueOf)
-        .collect(Collectors.toUnmodifiableSet());
-  }
 
-  private void publicarEventos(ResultadoEmparejamiento resultado) {
-    for (EventoDominio evento : resultado.eventos()) {
-      eventPublisher.publishEvent(evento);
+    private Set<TipoMaterialFiltro> convertirTipos(Set<String> tiposMaterial) {
+        if (tiposMaterial == null) {
+            return Set.of();
+        }
+        return tiposMaterial.stream()
+                .map(TipoMaterialFiltro::valueOf)
+                .collect(Collectors.toUnmodifiableSet());
     }
-    resultado.limpiarEventos();
-  }
 
-  private ResultadoEmparejamientoResultado convertirResultado(ResultadoEmparejamiento resultado) {
-    List<OfertaRecomendadaResultado> ofertas =
-        resultado.ofertasOrdenadas().stream()
-            .map(
-                puntaje ->
-                    new OfertaRecomendadaResultado(
-                        puntaje.publicacionId(),
-                        puntaje.distanciaKm(),
-                        puntaje.precioKg(),
-                        puntaje.scoreTotal()))
-            .toList();
+    private void publicarEventos(ResultadoEmparejamiento resultado) {
+        for (EventoDominio evento : resultado.eventos()) {
+            eventPublisher.publishEvent(evento);
+        }
+        resultado.limpiarEventos();
+    }
 
-    return new ResultadoEmparejamientoResultado(
-        resultado.id(),
-        resultado.compradorId().valor(),
-        resultado.posicionOrigen().latitud(),
-        resultado.posicionOrigen().longitud(),
-        resultado.filtroAplicado().radioMaximoKm(),
-        resultado.fechaCalculo(),
-        ofertas);
-  }
+    private ResultadoEmparejamientoResultado convertirResultado(ResultadoEmparejamiento resultado) {
+        List<OfertaRecomendadaResultado> ofertas =
+                resultado.ofertasOrdenadas().stream()
+                        .map(
+                                puntaje ->
+                                        new OfertaRecomendadaResultado(
+                                                puntaje.publicacionId(),
+                                                puntaje.distanciaKm(),
+                                                puntaje.precioKg(),
+                                                puntaje.scoreTotal()))
+                        .toList();
+
+        return new ResultadoEmparejamientoResultado(
+                resultado.id(),
+                resultado.compradorId().valor(),
+                resultado.posicionOrigen().latitud(),
+                resultado.posicionOrigen().longitud(),
+                resultado.filtroAplicado().radioMaximoKm(),
+                resultado.fechaCalculo(),
+                ofertas);
+    }
 }

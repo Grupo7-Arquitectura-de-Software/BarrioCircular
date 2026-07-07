@@ -7,7 +7,9 @@ import com.barriocircular.backend.emparejamiento.aplicacion.excepciones.Identida
 import com.barriocircular.backend.emparejamiento.interfaces.rest.dto.BuscarOfertasRequest;
 import com.barriocircular.backend.emparejamiento.interfaces.rest.dto.OfertaRecomendadaResponse;
 import com.barriocircular.backend.emparejamiento.interfaces.rest.dto.ResultadoEmparejamientoResponse;
+
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;

@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,8 @@ public class ResultadoEmparejamientoEntity {
   @Column(name = "longitud_origen", nullable = false)
   private double longitudOrigen;
 
+  // Se almacena como Set<String> (nombres del enum TipoMaterialFiltro) para no acoplar
+  // la anotacion @Enumerated del framework al enum de dominio.
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(
       name = "emparejamiento_filtro_tipos",
@@ -42,6 +45,8 @@ public class ResultadoEmparejamientoEntity {
   @Column(name = "zona_descriptiva", length = 120)
   private String zonaDescriptiva;
 
+  // @OrderColumn preserva el orden de conveniencia calculado por el algoritmo
+  // (de mayor a menor scoreTotal) al persistir y al leer de vuelta.
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(
       name = "emparejamiento_ofertas_ordenadas",
