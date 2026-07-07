@@ -23,7 +23,7 @@ import org.mockito.ArgumentCaptor;
 class PerfilUsuarioRepositoryAdapterTest {
 
   @Test
-  void guardarYBuscarPorIdConvierteEntreDominioYEntidad() {
+  void guardarYBuscarPorCuentaUsuarioIdConvierteEntreDominioYEntidad() {
     SpringDataPerfilUsuarioRepository springDataRepository =
         org.mockito.Mockito.mock(SpringDataPerfilUsuarioRepository.class);
     PerfilUsuarioMapper mapper = new PerfilUsuarioMapper();
@@ -43,14 +43,16 @@ class PerfilUsuarioRepositoryAdapterTest {
 
     ArgumentCaptor<PerfilUsuarioEntity> captor = ArgumentCaptor.forClass(PerfilUsuarioEntity.class);
     verify(springDataRepository).save(captor.capture());
-    when(springDataRepository.findById(perfil.getId())).thenReturn(Optional.of(captor.getValue()));
+    when(springDataRepository.findByCuentaUsuarioId(perfil.getCuentaUsuarioId()))
+        .thenReturn(Optional.of(captor.getValue()));
 
-    Optional<PerfilUsuario> recuperado = adapter.buscarPorId(perfil.getId());
+    Optional<PerfilUsuario> recuperado =
+        adapter.buscarPorCuentaUsuarioId(perfil.getCuentaUsuarioId());
 
     assertTrue(recuperado.isPresent());
     assertEquals(perfil.getId(), recuperado.get().getId());
     assertTrue(recuperado.get().obtenerEventosDominio().isEmpty());
-    verify(springDataRepository).findById(perfil.getId());
+    verify(springDataRepository).findByCuentaUsuarioId(perfil.getCuentaUsuarioId());
     verify(springDataRepository).save(any(PerfilUsuarioEntity.class));
   }
 }

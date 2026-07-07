@@ -43,6 +43,9 @@ public class PerfilUsuarioEntity {
   @Column(nullable = false)
   private double longitud;
 
+  @Column(length = 240)
+  private String direccionHabitual;
+
   @Column(nullable = false)
   private LocalDateTime fechaCreacion;
 
@@ -61,6 +64,36 @@ public class PerfilUsuarioEntity {
       double latitud,
       double longitud,
       LocalDateTime fechaCreacion) {
+    this(
+        id,
+        cuentaUsuarioId,
+        documentoIdentificacion,
+        nombreCompleto,
+        nombreComercial,
+        rol,
+        estadoPerfil,
+        correoElectronico,
+        telefono,
+        latitud,
+        longitud,
+        null,
+        fechaCreacion);
+  }
+
+  public PerfilUsuarioEntity(
+      UUID id,
+      UUID cuentaUsuarioId,
+      String documentoIdentificacion,
+      String nombreCompleto,
+      String nombreComercial,
+      String rol,
+      String estadoPerfil,
+      String correoElectronico,
+      String telefono,
+      double latitud,
+      double longitud,
+      String direccionHabitual,
+      LocalDateTime fechaCreacion) {
     this.id = id;
     this.cuentaUsuarioId = cuentaUsuarioId;
     this.documentoIdentificacion = documentoIdentificacion;
@@ -72,6 +105,7 @@ public class PerfilUsuarioEntity {
     this.telefono = telefono;
     this.latitud = latitud;
     this.longitud = longitud;
+    this.direccionHabitual = direccionHabitual;
     this.fechaCreacion = fechaCreacion;
   }
 
@@ -117,6 +151,10 @@ public class PerfilUsuarioEntity {
 
   public double getLongitud() {
     return longitud;
+  }
+
+  public String getDireccionHabitual() {
+    return direccionHabitual;
   }
 
   public LocalDateTime getFechaCreacion() {

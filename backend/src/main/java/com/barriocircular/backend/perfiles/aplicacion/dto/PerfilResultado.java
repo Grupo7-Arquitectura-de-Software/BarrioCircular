@@ -13,4 +13,5 @@ public record PerfilResultado(
     String correoElectronico,
     String telefono,
     double latitud,
-    double longitud) {}
+    double longitud,
+    String direccionHabitual) {}

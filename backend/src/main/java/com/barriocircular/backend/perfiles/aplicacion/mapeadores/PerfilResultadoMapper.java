@@ -19,6 +19,7 @@ public final class PerfilResultadoMapper {
         perfilUsuario.getInformacionContacto().getCorreoElectronico(),
         perfilUsuario.getInformacionContacto().getTelefono(),
         perfilUsuario.getUbicacionHabitual().getLatitud(),
-        perfilUsuario.getUbicacionHabitual().getLongitud());
+        perfilUsuario.getUbicacionHabitual().getLongitud(),
+        perfilUsuario.getDireccionHabitual());
   }
 }
