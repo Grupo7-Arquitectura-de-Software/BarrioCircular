@@ -21,12 +21,13 @@ public final class PerfilUsuario {
   private final UUID id;
   private final UUID cuentaUsuarioId;
   private final DocumentoIdentificacion documentoIdentificacion;
-  private final String nombreCompleto;
+  private String nombreCompleto;
   private final String nombreComercial;
   private RolUsuario rol;
   private EstadoPerfil estadoPerfil;
   private InformacionContacto informacionContacto;
   private CoordenadaGPS ubicacionHabitual;
+  private String direccionHabitual;
   private final LocalDateTime fechaCreacion;
   private final List<EventoDominio> eventosDominio;
 
@@ -40,6 +41,7 @@ public final class PerfilUsuario {
       EstadoPerfil estadoPerfil,
       InformacionContacto informacionContacto,
       CoordenadaGPS ubicacionHabitual,
+      String direccionHabitual,
       LocalDateTime fechaCreacion) {
     this.id = Objects.requireNonNull(id, "El identificador del perfil es obligatorio");
     this.cuentaUsuarioId =
@@ -57,6 +59,7 @@ public final class PerfilUsuario {
         Objects.requireNonNull(informacionContacto, "La informacion de contacto es obligatoria");
     this.ubicacionHabitual =
         Objects.requireNonNull(ubicacionHabitual, "La ubicacion habitual es obligatoria");
+    this.direccionHabitual = normalizarTextoOpcional(direccionHabitual);
     this.fechaCreacion =
         Objects.requireNonNull(fechaCreacion, "La fecha de creacion es obligatoria");
     this.eventosDominio = new ArrayList<>();
@@ -84,6 +87,7 @@ public final class PerfilUsuario {
             estadoPerfil,
             informacionContacto,
             ubicacionHabitual,
+            null,
             fechaCreacion);
     perfil.registrarEvento(
         new PerfilCreado(perfil.id, perfil.cuentaUsuarioId, perfil.rol, fechaCreacion));
@@ -101,6 +105,32 @@ public final class PerfilUsuario {
       InformacionContacto informacionContacto,
       CoordenadaGPS ubicacionHabitual,
       LocalDateTime fechaCreacion) {
+    return reconstituir(
+        id,
+        cuentaUsuarioId,
+        documentoIdentificacion,
+        nombreCompleto,
+        nombreComercial,
+        rol,
+        estadoPerfil,
+        informacionContacto,
+        ubicacionHabitual,
+        null,
+        fechaCreacion);
+  }
+
+  public static PerfilUsuario reconstituir(
+      UUID id,
+      UUID cuentaUsuarioId,
+      DocumentoIdentificacion documentoIdentificacion,
+      String nombreCompleto,
+      String nombreComercial,
+      RolUsuario rol,
+      EstadoPerfil estadoPerfil,
+      InformacionContacto informacionContacto,
+      CoordenadaGPS ubicacionHabitual,
+      String direccionHabitual,
+      LocalDateTime fechaCreacion) {
     return new PerfilUsuario(
         id,
         cuentaUsuarioId,
@@ -111,6 +141,7 @@ public final class PerfilUsuario {
         estadoPerfil,
         informacionContacto,
         ubicacionHabitual,
+        direccionHabitual,
         fechaCreacion);
   }
 
@@ -122,11 +153,25 @@ public final class PerfilUsuario {
     registrarActualizacion("Informacion de contacto actualizada");
   }
 
+  public void actualizarNombreCompleto(String nuevoNombreCompleto) {
+    verificarQueNoEsteSuspendido("actualizar su nombre");
+    validarNombreSegunRol(rol, nuevoNombreCompleto, nombreComercial);
+    nombreCompleto = normalizarNombre(nuevoNombreCompleto);
+    registrarActualizacion("Nombre completo actualizado");
+  }
+
   public void actualizarUbicacionHabitual(CoordenadaGPS nuevaUbicacionHabitual) {
+    verificarQueNoEsteSuspendido("actualizar su ubicacion habitual");
     ubicacionHabitual =
         Objects.requireNonNull(
             nuevaUbicacionHabitual, "La nueva ubicacion habitual es obligatoria");
     registrarActualizacion("Ubicacion habitual actualizada");
+  }
+
+  public void actualizarDireccionHabitual(String nuevaDireccionHabitual) {
+    verificarQueNoEsteSuspendido("actualizar su direccion habitual");
+    direccionHabitual = normalizarTextoOpcional(nuevaDireccionHabitual);
+    registrarActualizacion("Direccion habitual actualizada");
   }
 
   public void cambiarRol(RolUsuario nuevoRol) {
@@ -211,6 +256,13 @@ public final class PerfilUsuario {
     return nombre == null ? null : nombre.trim();
   }
 
+  private static String normalizarTextoOpcional(String texto) {
+    if (texto == null || texto.isBlank()) {
+      return null;
+    }
+    return texto.trim();
+  }
+
   public UUID getId() {
     return id;
   }
@@ -245,6 +297,10 @@ public final class PerfilUsuario {
 
   public CoordenadaGPS getUbicacionHabitual() {
     return ubicacionHabitual;
+  }
+
+  public String getDireccionHabitual() {
+    return direccionHabitual;
   }
 
   public LocalDateTime getFechaCreacion() {

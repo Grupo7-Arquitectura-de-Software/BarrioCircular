@@ -42,7 +42,7 @@ class PerfilUsuarioRepositoryAdapterIT {
 
     adapter.guardar(perfil);
 
-    PerfilUsuario recuperado = adapter.buscarPorId(perfil.getId()).orElseThrow();
+    PerfilUsuario recuperado = adapter.buscarPorCuentaUsuarioId(cuentaUsuarioId).orElseThrow();
 
     assertEquals(perfil.getId(), recuperado.getId());
     assertEquals(cuentaUsuarioId, recuperado.getCuentaUsuarioId());
@@ -54,7 +54,6 @@ class PerfilUsuarioRepositoryAdapterIT {
     assertEquals(RolUsuario.CIUDADANO, recuperado.getRol());
     assertTrue(adapter.existePorDocumentoIdentificacion(documento));
     assertTrue(adapter.existePorCuentaUsuarioId(cuentaUsuarioId));
-    assertTrue(adapter.buscarPorCuentaUsuarioId(cuentaUsuarioId).isPresent());
 
     springDataRepository.deleteById(perfil.getId());
   }

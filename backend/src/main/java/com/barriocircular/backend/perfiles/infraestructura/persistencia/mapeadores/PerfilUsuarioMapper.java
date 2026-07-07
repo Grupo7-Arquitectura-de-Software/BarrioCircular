@@ -25,6 +25,7 @@ public class PerfilUsuarioMapper {
         perfil.getInformacionContacto().getTelefono(),
         perfil.getUbicacionHabitual().getLatitud(),
         perfil.getUbicacionHabitual().getLongitud(),
+        perfil.getDireccionHabitual(),
         perfil.getFechaCreacion());
   }
 
@@ -39,6 +40,7 @@ public class PerfilUsuarioMapper {
         EstadoPerfil.valueOf(entity.getEstadoPerfil()),
         new InformacionContacto(entity.getCorreoElectronico(), entity.getTelefono()),
         new CoordenadaGPS(entity.getLatitud(), entity.getLongitud()),
+        entity.getDireccionHabitual(),
         entity.getFechaCreacion());
   }
 }

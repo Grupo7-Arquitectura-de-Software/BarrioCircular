@@ -186,11 +186,6 @@ class CrearPerfilUseCaseTest {
     }
 
     @Override
-    public Optional<PerfilUsuario> buscarPorId(UUID perfilId) {
-      return Optional.ofNullable(perfilGuardado).filter(perfil -> perfil.getId().equals(perfilId));
-    }
-
-    @Override
     public Optional<PerfilUsuario> buscarPorCuentaUsuarioId(UUID cuentaUsuarioId) {
       return Optional.ofNullable(perfilGuardado)
           .filter(perfil -> perfil.getCuentaUsuarioId().equals(cuentaUsuarioId));
