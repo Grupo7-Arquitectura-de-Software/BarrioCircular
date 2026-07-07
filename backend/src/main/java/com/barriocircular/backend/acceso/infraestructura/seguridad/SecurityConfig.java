@@ -3,6 +3,8 @@ package com.barriocircular.backend.acceso.infraestructura.seguridad;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,12 +35,17 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.cors(cors -> cors.configure(http))
+    http.cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/acceso/sesion").permitAll().anyRequest().authenticated())
+                auth.requestMatchers("/api/acceso/sesion")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
     return http.build();
   }
@@ -47,7 +54,8 @@ public class SecurityConfig {
   public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
     org.springframework.web.cors.CorsConfiguration configuration =
         new org.springframework.web.cors.CorsConfiguration();
-    configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173"));
+    configuration.setAllowedOrigins(
+        java.util.Arrays.asList("https://www.barriocircular.site", "https://barriocircular.site"));
     configuration.setAllowedMethods(
         java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
