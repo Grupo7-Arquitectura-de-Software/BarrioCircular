@@ -30,6 +30,9 @@ replay_pid*
 .env
 .env.prod
 .env.prod.local
+*.crt
+*.key
+*.pem
 
 # Root DevOps dependencies
 /node_modules/
