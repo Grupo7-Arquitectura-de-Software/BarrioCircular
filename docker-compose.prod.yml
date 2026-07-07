@@ -31,6 +31,9 @@ services:
       - backend
     ports:
       - "${FRONTEND_PORT:-80}:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/ssl/barriocircular:/etc/nginx/ssl/barriocircular:ro
     networks:
       - application-network
 
