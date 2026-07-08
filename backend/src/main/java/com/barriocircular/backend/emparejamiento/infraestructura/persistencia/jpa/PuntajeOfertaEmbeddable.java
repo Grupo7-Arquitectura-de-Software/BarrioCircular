@@ -2,7 +2,6 @@ package com.barriocircular.backend.emparejamiento.infraestructura.persistencia.j
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 

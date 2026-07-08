@@ -37,10 +37,12 @@ class EmparejamientoControllerTest {
   @BeforeEach
   void configurar() {
     calcularOfertasOptimasUseCase = mock(CalcularOfertasOptimasUseCase.class);
-    EmparejamientoController controlador = new EmparejamientoController(calcularOfertasOptimasUseCase);
-    mockMvc = MockMvcBuilders.standaloneSetup(controlador)
-        .setControllerAdvice(new EmparejamientoExceptionHandler())
-        .build();
+    EmparejamientoController controlador =
+        new EmparejamientoController(calcularOfertasOptimasUseCase);
+    mockMvc =
+        MockMvcBuilders.standaloneSetup(controlador)
+            .setControllerAdvice(new EmparejamientoExceptionHandler())
+            .build();
   }
 
   @Test
@@ -48,25 +50,29 @@ class EmparejamientoControllerTest {
     UUID resultadoId = UUID.randomUUID();
     UUID compradorId = UUID.randomUUID();
     UUID publicacionId = UUID.randomUUID();
-    
-    ResultadoEmparejamientoResultado resultadoEsperado = new ResultadoEmparejamientoResultado(
-        resultadoId,
-        compradorId,
-        -0.18,
-        -78.48,
-        10.0,
-        Instant.now(),
-        List.of(new OfertaRecomendadaResultado(publicacionId, 2.5, new BigDecimal("0.5"), 85.0))
-    );
 
-    when(calcularOfertasOptimasUseCase.ejecutar(any(BuscarOfertasOptimasCommand.class), eq("user_123")))
+    ResultadoEmparejamientoResultado resultadoEsperado =
+        new ResultadoEmparejamientoResultado(
+            resultadoId,
+            compradorId,
+            -0.18,
+            -78.48,
+            10.0,
+            Instant.now(),
+            List.of(
+                new OfertaRecomendadaResultado(publicacionId, 2.5, new BigDecimal("0.5"), 85.0)));
+
+    when(calcularOfertasOptimasUseCase.ejecutar(
+            any(BuscarOfertasOptimasCommand.class), eq("user_123")))
         .thenReturn(resultadoEsperado);
 
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .principal(autenticacion("user_123"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -85,10 +91,12 @@ class EmparejamientoControllerTest {
 
   @Test
   void buscarOfertasOptimasLanzaExcepcionSiAutenticacionFalta() throws Exception {
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -101,14 +109,17 @@ class EmparejamientoControllerTest {
 
   @Test
   void buscarOfertasOptimasDevuelve404SiPerfilNoEncontrado() throws Exception {
-    when(calcularOfertasOptimasUseCase.ejecutar(any(BuscarOfertasOptimasCommand.class), eq("user_123")))
+    when(calcularOfertasOptimasUseCase.ejecutar(
+            any(BuscarOfertasOptimasCommand.class), eq("user_123")))
         .thenThrow(new PerfilNoEncontradoException());
 
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .principal(autenticacion("user_123"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -121,14 +132,17 @@ class EmparejamientoControllerTest {
 
   @Test
   void buscarOfertasOptimasDevuelve403SiPerfilNoAutorizado() throws Exception {
-    when(calcularOfertasOptimasUseCase.ejecutar(any(BuscarOfertasOptimasCommand.class), eq("user_123")))
+    when(calcularOfertasOptimasUseCase.ejecutar(
+            any(BuscarOfertasOptimasCommand.class), eq("user_123")))
         .thenThrow(new PerfilNoAutorizadoException("No autorizado"));
 
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .principal(autenticacion("user_123"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -141,14 +155,17 @@ class EmparejamientoControllerTest {
 
   @Test
   void buscarOfertasOptimasDevuelve400SiFiltroInvalido() throws Exception {
-    when(calcularOfertasOptimasUseCase.ejecutar(any(BuscarOfertasOptimasCommand.class), eq("user_123")))
+    when(calcularOfertasOptimasUseCase.ejecutar(
+            any(BuscarOfertasOptimasCommand.class), eq("user_123")))
         .thenThrow(new FiltroInvalidoException("Filtro invalido"));
 
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .principal(autenticacion("user_123"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -161,14 +178,19 @@ class EmparejamientoControllerTest {
 
   @Test
   void buscarOfertasOptimasDevuelve503SiCatalogoNoDisponible() throws Exception {
-    when(calcularOfertasOptimasUseCase.ejecutar(any(BuscarOfertasOptimasCommand.class), eq("user_123")))
-        .thenThrow(new CatalogoPublicacionesNoDisponibleException("No disponible", new RuntimeException()));
+    when(calcularOfertasOptimasUseCase.ejecutar(
+            any(BuscarOfertasOptimasCommand.class), eq("user_123")))
+        .thenThrow(
+            new CatalogoPublicacionesNoDisponibleException(
+                "No disponible", new RuntimeException()));
 
-    mockMvc.perform(
+    mockMvc
+        .perform(
             post("/api/emparejamiento/buscar")
                 .principal(autenticacion("user_123"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                    """
                     {
                       "latitud": -0.18,
                       "longitud": -78.48,
@@ -180,12 +202,13 @@ class EmparejamientoControllerTest {
   }
 
   private JwtAuthenticationToken autenticacion(String clerkId) {
-    Jwt jwt = new Jwt(
-        "token",
-        Instant.now(),
-        Instant.now().plusSeconds(300),
-        Map.of("alg", "none"),
-        Map.of("sub", clerkId));
+    Jwt jwt =
+        new Jwt(
+            "token",
+            Instant.now(),
+            Instant.now().plusSeconds(300),
+            Map.of("alg", "none"),
+            Map.of("sub", clerkId));
     return new JwtAuthenticationToken(jwt);
   }
 }
