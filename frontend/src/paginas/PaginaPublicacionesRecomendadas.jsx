@@ -1,6 +1,7 @@
 import { Flex, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineInbox } from "react-icons/md";
+import { useEffect, useRef } from "react";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
@@ -13,21 +14,31 @@ import {
   SUBTITULO_RECOLECTOR,
 } from "@/utilidades/navegacionPanel";
 import { barrioMasCercano, etiquetaTipoResiduo } from "@/utilidades/barriosQuito";
-import { obtenerPublicacionesDisponibles } from "@/servicios/publicacionService";
-import { usePublicaciones } from "@/utilidades/usePublicaciones";
+import { useEmparejamiento } from "@/utilidades/useEmparejamiento";
 import { useReservarPublicacion } from "@/utilidades/useReservarPublicacion";
 
 /**
  * Publicaciones recomendadas para compradores (reciclador y centro), cargadas
- * del backend (GET /api/publicaciones/disponibles) con reserva directa.
+ * usando el motor de emparejamiento para ordenar según distancia y precio.
  */
 const PaginaPublicacionesRecomendadas = ({ rol = "recolector" }) => {
   const navigate = useNavigate();
   const esCentro = rol === "centro";
-  const { publicaciones, cargando, mensajeError } = usePublicaciones(
-    obtenerPublicacionesDisponibles,
-  );
+
+  const { publicaciones, cargando, mensajeError, buscar, cargarInicial } = useEmparejamiento();
   const { reservar, reservandoId } = useReservarPublicacion(rol);
+  const busquedaInicialRef = useRef(false);
+
+  useEffect(() => {
+    if (!busquedaInicialRef.current) {
+      busquedaInicialRef.current = true;
+      cargarInicial();
+    }
+  }, [cargarInicial]);
+
+  const manejarBusqueda = (filtros) => {
+    buscar(filtros);
+  };
 
   return (
     <DiseniodeAplicacion
@@ -52,7 +63,7 @@ const PaginaPublicacionesRecomendadas = ({ rol = "recolector" }) => {
           </Text>
         </VStack>
 
-        <FormularioBuscarMateriales />
+        <FormularioBuscarMateriales onBuscar={manejarBusqueda} />
 
         {cargando ? (
           <Flex justify="center" py={16}>
@@ -74,7 +85,7 @@ const PaginaPublicacionesRecomendadas = ({ rol = "recolector" }) => {
               No hay materiales disponibles por ahora
             </Text>
             <Text fontSize="sm" color="gray.600">
-              Cuando la comunidad publique materiales reciclables aparecerán aquí.
+              Prueba a cambiar los filtros de búsqueda o espera a que la comunidad publique más.
             </Text>
           </VStack>
         ) : (

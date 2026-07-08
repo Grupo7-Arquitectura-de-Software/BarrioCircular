@@ -53,7 +53,7 @@ public class ResultadoEmparejamientoMapper {
 
     PreferenciaFiltro filtro =
         new PreferenciaFiltro(
-            tiposMaterial, entity.getRadioMaximoKm(), entity.getZonaDescriptiva());
+            tiposMaterial, entity.getRadioMaximoKm(), entity.getZonaDescriptiva(), null, null);
 
     List<PuntajeOferta> ofertasOrdenadas =
         entity.getOfertasOrdenadas().stream()

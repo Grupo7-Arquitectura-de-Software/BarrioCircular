@@ -42,7 +42,9 @@ public class EmparejamientoController {
         solicitud.longitud(),
         solicitud.radioMaximoKm(),
         solicitud.tiposMaterial(),
-        solicitud.zonaDescriptiva());
+        solicitud.zonaDescriptiva(),
+        solicitud.pesoMinimo(),
+        solicitud.pesoMaximo());
   }
 
   private ResultadoEmparejamientoResponse convertirRespuesta(
