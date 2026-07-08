@@ -56,7 +56,8 @@ class CrearCalculoOfertasOptimas {
   @BeforeEach
   void setUp() {
     comandoValido =
-        new BuscarOfertasOptimasCommand(-0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro",1.0,2.0);
+        new BuscarOfertasOptimasCommand(
+            -0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro", 1.0, 2.0);
   }
 
   @Test
