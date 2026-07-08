@@ -4,7 +4,11 @@ import com.barriocircular.backend.emparejamiento.dominio.modelo.excepciones.Filt
 import java.util.Set;
 
 public record PreferenciaFiltro(
-    Set<TipoMaterialFiltro> tiposMaterial, double radioMaximoKm, String zonaDescriptiva) {
+    Set<TipoMaterialFiltro> tiposMaterial,
+    double radioMaximoKm,
+    String zonaDescriptiva,
+    Double pesoMinimo,
+    Double pesoMaximo) {
   private static final double RADIO_MAXIMO_KM = 50;
 
   public PreferenciaFiltro {
@@ -12,7 +16,7 @@ public record PreferenciaFiltro(
       throw new FiltroInvalidoException("Debe seleccionar al menos un tipo de material.");
     }
 
-    if (tiposMaterial.contains(null)) {
+    if (tiposMaterial.stream().anyMatch(java.util.Objects::isNull)) {
       throw new FiltroInvalidoException("Los tipos de material no pueden contener valores nulos.");
     }
 
@@ -20,6 +24,10 @@ public record PreferenciaFiltro(
       throw new FiltroInvalidoException(
           "El radio maximo (km) debe ser mayor que 0 y menor o igual a 50. Recibido:",
           radioMaximoKm);
+    }
+
+    if (pesoMinimo != null && pesoMaximo != null && pesoMinimo > pesoMaximo) {
+      throw new FiltroInvalidoException("El peso minimo no puede ser mayor al peso maximo.");
     }
 
     tiposMaterial = Set.copyOf(tiposMaterial);

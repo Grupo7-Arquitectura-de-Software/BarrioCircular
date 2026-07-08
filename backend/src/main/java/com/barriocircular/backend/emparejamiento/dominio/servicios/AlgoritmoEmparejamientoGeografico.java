@@ -31,6 +31,8 @@ public final class AlgoritmoEmparejamientoGeografico {
     return catalogoDisponible.stream()
         .filter(oferta -> ESTADO_DISPONIBLE.equals(oferta.estado()))
         .filter(oferta -> filtro.tiposMaterial().contains(oferta.tipoResiduo()))
+        .filter(oferta -> filtro.pesoMinimo() == null || oferta.pesoKg() >= filtro.pesoMinimo())
+        .filter(oferta -> filtro.pesoMaximo() == null || oferta.pesoKg() <= filtro.pesoMaximo())
         .map(oferta -> puntuarOferta(posicionComprador, filtro, oferta))
         .flatMap(Optional::stream)
         .sorted(Comparator.comparingDouble(PuntajeOferta::scoreTotal).reversed())

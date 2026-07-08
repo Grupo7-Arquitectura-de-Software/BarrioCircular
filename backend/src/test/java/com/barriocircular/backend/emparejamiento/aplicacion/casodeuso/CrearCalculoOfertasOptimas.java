@@ -56,7 +56,8 @@ class CrearCalculoOfertasOptimas {
   @BeforeEach
   void setUp() {
     comandoValido =
-        new BuscarOfertasOptimasCommand(-0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro");
+        new BuscarOfertasOptimasCommand(
+            -0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro", 1.0, 2.0);
   }
 
   @Test
@@ -70,7 +71,7 @@ class CrearCalculoOfertasOptimas {
         new OfertaCatalogo(
             UUID.randomUUID(),
             TipoMaterialFiltro.CARTON,
-            10.0,
+            1.5,
             new BigDecimal("0.5"),
             -0.19,
             -78.49,

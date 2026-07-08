@@ -65,7 +65,12 @@ public class CalcularOfertasOptimasUseCase {
     CoordenadaGPS posicionOrigen = new CoordenadaGPS(comando.latitud(), comando.longitud());
     Set<TipoMaterialFiltro> tiposMaterial = convertirTipos(comando.tiposMaterial());
     PreferenciaFiltro filtro =
-        new PreferenciaFiltro(tiposMaterial, comando.radioMaximoKm(), comando.zonaDescriptiva());
+        new PreferenciaFiltro(
+            tiposMaterial,
+            comando.radioMaximoKm(),
+            comando.zonaDescriptiva(),
+            comando.pesoMinimo(),
+            comando.pesoMaximo());
 
     List<OfertaCatalogo> catalogoDisponible = obtenerCatalogoDisponible();
 

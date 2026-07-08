@@ -7,4 +7,6 @@ public record BuscarOfertasRequest(
     double longitud,
     double radioMaximoKm,
     Set<String> tiposMaterial,
-    String zonaDescriptiva) {}
+    String zonaDescriptiva,
+    Double pesoMinimo,
+    Double pesoMaximo) {}
