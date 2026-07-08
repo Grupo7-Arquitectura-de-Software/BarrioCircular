@@ -8,11 +8,9 @@ import com.barriocircular.backend.emparejamiento.dominio.modelo.objetosValor.Pun
 import com.barriocircular.backend.emparejamiento.dominio.modelo.objetosValor.TipoMaterialFiltro;
 import com.barriocircular.backend.emparejamiento.infraestructura.persistencia.jpa.PuntajeOfertaEmbeddable;
 import com.barriocircular.backend.emparejamiento.infraestructura.persistencia.jpa.ResultadoEmparejamientoEntity;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
 
 @Component

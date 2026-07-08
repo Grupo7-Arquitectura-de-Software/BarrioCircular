@@ -4,6 +4,5 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record EmparejamientoCalculado(
-        UUID resultadoId, UUID compradorId, int cantidadOfertasEncontradas, Instant ocurridoEn)
-        implements EventoDominio {
-}
+    UUID resultadoId, UUID compradorId, int cantidadOfertasEncontradas, Instant ocurridoEn)
+    implements EventoDominio {}

@@ -9,7 +9,6 @@ import com.barriocircular.backend.emparejamiento.dominio.modelo.excepciones.Filt
 import com.barriocircular.backend.emparejamiento.dominio.modelo.excepciones.OfertaCatalogoInvalidaException;
 import com.barriocircular.backend.emparejamiento.dominio.modelo.excepciones.PosicionFueraDeRangoException;
 import com.barriocircular.backend.emparejamiento.dominio.modelo.excepciones.PuntajeInvalidoException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,7 +45,8 @@ public class EmparejamientoExceptionHandler {
   }
 
   @ExceptionHandler(CatalogoPublicacionesNoDisponibleException.class)
-  ProblemDetail manejarIntegracionNoDisponible(CatalogoPublicacionesNoDisponibleException excepcion) {
+  ProblemDetail manejarIntegracionNoDisponible(
+      CatalogoPublicacionesNoDisponibleException excepcion) {
     return crearProblema(HttpStatus.SERVICE_UNAVAILABLE, excepcion.getMessage());
   }
 

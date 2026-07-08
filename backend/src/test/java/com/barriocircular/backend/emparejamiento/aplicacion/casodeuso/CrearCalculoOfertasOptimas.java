@@ -56,15 +56,13 @@ class CrearCalculoOfertasOptimas {
   @BeforeEach
   void setUp() {
     comandoValido =
-        new BuscarOfertasOptimasCommand(
-            -0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro");
+        new BuscarOfertasOptimasCommand(-0.18, -78.48, 10.0, Set.of("CARTON", "PET"), "Centro");
   }
 
   @Test
   void calculaOfertasOptimasExitosamente() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades =
-        new PerfilCapacidadesComprador(perfilId, true);
+    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, true);
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 
@@ -111,8 +109,7 @@ class CrearCalculoOfertasOptimas {
   @Test
   void lanzaExcepcionSiPerfilNoAutorizado() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades =
-        new PerfilCapacidadesComprador(perfilId, false);
+    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, false);
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 
@@ -127,8 +124,7 @@ class CrearCalculoOfertasOptimas {
   @Test
   void lanzaExcepcionSiCatalogoNoDisponible() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades =
-        new PerfilCapacidadesComprador(perfilId, true);
+    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, true);
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 
