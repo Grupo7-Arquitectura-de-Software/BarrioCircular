@@ -1,5 +1,7 @@
 package com.barriocircular.backend.acceso.infraestructura.seguridad;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,9 @@ public class SecurityConfig {
 
   @Value("${clerk.issuer}")
   private String issuer;
+
+  @Value("${app.cors.allowed-origins}")
+  private String allowedOrigins;
 
   @Bean
   public JwtDecoder jwtDecoder() {
@@ -56,14 +61,14 @@ public class SecurityConfig {
   public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
     org.springframework.web.cors.CorsConfiguration configuration =
         new org.springframework.web.cors.CorsConfiguration();
-    configuration.setAllowedOrigins(
-        java.util.Arrays.asList(
-            "https://www.barriocircular.site",
-            "https://barriocircular.site",
-            "http://localhost:5173"));
-    configuration.setAllowedMethods(
-        java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+    List<String> origins =
+        Arrays.stream(allowedOrigins.split(","))
+            .map(String::trim)
+            .filter(origin -> !origin.isBlank())
+            .toList();
+    configuration.setAllowedOrigins(origins);
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(Arrays.asList("*"));
     org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
         new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

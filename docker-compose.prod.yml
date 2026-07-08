@@ -16,6 +16,7 @@ services:
       CLERK_JWKS_URI: "${CLERK_JWKS_URI:?Define CLERK_JWKS_URI}"
       CLERK_ISSUER: "${CLERK_ISSUER:?Define CLERK_ISSUER}"
       FRONTEND_BASE_URL: "${FRONTEND_BASE_URL:-https://barriocircular.site}"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-https://www.barriocircular.site,https://barriocircular.site}"
     expose:
       - "8080"
     networks:

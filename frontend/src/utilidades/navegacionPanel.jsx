@@ -2,6 +2,7 @@ import {
   MdOutlineGridView,
   MdOutlineListAlt,
   MdOutlineLocalShipping,
+  MdOutlineQrCode2,
   MdOutlineSell,
   MdOutlineSettings,
   MdOutlineShoppingCart,
@@ -25,6 +26,7 @@ export const RUTA_NUEVA_PUBLICACION_CIUDADANO = "/ciudadano/crear-publicacion";
 // El centro solo compra: explora el mercado y gestiona su perfil comercial.
 export const NAVEGACION_CENTRO = [
   { etiqueta: "Mercado", icono: <MdOutlineStorefront />, ruta: "/centro/buscar-materiales" },
+  { etiqueta: "Mi QR de identidad", icono: <MdOutlineQrCode2 />, ruta: "/centro/identidad" },
   { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/centro/configuracion" },
 ];
 
@@ -39,6 +41,11 @@ export const NAVEGACION_RECOLECTOR = [
     ruta: "/recolector/publicaciones-recomendadas",
   },
   { etiqueta: "Vender", icono: <MdOutlineSell />, ruta: "/recolector/vender/crear-publicacion" },
+  {
+    etiqueta: "Mi QR de identidad",
+    icono: <MdOutlineQrCode2 />,
+    ruta: "/recolector/identidad",
+  },
   { etiqueta: "Configuración", icono: <MdOutlineSettings />, ruta: "/recolector/configuracion" },
 ];
 

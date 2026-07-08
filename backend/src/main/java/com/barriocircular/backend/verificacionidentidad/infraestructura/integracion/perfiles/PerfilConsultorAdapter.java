@@ -74,9 +74,13 @@ public class PerfilConsultorAdapter implements PerfilConsultor {
   }
 
   private String nombreMostrado(PerfilUsuario perfil) {
-    return perfil.getNombreComercial() != null
-        ? perfil.getNombreComercial()
-        : perfil.getNombreCompleto();
+    if (perfil.getNombreComercial() != null && !perfil.getNombreComercial().isBlank()) {
+      return perfil.getNombreComercial();
+    }
+    if (perfil.getNombreCompleto() != null && !perfil.getNombreCompleto().isBlank()) {
+      return perfil.getNombreCompleto();
+    }
+    return null;
   }
 
   private Instant fechaRegistro(PerfilUsuario perfil) {
