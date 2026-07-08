@@ -55,7 +55,10 @@ public class SecurityConfig {
     org.springframework.web.cors.CorsConfiguration configuration =
         new org.springframework.web.cors.CorsConfiguration();
     configuration.setAllowedOrigins(
-        java.util.Arrays.asList("https://www.barriocircular.site", "https://barriocircular.site", "http://localhost:5173"));
+        java.util.Arrays.asList(
+            "https://www.barriocircular.site",
+            "https://barriocircular.site",
+            "http://localhost:5173"));
     configuration.setAllowedMethods(
         java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
