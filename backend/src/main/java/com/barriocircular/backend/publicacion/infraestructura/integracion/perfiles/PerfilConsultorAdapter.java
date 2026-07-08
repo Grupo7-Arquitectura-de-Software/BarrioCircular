@@ -7,7 +7,7 @@ import com.barriocircular.backend.publicacion.aplicacion.puertos.PerfilConsultor
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("perfilConsultorPublicacion")
 public class PerfilConsultorAdapter implements PerfilConsultor {
 
   private final CuentaAccesoRepositorio repositorioCuentasAcceso;
