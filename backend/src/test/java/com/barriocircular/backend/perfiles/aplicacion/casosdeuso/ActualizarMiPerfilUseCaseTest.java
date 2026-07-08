@@ -125,6 +125,11 @@ class ActualizarMiPerfilUseCaseTest {
     }
 
     @Override
+    public Optional<PerfilUsuario> buscarPorId(UUID id) {
+      return Optional.ofNullable(perfiles.get(id));
+    }
+
+    @Override
     public Optional<PerfilUsuario> buscarPorCuentaUsuarioId(UUID cuentaUsuarioId) {
       return perfiles.values().stream()
           .filter(perfil -> perfil.getCuentaUsuarioId().equals(cuentaUsuarioId))

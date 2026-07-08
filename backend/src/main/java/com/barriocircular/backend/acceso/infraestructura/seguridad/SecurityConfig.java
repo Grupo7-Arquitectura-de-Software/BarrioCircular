@@ -40,7 +40,9 @@ public class SecurityConfig {
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/acceso/sesion")
+                auth.requestMatchers(HttpMethod.GET, "/api/verificacion-identidad/publico/**")
+                    .permitAll()
+                    .requestMatchers("/api/acceso/sesion")
                     .authenticated()
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
