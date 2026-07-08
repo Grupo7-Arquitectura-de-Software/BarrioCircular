@@ -77,7 +77,10 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = fal
 
   const sugerirPrecioConIA = async () => {
     if (!tipoResiduo) {
-      advertir("Selecciona el tipo de material", "Elige una categoría antes de pedir una sugerencia.");
+      advertir(
+        "Selecciona el tipo de material",
+        "Elige una categoría antes de pedir una sugerencia.",
+      );
       return;
     }
     if (!archivoEvidencia) {
@@ -102,7 +105,10 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = fal
       setPrecioPorKilo(String(resultado.precioSugeridoPorKilo));
       setJustificacionSugerida(resultado.justificacion || "");
     } catch {
-      advertir("No se pudo sugerir un precio", "Intenta nuevamente o ingresa el precio manualmente.");
+      advertir(
+        "No se pudo sugerir un precio",
+        "Intenta nuevamente o ingresa el precio manualmente.",
+      );
     } finally {
       setEstaSugiriendoPrecio(false);
     }

@@ -49,11 +49,7 @@ const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiar
                 overflow="hidden"
               >
                 <FileUpload.ItemPreview flexShrink={0}>
-                  <FileUpload.ItemPreviewImage
-                    boxSize="60px"
-                    objectFit="cover"
-                    borderRadius="md"
-                  />
+                  <FileUpload.ItemPreviewImage boxSize="60px" objectFit="cover" borderRadius="md" />
                 </FileUpload.ItemPreview>
                 <FileUpload.ItemName flex="1" minW={0} truncate />
                 <FileUpload.ItemSizeText flexShrink={0} />
