@@ -32,13 +32,7 @@ const PaginaInicioRecolector = () => {
           </Text>
         </VStack>
 
-        <Box
-          bg="fondo.tarjeta"
-          border="1px solid"
-          borderColor="gray.200"
-          borderRadius="xl"
-          p={5}
-        >
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>
           <Flex
             justify="space-between"
             align={{ base: "stretch", md: "center" }}
@@ -60,8 +54,8 @@ const PaginaInicioRecolector = () => {
                   Credencial de confianza
                 </Text>
                 <Text color="gray.600" fontSize="sm">
-                  Muestra tu QR de identidad cuando vayas a recoger materiales para que el
-                  ciudadano confirme que perteneces a Barrio Circular.
+                  Muestra tu QR de identidad cuando vayas a recoger materiales para que el ciudadano
+                  confirme que perteneces a Barrio Circular.
                 </Text>
               </VStack>
             </Flex>

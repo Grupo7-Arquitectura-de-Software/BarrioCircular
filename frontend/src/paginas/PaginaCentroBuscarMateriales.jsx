@@ -68,13 +68,7 @@ const PaginaCentroBuscarMateriales = () => {
           </Text>
         </VStack>
 
-        <Box
-          bg="fondo.tarjeta"
-          border="1px solid"
-          borderColor="gray.200"
-          borderRadius="xl"
-          p={5}
-        >
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>
           <Flex
             justify="space-between"
             align={{ base: "stretch", md: "center" }}

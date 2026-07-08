@@ -64,8 +64,8 @@ const EstadoVerificacion = ({ valido, resultado }) => {
           Credencial no válida
         </Text>
         <Text color="gray.600">
-          No se pudo confirmar que esta identidad esté activa en Barrio Circular. Por seguridad,
-          no entregues materiales usando esta credencial.
+          No se pudo confirmar que esta identidad esté activa en Barrio Circular. Por seguridad, no
+          entregues materiales usando esta credencial.
         </Text>
       </VStack>
     </VStack>
@@ -123,9 +123,7 @@ const PaginaVerificacionIdentidadPublica = () => {
               <Text fontFamily="heading" fontWeight="700" fontSize="2xl">
                 No pudimos verificar la credencial
               </Text>
-              <Text color="gray.600">
-                Revisa tu conexión e intenta nuevamente en unos minutos.
-              </Text>
+              <Text color="gray.600">Revisa tu conexión e intenta nuevamente en unos minutos.</Text>
             </VStack>
           ) : (
             <EstadoVerificacion valido={Boolean(resultado?.valido)} resultado={resultado || {}} />

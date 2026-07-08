@@ -2,7 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { useLocation } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import { Box, Button, Flex, Link, Spinner, Text, VStack, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Link,
+  Spinner,
+  Text,
+  VStack,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { MdContentCopy, MdOutlineBadge, MdQrCode2 } from "react-icons/md";
 
 import DiseniodeAplicacion from "@/componentes/plantillas/DiseniodeAplicacion.jsx";
@@ -61,9 +70,7 @@ const PaginaMiQrIdentidad = () => {
         if (!token) throw new Error("No se obtuvo un token de sesión de Clerk.");
         setCredencial(await emitirCredencialIdentidad(token));
       } catch (error) {
-        setMensajeError(
-          error.message || "No fue posible generar tu credencial de identidad.",
-        );
+        setMensajeError(error.message || "No fue posible generar tu credencial de identidad.");
       } finally {
         setCargando(false);
       }
@@ -179,7 +186,12 @@ const PaginaMiQrIdentidad = () => {
               </Box>
 
               <Flex justify="center">
-                <Button colorPalette="verde" bg="marca.primario" rounded="lg" onClick={copiarEnlace}>
+                <Button
+                  colorPalette="verde"
+                  bg="marca.primario"
+                  rounded="lg"
+                  onClick={copiarEnlace}
+                >
                   <MdContentCopy /> Copiar enlace
                 </Button>
               </Flex>
