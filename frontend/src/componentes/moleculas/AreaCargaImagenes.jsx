@@ -39,13 +39,25 @@ const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiar
         <FileUpload.Context>
           {({ acceptedFiles }) =>
             acceptedFiles.map((archivo) => (
-              <FileUpload.Item key={archivo.name} file={archivo}>
-                <FileUpload.ItemPreview>
-                  <FileUpload.ItemPreviewImage />
+              <FileUpload.Item
+                key={archivo.name}
+                file={archivo}
+                w="100%"
+                display="flex"
+                alignItems="center"
+                gap={3}
+                overflow="hidden"
+              >
+                <FileUpload.ItemPreview flexShrink={0}>
+                  <FileUpload.ItemPreviewImage
+                    boxSize="60px"
+                    objectFit="cover"
+                    borderRadius="md"
+                  />
                 </FileUpload.ItemPreview>
-                <FileUpload.ItemName />
-                <FileUpload.ItemSizeText />
-                <FileUpload.ItemDeleteTrigger />
+                <FileUpload.ItemName flex="1" minW={0} truncate />
+                <FileUpload.ItemSizeText flexShrink={0} />
+                <FileUpload.ItemDeleteTrigger flexShrink={0} />
               </FileUpload.Item>
             ))
           }
