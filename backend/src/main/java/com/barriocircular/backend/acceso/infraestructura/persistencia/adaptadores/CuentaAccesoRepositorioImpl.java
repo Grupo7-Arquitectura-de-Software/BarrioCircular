@@ -4,6 +4,7 @@ import com.barriocircular.backend.acceso.dominio.modelo.agregados.CuentaAcceso;
 import com.barriocircular.backend.acceso.dominio.repositorios.CuentaAccesoRepositorio;
 import com.barriocircular.backend.acceso.infraestructura.persistencia.mapeadores.CuentaAccesoMapper;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -21,6 +22,11 @@ public class CuentaAccesoRepositorioImpl implements CuentaAccesoRepositorio {
   @Override
   public void guardar(CuentaAcceso cuenta) {
     datacuentarepositorio.save(cuentaAccesoMapper.aEntidad(cuenta));
+  }
+
+  @Override
+  public Optional<CuentaAcceso> buscarPorId(UUID id) {
+    return datacuentarepositorio.findByIdentificadorCuenta(id).map(cuentaAccesoMapper::alDominio);
   }
 
   @Override

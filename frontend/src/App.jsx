@@ -25,6 +25,8 @@ import PaginaResultadoFinalComprador from "@/paginas/PaginaResultadoFinalComprad
 import PaginaCentroBuscarMateriales from "@/paginas/PaginaCentroBuscarMateriales.jsx";
 import PaginaCentroValidacionMaterial from "@/paginas/PaginaCentroValidacionMaterial.jsx";
 import PaginaCentroConfirmacionOperacion from "@/paginas/PaginaCentroConfirmacionOperacion.jsx";
+import PaginaMiQrIdentidad from "@/paginas/PaginaMiQrIdentidad.jsx";
+import PaginaVerificacionIdentidadPublica from "@/paginas/PaginaVerificacionIdentidadPublica.jsx";
 
 const PREFIJO_RECOLECTOR_VENDER = "/recolector/vender";
 
@@ -36,6 +38,7 @@ function App() {
           <Route path="/" element={<Navigate to="/seleccionar-rol" replace />} />
           <Route path="/seleccionar-rol" element={<PaginadeSeleccionRol />} />
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
+          <Route path="/verificar/:token" element={<PaginaVerificacionIdentidadPublica />} />
           <Route path="/completar-perfil" element={<PaginaCompletarPerfil />} />
           <Route path="/ciudadano/panel" element={<PaginaPanelCiudadano />} />
           <Route
@@ -57,6 +60,7 @@ function App() {
             path="/recolector/configuracion"
             element={<PaginaConfiguracion rol="recolector" />}
           />
+          <Route path="/recolector/identidad" element={<PaginaMiQrIdentidad />} />
           <Route path="/recolector/ayuda" element={<PaginaAyuda rol="recolector" />} />
 
           <Route
@@ -101,6 +105,7 @@ function App() {
 
           <Route path="/centro/buscar-materiales" element={<PaginaCentroBuscarMateriales />} />
           <Route path="/centro/configuracion" element={<PaginaConfiguracion rol="centro" />} />
+          <Route path="/centro/identidad" element={<PaginaMiQrIdentidad />} />
           <Route path="/centro/ayuda" element={<PaginaAyuda rol="centro" />} />
           <Route
             path="/centro/publicaciones-recomendadas"

@@ -1,8 +1,11 @@
-import { Box, Flex, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { MdOutlineQrCode2 } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion";
 import PanelRutaRecoleccion from "../componentes/organismos/PanelRutaRecoleccion.jsx";
 import PanelCoordinacionMensajes from "../componentes/organismos/PanelCoordinacionMensajes.jsx";
+import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navegacionPanel";
 
 /**
@@ -10,6 +13,8 @@ import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navega
  * operativo con ruta de recolección y mensajes de coordinación.
  */
 const PaginaInicioRecolector = () => {
+  const navigate = useNavigate();
+
   return (
     <DiseniodeAplicacion
       navegacion={NAVEGACION_RECOLECTOR}
@@ -26,6 +31,44 @@ const PaginaInicioRecolector = () => {
             Gestiona tus flujos de materiales y el impacto en la comunidad.
           </Text>
         </VStack>
+
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>
+          <Flex
+            justify="space-between"
+            align={{ base: "stretch", md: "center" }}
+            gap={4}
+            direction={{ base: "column", md: "row" }}
+          >
+            <Flex gap={4} align="flex-start">
+              <Box
+                bg="fondo.cabeceraTarjeta"
+                borderRadius="lg"
+                color="marca.primario"
+                p={3}
+                flexShrink={0}
+              >
+                <Icono componente={<MdOutlineQrCode2 />} tamanio="2xl" />
+              </Box>
+              <VStack align="stretch" gap={1}>
+                <Text fontFamily="heading" fontWeight="700" fontSize="lg">
+                  Credencial de confianza
+                </Text>
+                <Text color="gray.600" fontSize="sm">
+                  Muestra tu QR de identidad cuando vayas a recoger materiales para que el ciudadano
+                  confirme que perteneces a Barrio Circular.
+                </Text>
+              </VStack>
+            </Flex>
+            <Button
+              colorPalette="verde"
+              bg="marca.primario"
+              rounded="lg"
+              onClick={() => navigate("/recolector/identidad")}
+            >
+              Ver mi QR
+            </Button>
+          </Flex>
+        </Box>
 
         <Flex gap={6} align="stretch" direction={{ base: "column", lg: "row" }}>
           <Box flex="2" minW={0}>

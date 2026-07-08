@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Spinner, Text, VStack } from "@chakra-ui/react";
 
 import { registrarSesion } from "@/servicios/accesoService";
@@ -10,16 +10,19 @@ import { estaEnAreaDeRol, obtenerRutaPrincipalPorRol } from "@/utilidades/rutasP
 
 const RUTA_AUTENTICACION = "/auth";
 const RUTA_COMPLETAR_PERFIL = "/completar-perfil";
+const RUTA_VERIFICACION_PUBLICA = "/verificar";
 // Rutas visibles sin sesión (landing de selección de rol y autenticación).
-const RUTAS_PUBLICAS = [RUTA_AUTENTICACION, "/seleccionar-rol"];
+const RUTAS_PUBLICAS = [RUTA_AUTENTICACION, "/seleccionar-rol", RUTA_VERIFICACION_PUBLICA];
 
 const ValidadorSesion = ({ children }) => {
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [estaVerificando, setEstaVerificando] = useState(true);
   const [mensajeError, setMensajeError] = useState("");
   const verificacionIniciadaRef = useRef(false);
   const componenteActivoRef = useRef(true);
+  const esRutaVerificacionPublica = pathname.startsWith(RUTA_VERIFICACION_PUBLICA);
 
   useEffect(() => {
     componenteActivoRef.current = true;
@@ -30,10 +33,16 @@ const ValidadorSesion = ({ children }) => {
       };
     }
 
+    if (esRutaVerificacionPublica) {
+      return () => {
+        componenteActivoRef.current = false;
+      };
+    }
+
     if (!isSignedIn) {
       verificacionIniciadaRef.current = false;
 
-      if (!RUTAS_PUBLICAS.some((ruta) => window.location.pathname.startsWith(ruta))) {
+      if (!RUTAS_PUBLICAS.some((ruta) => pathname.startsWith(ruta))) {
         navigate("/seleccionar-rol", { replace: true });
       }
 
@@ -65,7 +74,7 @@ const ValidadorSesion = ({ children }) => {
           perfilUsuario = await obtenerMiPerfil(token);
         } catch (error) {
           if (esErrorApiConEstado(error, 404)) {
-            if (window.location.pathname !== RUTA_COMPLETAR_PERFIL) {
+            if (pathname !== RUTA_COMPLETAR_PERFIL) {
               navigate(RUTA_COMPLETAR_PERFIL, { replace: true });
             }
             return;
@@ -78,8 +87,7 @@ const ValidadorSesion = ({ children }) => {
           throw new Error(`El rol ${perfilUsuario.rol} no tiene una ruta configurada.`);
         }
 
-        const rutaActual = window.location.pathname;
-        if (!estaEnAreaDeRol(rutaActual, perfilUsuario.rol)) {
+        if (!estaEnAreaDeRol(pathname, perfilUsuario.rol)) {
           navigate(rutaPrincipal, { replace: true });
         }
       } catch (error) {
@@ -96,7 +104,11 @@ const ValidadorSesion = ({ children }) => {
     return () => {
       componenteActivoRef.current = false;
     };
-  }, [getToken, isLoaded, isSignedIn, navigate]);
+  }, [esRutaVerificacionPublica, getToken, isLoaded, isSignedIn, navigate, pathname]);
+
+  if (esRutaVerificacionPublica) {
+    return children;
+  }
 
   if (!isLoaded || (isSignedIn && estaVerificando)) {
     return (

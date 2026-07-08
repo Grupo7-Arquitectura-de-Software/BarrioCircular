@@ -1,6 +1,6 @@
 import { Box, Button, Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { MdOutlineEventAvailable, MdOutlineInbox } from "react-icons/md";
+import { MdOutlineEventAvailable, MdOutlineInbox, MdOutlineQrCode2 } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
@@ -67,6 +67,44 @@ const PaginaCentroBuscarMateriales = () => {
             Descubre y reserva materiales reciclables publicados por la comunidad.
           </Text>
         </VStack>
+
+        <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>
+          <Flex
+            justify="space-between"
+            align={{ base: "stretch", md: "center" }}
+            gap={4}
+            direction={{ base: "column", md: "row" }}
+          >
+            <Flex gap={4} align="flex-start">
+              <Box
+                bg="fondo.cabeceraTarjeta"
+                borderRadius="lg"
+                color="marca.primario"
+                p={3}
+                flexShrink={0}
+              >
+                <Icono componente={<MdOutlineQrCode2 />} tamanio="2xl" />
+              </Box>
+              <VStack align="stretch" gap={1}>
+                <Text fontFamily="heading" fontWeight="700" fontSize="lg">
+                  Credencial del centro
+                </Text>
+                <Text color="gray.600" fontSize="sm">
+                  Permite que ciudadanos o recicladores verifiquen que este centro opera dentro de
+                  Barrio Circular.
+                </Text>
+              </VStack>
+            </Flex>
+            <Button
+              colorPalette="verde"
+              bg="marca.primario"
+              rounded="lg"
+              onClick={() => navigate("/centro/identidad")}
+            >
+              Ver QR de identidad
+            </Button>
+          </Flex>
+        </Box>
 
         <FormularioBuscarMateriales />
 

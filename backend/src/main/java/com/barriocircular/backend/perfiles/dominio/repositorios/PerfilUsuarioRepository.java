@@ -9,6 +9,8 @@ public interface PerfilUsuarioRepository {
 
   void guardar(PerfilUsuario perfil);
 
+  Optional<PerfilUsuario> buscarPorId(UUID id);
+
   Optional<PerfilUsuario> buscarPorCuentaUsuarioId(UUID cuentaUsuarioId);
 
   boolean existePorDocumentoIdentificacion(DocumentoIdentificacion documentoIdentificacion);

@@ -27,6 +27,11 @@ public class PerfilUsuarioRepositoryAdapter implements PerfilUsuarioRepository {
   }
 
   @Override
+  public Optional<PerfilUsuario> buscarPorId(UUID id) {
+    return springDataRepository.findById(id).map(mapper::toDomain);
+  }
+
+  @Override
   public Optional<PerfilUsuario> buscarPorCuentaUsuarioId(UUID cuentaUsuarioId) {
     return springDataRepository.findByCuentaUsuarioId(cuentaUsuarioId).map(mapper::toDomain);
   }
