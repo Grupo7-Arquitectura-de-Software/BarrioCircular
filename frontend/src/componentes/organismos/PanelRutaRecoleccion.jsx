@@ -21,7 +21,8 @@ const formatearHora = (fechaHora) => {
   return FORMATEADOR_HORA_ECUADOR.format(new Date(fechaHora));
 };
 
-const obtenerEstadoRuta = (estado) => ESTADOS_RUTA[estado] || { etiqueta: "Sin ruta", color: "gray" };
+const obtenerEstadoRuta = (estado) =>
+  ESTADOS_RUTA[estado] || { etiqueta: "Sin ruta", color: "gray" };
 
 const obtenerParadaActual = (paradas) =>
   paradas.find((parada) => parada.estado === "EN_CURSO") ||
@@ -131,7 +132,11 @@ const PanelRutaRecoleccion = ({ ruta, cargando = false, mensajeError = "", alVer
                     px={esActual ? 4 : 0}
                     py={esActual ? 2 : 0}
                   >
-                    <Text fontWeight="600" fontSize="sm" color={esActual ? "marca.primario" : "gray.800"}>
+                    <Text
+                      fontWeight="600"
+                      fontSize="sm"
+                      color={esActual ? "marca.primario" : "gray.800"}
+                    >
                       Parada {parada.orden}: {etiquetaTipoResiduo(parada.tipoResiduo)}
                     </Text>
                     <HStack gap={2} wrap="wrap">
@@ -151,7 +156,14 @@ const PanelRutaRecoleccion = ({ ruta, cargando = false, mensajeError = "", alVer
             })}
           </VStack>
         ) : (
-          <Box border="1px dashed" borderColor="gray.300" borderRadius="lg" py={8} px={4} textAlign="center">
+          <Box
+            border="1px dashed"
+            borderColor="gray.300"
+            borderRadius="lg"
+            py={8}
+            px={4}
+            textAlign="center"
+          >
             <Text fontWeight="600">No hay ruta activa</Text>
             <Text fontSize="sm" color="gray.600">
               {mensajeError || "Construye tu ruta para ver las paradas del día."}

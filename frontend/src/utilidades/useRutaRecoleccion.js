@@ -106,24 +106,21 @@ export const useRutaRecoleccion = () => {
     [obtenerTokenSesion, ruta],
   );
 
-  const actualizarRuta = useCallback(
-    async () => {
-      setActualizandoRuta(true);
-      setMensajeError("");
-      try {
-        const token = await obtenerTokenSesion();
-        const rutaActualizada = await actualizarRutaActiva(token);
-        setRuta(rutaActualizada);
-        return rutaActualizada;
-      } catch (error) {
-        setMensajeError(obtenerMensajeError(error, "No fue posible actualizar la ruta."));
-        return null;
-      } finally {
-        setActualizandoRuta(false);
-      }
-    },
-    [obtenerTokenSesion],
-  );
+  const actualizarRuta = useCallback(async () => {
+    setActualizandoRuta(true);
+    setMensajeError("");
+    try {
+      const token = await obtenerTokenSesion();
+      const rutaActualizada = await actualizarRutaActiva(token);
+      setRuta(rutaActualizada);
+      return rutaActualizada;
+    } catch (error) {
+      setMensajeError(obtenerMensajeError(error, "No fue posible actualizar la ruta."));
+      return null;
+    } finally {
+      setActualizandoRuta(false);
+    }
+  }, [obtenerTokenSesion]);
 
   const finalizarRuta = useCallback(async () => {
     setFinalizandoRuta(true);

@@ -45,9 +45,13 @@ const MarcadorParada = ({ parada }) => {
       <Popup>
         <div style={{ minWidth: 180 }}>
           <strong>Parada {parada.orden}</strong>
-          <div>{parada.publicacionId ? `Publicación ${parada.publicacionId}` : "Sin publicación"}</div>
+          <div>
+            {parada.publicacionId ? `Publicación ${parada.publicacionId}` : "Sin publicación"}
+          </div>
           <div>{estado.etiqueta}</div>
-          <div>{parada.tipoResiduo ? `Material: ${parada.tipoResiduo}` : "Material no disponible"}</div>
+          <div>
+            {parada.tipoResiduo ? `Material: ${parada.tipoResiduo}` : "Material no disponible"}
+          </div>
           <div>{Number(parada.pesoKg || 0).toFixed(1)} kg</div>
         </div>
       </Popup>

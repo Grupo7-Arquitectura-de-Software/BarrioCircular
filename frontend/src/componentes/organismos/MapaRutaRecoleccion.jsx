@@ -20,9 +20,7 @@ const obtenerCoordenadas = (elemento) =>
 const MapaRutaRecoleccion = ({ origen, paradas = [] }) => {
   const coordenadasOrigen = obtenerCoordenadas(origen);
   const paradasOrdenadas = [...paradas].sort((a, b) => Number(a.orden ?? 0) - Number(b.orden ?? 0));
-  const puntosRuta = paradasOrdenadas
-    .map((parada) => obtenerCoordenadas(parada))
-    .filter(Boolean);
+  const puntosRuta = paradasOrdenadas.map((parada) => obtenerCoordenadas(parada)).filter(Boolean);
 
   const centro = coordenadasOrigen || puntosRuta[0] || [0, 0];
 
@@ -33,7 +31,12 @@ const MapaRutaRecoleccion = ({ origen, paradas = [] }) => {
       </Text>
 
       <Box h={{ base: "320px", md: "440px" }} minH="320px" borderRadius="xl" overflow="hidden">
-        <MapContainer center={centro} zoom={14} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
+        <MapContainer
+          center={centro}
+          zoom={14}
+          scrollWheelZoom={false}
+          style={{ height: "100%", width: "100%" }}
+        >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -50,7 +53,10 @@ const MapaRutaRecoleccion = ({ origen, paradas = [] }) => {
           ))}
 
           {coordenadasOrigen && puntosRuta.length > 0 && (
-            <Polyline positions={[coordenadasOrigen, ...puntosRuta]} pathOptions={{ color: "#2563EB", weight: 4 }} />
+            <Polyline
+              positions={[coordenadasOrigen, ...puntosRuta]}
+              pathOptions={{ color: "#2563EB", weight: 4 }}
+            />
           )}
         </MapContainer>
       </Box>

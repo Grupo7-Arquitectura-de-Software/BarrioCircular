@@ -49,7 +49,8 @@ public class IniciarRutaRecoleccionUseCase {
     com.barriocircular.backend.logistica.dominio.modelo.RutaRecoleccion rutaGuardada =
         almacenRutaRecoleccionPort.guardar(rutaActiva);
 
-    List<ReservaCatalogo> reservas = reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
+    List<ReservaCatalogo> reservas =
+        reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
     CoordenadaGPS origen = obtenerUbicacionReciclador(recicladorId);
     return RutaRecoleccionResultado.desde(rutaGuardada, reservas, origen);
   }

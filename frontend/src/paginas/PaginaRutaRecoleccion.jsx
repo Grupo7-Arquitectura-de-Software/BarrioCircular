@@ -218,7 +218,14 @@ const PaginaRutaRecoleccion = () => {
         ) : ruta ? (
           <>
             <Flex gap={4} direction={{ base: "column", md: "row" }}>
-              <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5} flex="1">
+              <Box
+                bg="fondo.tarjeta"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                p={5}
+                flex="1"
+              >
                 <Flex gap={3} align="center">
                   <Box bg="fondo.cabeceraTarjeta" borderRadius="lg" color="marca.primario" p={3}>
                     <Icono componente={<MdOutlineLocalShipping />} tamanio="2xl" />
@@ -234,7 +241,14 @@ const PaginaRutaRecoleccion = () => {
                 </Flex>
               </Box>
 
-              <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5} flex="1">
+              <Box
+                bg="fondo.tarjeta"
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="xl"
+                p={5}
+                flex="1"
+              >
                 <Text fontSize="sm" color="gray.600">
                   Paradas
                 </Text>
@@ -246,7 +260,13 @@ const PaginaRutaRecoleccion = () => {
 
             <MapaRutaRecoleccion origen={ruta.origen} paradas={paradas} />
 
-            <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={6}>
+            <Box
+              bg="fondo.tarjeta"
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="xl"
+              p={6}
+            >
               <Flex justify="space-between" align="center" mb={5} gap={3}>
                 <Box>
                   <Text fontFamily="heading" fontWeight="700" fontSize="xl">
@@ -266,7 +286,13 @@ const PaginaRutaRecoleccion = () => {
             </Box>
           </>
         ) : (
-          <Box bg="fondo.tarjeta" border="1px dashed" borderColor="gray.300" borderRadius="xl" p={8}>
+          <Box
+            bg="fondo.tarjeta"
+            border="1px dashed"
+            borderColor="gray.300"
+            borderRadius="xl"
+            p={8}
+          >
             <VStack gap={4} textAlign="center">
               <Box bg="fondo.cabeceraTarjeta" borderRadius="lg" color="marca.primario" p={4}>
                 <Icono componente={<MdOutlineAddRoad />} tamanio="3xl" />
@@ -276,7 +302,8 @@ const PaginaRutaRecoleccion = () => {
                   No tienes una ruta activa
                 </Text>
                 <Text color="gray.600">
-                  {mensajeError || "Construye una ruta con tus reservas activas para empezar el recorrido."}
+                  {mensajeError ||
+                    "Construye una ruta con tus reservas activas para empezar el recorrido."}
                 </Text>
               </VStack>
               <Button

@@ -32,7 +32,9 @@ public class ActualizarRutaRecoleccionUseCase {
         reservasCatalogoPort,
         ubicacionRecicladorPort,
         almacenRutaRecoleccionPort,
-        new PlanificadorRutaRecoleccion(new com.barriocircular.backend.logistica.dominio.servicios.CalculadorDistanciaGeografica()));
+        new PlanificadorRutaRecoleccion(
+            new com.barriocircular.backend.logistica.dominio.servicios
+                .CalculadorDistanciaGeografica()));
   }
 
   ActualizarRutaRecoleccionUseCase(
@@ -62,7 +64,8 @@ public class ActualizarRutaRecoleccionUseCase {
                     new IllegalStateException(
                         "No existe una ruta activa para el reciclador solicitado."));
 
-    List<ReservaCatalogo> reservas = reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
+    List<ReservaCatalogo> reservas =
+        reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
     if (reservas.isEmpty()) {
       throw new IllegalStateException("No existen reservas activas para actualizar la ruta.");
     }
@@ -88,15 +91,16 @@ public class ActualizarRutaRecoleccionUseCase {
     return RutaRecoleccionResultado.desde(rutaGuardada, reservas, ubicacionReciclador);
   }
 
-  private List<com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion> convertirDestinos(
-      List<ReservaCatalogo> reservas) {
+  private List<com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion>
+      convertirDestinos(List<ReservaCatalogo> reservas) {
     return reservas.stream().map(this::convertirDestino).toList();
   }
 
-  private com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion convertirDestino(
-      ReservaCatalogo reserva) {
+  private com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion
+      convertirDestino(ReservaCatalogo reserva) {
     return new com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion(
-        com.barriocircular.backend.logistica.dominio.modelo.PublicacionId.de(reserva.publicacionId()),
+        com.barriocircular.backend.logistica.dominio.modelo.PublicacionId.de(
+            reserva.publicacionId()),
         new CoordenadaGPS(reserva.latitud(), reserva.longitud()));
   }
 }

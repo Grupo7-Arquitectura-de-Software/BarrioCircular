@@ -8,8 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.Version;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,8 +38,7 @@ public class RutaRecoleccionEntity {
   @Column(nullable = false)
   private Instant fechaCreacion;
 
-  @Version
-  private Long version;
+  @Version private Long version;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   @JoinColumn(name = "ruta_id", nullable = false)
