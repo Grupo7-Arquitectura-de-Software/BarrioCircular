@@ -9,10 +9,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.dto.CoordenadaRutaResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.ParadaRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
 import com.barriocircular.backend.perfiles.aplicacion.casosdeuso.ObtenerPerfilPorClerkIdUseCase;
@@ -36,6 +39,8 @@ class LogisticaRecoleccionControllerTest {
 
   private ConstruirRutaRecoleccionUseCase construirRutaRecoleccionUseCase;
   private ObtenerRutaActivaUseCase obtenerRutaActivaUseCase;
+  private ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase;
+  private IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase;
   private ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
   private ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
@@ -46,6 +51,8 @@ class LogisticaRecoleccionControllerTest {
   void configurar() {
     construirRutaRecoleccionUseCase = mock(ConstruirRutaRecoleccionUseCase.class);
     obtenerRutaActivaUseCase = mock(ObtenerRutaActivaUseCase.class);
+    actualizarRutaRecoleccionUseCase = mock(ActualizarRutaRecoleccionUseCase.class);
+    iniciarRutaRecoleccionUseCase = mock(IniciarRutaRecoleccionUseCase.class);
     obtenerRutaPorIdUseCase = mock(ObtenerRutaPorIdUseCase.class);
     registrarLlegadaParadaUseCase = mock(RegistrarLlegadaParadaUseCase.class);
     obtenerPerfilPorClerkIdUseCase = mock(ObtenerPerfilPorClerkIdUseCase.class);
@@ -53,12 +60,14 @@ class LogisticaRecoleccionControllerTest {
     when(obtenerPerfilPorClerkIdUseCase.ejecutar("user_123")).thenReturn(perfilReciclador());
 
     LogisticaRecoleccionController controlador =
-        new LogisticaRecoleccionController(
-            construirRutaRecoleccionUseCase,
-            obtenerRutaActivaUseCase,
-            obtenerRutaPorIdUseCase,
-            registrarLlegadaParadaUseCase,
-            obtenerPerfilPorClerkIdUseCase);
+      new LogisticaRecoleccionController(
+        construirRutaRecoleccionUseCase,
+        obtenerRutaActivaUseCase,
+        actualizarRutaRecoleccionUseCase,
+        obtenerRutaPorIdUseCase,
+        registrarLlegadaParadaUseCase,
+        iniciarRutaRecoleccionUseCase,
+        obtenerPerfilPorClerkIdUseCase);
     mockMvc = MockMvcBuilders.standaloneSetup(controlador).build();
   }
 
@@ -84,6 +93,8 @@ class LogisticaRecoleccionControllerTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()))
         .andExpect(jsonPath("$.estado").value("PLANIFICADA"))
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
+        .andExpect(jsonPath("$.origen.longitud").value(-78.467838))
         .andExpect(jsonPath("$.paradas[0].orden").value(1))
         .andExpect(jsonPath("$.paradas[0].tipoResiduo").value("CARTON"))
         .andExpect(jsonPath("$.paradas[0].pesoKg").value(12.5));
@@ -97,7 +108,9 @@ class LogisticaRecoleccionControllerTest {
     mockMvc
         .perform(get("/api/logistica/rutas/activa").principal(autenticacion("user_123")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()));
+        .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()))
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
+        .andExpect(jsonPath("$.origen.longitud").value(-78.467838));
   }
 
   @Test
@@ -111,6 +124,8 @@ class LogisticaRecoleccionControllerTest {
                 .principal(autenticacion("user_123")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()))
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
+        .andExpect(jsonPath("$.origen.longitud").value(-78.467838))
         .andExpect(jsonPath("$.paradas[0].tipoResiduo").value("CARTON"))
         .andExpect(jsonPath("$.paradas[0].pesoKg").value(12.5));
   }
@@ -137,7 +152,25 @@ class LogisticaRecoleccionControllerTest {
                     }
                     """))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
+        .andExpect(jsonPath("$.origen.longitud").value(-78.467838))
         .andExpect(jsonPath("$.paradas[0].estado").value("COMPLETADA"));
+  }
+
+  @Test
+  void actualizarRutaActivaDevuelve200ConRutaReplanificada() throws Exception {
+    RutaRecoleccionResultado resultado = rutaResultado();
+    when(actualizarRutaRecoleccionUseCase.ejecutar(recicladorId)).thenReturn(resultado);
+
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/api/logistica/rutas/activa")
+                .principal(autenticacion("user_123")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()))
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
+        .andExpect(jsonPath("$.paradas[0].tipoResiduo").value("CARTON"));
   }
 
   @Test
@@ -161,6 +194,7 @@ class LogisticaRecoleccionControllerTest {
         UUID.randomUUID(),
         "PLANIFICADA",
         LocalDate.of(2026, 7, 9),
+        new CoordenadaRutaResultado(-0.180653, -78.467838),
         List.of(
             new ParadaRecoleccionResultado(
                 paradaId,
@@ -182,6 +216,7 @@ class LogisticaRecoleccionControllerTest {
         resultado.rutaId(),
         "EN_CURSO",
         resultado.fecha(),
+        resultado.origen(),
         List.of(
             new ParadaRecoleccionResultado(
                 parada.paradaId(),

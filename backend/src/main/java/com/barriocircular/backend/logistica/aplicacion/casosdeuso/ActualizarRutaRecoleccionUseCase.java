@@ -5,15 +5,10 @@ import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResult
 import com.barriocircular.backend.logistica.aplicacion.puertos.AlmacenRutaRecoleccionPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.ReservasCatalogoPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.UbicacionRecicladorPort;
-import com.barriocircular.backend.logistica.dominio.modelo.PublicacionId;
 import com.barriocircular.backend.logistica.dominio.modelo.RecicladorId;
 import com.barriocircular.backend.logistica.dominio.modelo.RutaRecoleccion;
 import com.barriocircular.backend.logistica.dominio.objetosValor.CoordenadaGPS;
-import com.barriocircular.backend.logistica.dominio.servicios.CalculadorDistanciaGeografica;
-import com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion;
 import com.barriocircular.backend.logistica.dominio.servicios.PlanificadorRutaRecoleccion;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConstruirRutaRecoleccionUseCase {
+public class ActualizarRutaRecoleccionUseCase {
 
   private final ReservasCatalogoPort reservasCatalogoPort;
   private final UbicacionRecicladorPort ubicacionRecicladorPort;
@@ -29,7 +24,7 @@ public class ConstruirRutaRecoleccionUseCase {
   private final PlanificadorRutaRecoleccion planificadorRuta;
 
   @Autowired
-  public ConstruirRutaRecoleccionUseCase(
+  public ActualizarRutaRecoleccionUseCase(
       ReservasCatalogoPort reservasCatalogoPort,
       UbicacionRecicladorPort ubicacionRecicladorPort,
       AlmacenRutaRecoleccionPort almacenRutaRecoleccionPort) {
@@ -37,10 +32,10 @@ public class ConstruirRutaRecoleccionUseCase {
         reservasCatalogoPort,
         ubicacionRecicladorPort,
         almacenRutaRecoleccionPort,
-        new PlanificadorRutaRecoleccion(new CalculadorDistanciaGeografica()));
+        new PlanificadorRutaRecoleccion(new com.barriocircular.backend.logistica.dominio.servicios.CalculadorDistanciaGeografica()));
   }
 
-  ConstruirRutaRecoleccionUseCase(
+  ActualizarRutaRecoleccionUseCase(
       ReservasCatalogoPort reservasCatalogoPort,
       UbicacionRecicladorPort ubicacionRecicladorPort,
       AlmacenRutaRecoleccionPort almacenRutaRecoleccionPort,
@@ -56,14 +51,20 @@ public class ConstruirRutaRecoleccionUseCase {
         Objects.requireNonNull(planificadorRuta, "El planificador de ruta es obligatorio.");
   }
 
-  public RutaRecoleccionResultado ejecutar(
-      UUID recicladorId, LocalTime horaInicioRuta, LocalDate fechaRuta) {
-    validarEntrada(recicladorId, fechaRuta, horaInicioRuta);
+  public RutaRecoleccionResultado ejecutar(UUID recicladorId) {
+    Objects.requireNonNull(recicladorId, "El id del reciclador es obligatorio.");
 
-    List<ReservaCatalogo> reservas =
-        reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
+    RutaRecoleccion rutaActiva =
+        almacenRutaRecoleccionPort
+            .obtenerRutaActivaPorReciclador(recicladorId)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "No existe una ruta activa para el reciclador solicitado."));
+
+    List<ReservaCatalogo> reservas = reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
     if (reservas.isEmpty()) {
-      throw new IllegalStateException("No existen reservas activas para construir la ruta.");
+      throw new IllegalStateException("No existen reservas activas para actualizar la ruta.");
     }
 
     CoordenadaGPS ubicacionReciclador =
@@ -74,31 +75,28 @@ public class ConstruirRutaRecoleccionUseCase {
                     new IllegalStateException(
                         "No existe ubicacion actual para el reciclador solicitado."));
 
-    RutaRecoleccion ruta =
+    RutaRecoleccion rutaReplanificada =
         planificadorRuta.planificar(
             RecicladorId.de(recicladorId),
             ubicacionReciclador,
             convertirDestinos(reservas),
-            fechaRuta,
-            horaInicioRuta);
+            rutaActiva.fecha(),
+            rutaActiva.horaInicio());
 
-    RutaRecoleccion guardada = almacenRutaRecoleccionPort.guardar(ruta);
-    return RutaRecoleccionResultado.desde(guardada, reservas, ubicacionReciclador);
+    rutaActiva.replanificar(rutaReplanificada.paradas());
+    RutaRecoleccion rutaGuardada = almacenRutaRecoleccionPort.guardar(rutaActiva);
+    return RutaRecoleccionResultado.desde(rutaGuardada, reservas, ubicacionReciclador);
   }
 
-  private void validarEntrada(UUID recicladorId, LocalDate fechaRuta, LocalTime horaInicioRuta) {
-    Objects.requireNonNull(recicladorId, "El id del reciclador es obligatorio.");
-    Objects.requireNonNull(fechaRuta, "La fecha de la ruta es obligatoria.");
-    Objects.requireNonNull(horaInicioRuta, "La hora de inicio de la ruta es obligatoria.");
-  }
-
-  private List<DestinoRecoleccion> convertirDestinos(List<ReservaCatalogo> reservas) {
+  private List<com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion> convertirDestinos(
+      List<ReservaCatalogo> reservas) {
     return reservas.stream().map(this::convertirDestino).toList();
   }
 
-  private DestinoRecoleccion convertirDestino(ReservaCatalogo reserva) {
-    return new DestinoRecoleccion(
-        PublicacionId.de(reserva.publicacionId()),
+  private com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion convertirDestino(
+      ReservaCatalogo reserva) {
+    return new com.barriocircular.backend.logistica.dominio.servicios.DestinoRecoleccion(
+        com.barriocircular.backend.logistica.dominio.modelo.PublicacionId.de(reserva.publicacionId()),
         new CoordenadaGPS(reserva.latitud(), reserva.longitud()));
   }
 }

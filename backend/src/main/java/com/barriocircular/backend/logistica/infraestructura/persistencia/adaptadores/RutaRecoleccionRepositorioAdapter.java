@@ -40,9 +40,65 @@ public class RutaRecoleccionRepositorioAdapter implements AlmacenRutaRecoleccion
             .findById(ruta.id().valor())
             .map(RutaRecoleccionEntity::getFechaCreacion)
             .orElseGet(Instant::now);
-    RutaRecoleccionEntity guardada =
-        springDataRepository.save(mapper.toEntity(ruta, fechaCreacion));
-    return mapper.toDomain(guardada);
+
+    int maxAttempts = 3;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        RutaRecoleccionEntity entidadNueva = mapper.toEntity(ruta, fechaCreacion);
+        RutaRecoleccionEntity guardada =
+            springDataRepository
+                .findById(ruta.id().valor())
+                .map(
+                    entidadExistente -> {
+                      try {
+                        java.lang.reflect.Field recicladorId =
+                            RutaRecoleccionEntity.class.getDeclaredField("recicladorId");
+                        java.lang.reflect.Field fecha =
+                            RutaRecoleccionEntity.class.getDeclaredField("fecha");
+                        java.lang.reflect.Field horaInicio =
+                            RutaRecoleccionEntity.class.getDeclaredField("horaInicio");
+                        java.lang.reflect.Field estado =
+                            RutaRecoleccionEntity.class.getDeclaredField("estado");
+                        java.lang.reflect.Field fechaCreacionField =
+                            RutaRecoleccionEntity.class.getDeclaredField("fechaCreacion");
+                        recicladorId.setAccessible(true);
+                        fecha.setAccessible(true);
+                        horaInicio.setAccessible(true);
+                        estado.setAccessible(true);
+                        fechaCreacionField.setAccessible(true);
+                        recicladorId.set(entidadExistente, entidadNueva.getRecicladorId());
+                        fecha.set(entidadExistente, entidadNueva.getFecha());
+                        horaInicio.set(entidadExistente, entidadNueva.getHoraInicio());
+                        estado.set(entidadExistente, entidadNueva.getEstado());
+                        fechaCreacionField.set(entidadExistente, entidadNueva.getFechaCreacion());
+                      } catch (ReflectiveOperationException ex) {
+                        throw new IllegalStateException(
+                            "No fue posible actualizar la entidad de ruta existente.", ex);
+                      }
+                      return springDataRepository.save(entidadExistente);
+                    })
+                .orElseGet(() -> springDataRepository.save(entidadNueva));
+        return mapper.toDomain(guardada);
+      } catch (org.springframework.dao.OptimisticLockingFailureException
+          | org.hibernate.StaleStateException ex) {
+        if (attempt == maxAttempts) {
+          throw ex;
+        }
+        try {
+          Thread.sleep(100L * attempt);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw new IllegalStateException("Retry interrupted", ie);
+        }
+        // reload fechaCreacion in case the existing entity was created earlier
+        fechaCreacion =
+            springDataRepository
+                .findById(ruta.id().valor())
+                .map(RutaRecoleccionEntity::getFechaCreacion)
+                .orElseGet(Instant::now);
+      }
+    }
+    throw new IllegalStateException("No fue posible guardar la ruta tras varios intentos.");
   }
 
   @Override

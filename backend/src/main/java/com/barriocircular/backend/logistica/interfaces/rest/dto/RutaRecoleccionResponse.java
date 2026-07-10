@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 public record RutaRecoleccionResponse(
-    UUID rutaId, String estado, LocalDate fecha, List<ParadaRecoleccionResponse> paradas) {
+    UUID rutaId,
+    String estado,
+    LocalDate fecha,
+    CoordenadaRutaResponse origen,
+    List<ParadaRecoleccionResponse> paradas) {
 
   public RutaRecoleccionResponse {
     paradas = List.copyOf(paradas);
@@ -17,6 +21,7 @@ public record RutaRecoleccionResponse(
         resultado.rutaId(),
         resultado.estado(),
         resultado.fecha(),
+        resultado.origen() == null ? null : CoordenadaRutaResponse.desde(resultado.origen()),
         resultado.paradas().stream().map(ParadaRecoleccionResponse::desde).toList());
   }
 }

@@ -56,6 +56,8 @@ class ConstruirRutaRecoleccionUseCaseTest {
 
     assertEquals("PLANIFICADA", resultado.estado());
     assertEquals(LocalDate.of(2026, 7, 9), resultado.fecha());
+    assertEquals(-0.180653, resultado.origen().latitud());
+    assertEquals(-78.467838, resultado.origen().longitud());
     assertEquals(2, resultado.paradas().size());
     assertEquals(reservaCercana.publicacionId(), resultado.paradas().get(0).publicacionId());
     assertEquals("CARTON", resultado.paradas().get(0).tipoResiduo());

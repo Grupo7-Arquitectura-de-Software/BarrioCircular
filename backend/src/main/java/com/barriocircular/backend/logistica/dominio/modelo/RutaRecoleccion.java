@@ -74,6 +74,16 @@ public class RutaRecoleccion {
     estado = EstadoRutaRecoleccion.CANCELADA;
   }
 
+  public void replanificar(List<ParadaRecoleccion> paradas) {
+    Objects.requireNonNull(paradas, "Las paradas son obligatorias.");
+    if (estado == EstadoRutaRecoleccion.COMPLETADA || estado == EstadoRutaRecoleccion.CANCELADA) {
+      throw new IllegalStateException("No se puede replanificar una ruta que ya ha finalizado.");
+    }
+    List<ParadaRecoleccion> ordenadas = validarParadas(paradas);
+    this.paradas.clear();
+    this.paradas.addAll(ordenadas);
+  }
+
   public void iniciarParada(ParadaRecoleccionId paradaId) {
     exigirRutaEnCurso();
     buscarParada(paradaId).iniciar();

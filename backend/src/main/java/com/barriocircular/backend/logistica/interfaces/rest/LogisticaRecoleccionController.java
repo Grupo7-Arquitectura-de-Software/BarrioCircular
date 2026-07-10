@@ -1,9 +1,11 @@
 package com.barriocircular.backend.logistica.interfaces.rest;
 
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.ConstruirRutaRequest;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.RegistrarLlegadaParadaRequest;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,21 +37,35 @@ public class LogisticaRecoleccionController {
 
   private final ConstruirRutaRecoleccionUseCase construirRutaRecoleccionUseCase;
   private final ObtenerRutaActivaUseCase obtenerRutaActivaUseCase;
+  private final ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase;
   private final ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private final RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
+  private final IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase;
   private final ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
 
   public LogisticaRecoleccionController(
       ConstruirRutaRecoleccionUseCase construirRutaRecoleccionUseCase,
       ObtenerRutaActivaUseCase obtenerRutaActivaUseCase,
+      ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase,
       ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase,
       RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase,
+      IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase,
       ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase) {
     this.construirRutaRecoleccionUseCase = Objects.requireNonNull(construirRutaRecoleccionUseCase);
     this.obtenerRutaActivaUseCase = Objects.requireNonNull(obtenerRutaActivaUseCase);
+    this.actualizarRutaRecoleccionUseCase =
+        Objects.requireNonNull(actualizarRutaRecoleccionUseCase);
     this.obtenerRutaPorIdUseCase = Objects.requireNonNull(obtenerRutaPorIdUseCase);
     this.registrarLlegadaParadaUseCase = Objects.requireNonNull(registrarLlegadaParadaUseCase);
+    this.iniciarRutaRecoleccionUseCase = Objects.requireNonNull(iniciarRutaRecoleccionUseCase);
     this.obtenerPerfilPorClerkIdUseCase = Objects.requireNonNull(obtenerPerfilPorClerkIdUseCase);
+  }
+
+  @PostMapping("/activa/iniciar")
+  public ResponseEntity<RutaRecoleccionResponse> iniciarRutaActiva(Authentication autenticacion) {
+    UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
+    RutaRecoleccionResultado resultado = iniciarRutaRecoleccionUseCase.ejecutar(recicladorId);
+    return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
   }
 
   @PostMapping
@@ -82,6 +99,13 @@ public class LogisticaRecoleccionController {
         .map(ResponseEntity::ok)
         .orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ruta no encontrada."));
+  }
+
+  @PutMapping("/activa")
+  public ResponseEntity<RutaRecoleccionResponse> actualizarRutaActiva(Authentication autenticacion) {
+    UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
+    RutaRecoleccionResultado resultado = actualizarRutaRecoleccionUseCase.ejecutar(recicladorId);
+    return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
   }
 
   @PatchMapping("/{rutaId}/paradas/{paradaId}/llegada")

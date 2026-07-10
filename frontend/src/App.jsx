@@ -4,6 +4,7 @@ import PaginadeSeleccionRol from "@/paginas/PaginadeSeleccionRol.jsx";
 import PaginaAutenticacion from "@/paginas/PaginaAutenticacion.jsx";
 import PaginaCompletarPerfil from "@/paginas/PaginaCompletarPerfil.jsx";
 import PaginaInicioRecolector from "@/paginas/PaginaInicioRecolector.jsx";
+import PaginaRutaRecoleccion from "@/paginas/PaginaRutaRecoleccion.jsx";
 import ValidadorSesion from "@/componentes/proveedores/ValidadorSesion.jsx";
 
 import PaginaPanelCiudadano from "@/paginas/PaginaPanelCiudadano.jsx";
@@ -56,6 +57,7 @@ function App() {
           <Route path="/ciudadano/resultado" element={<PaginaResultadoOperacion />} />
 
           <Route path="/recolector/inicio" element={<PaginaInicioRecolector />} />
+          <Route path="/recolector/ruta-recoleccion" element={<PaginaRutaRecoleccion />} />
           <Route
             path="/recolector/configuracion"
             element={<PaginaConfiguracion rol="recolector" />}

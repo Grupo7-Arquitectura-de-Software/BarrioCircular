@@ -11,6 +11,7 @@ import com.barriocircular.backend.logistica.aplicacion.dto.ReservaCatalogo;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.puertos.AlmacenRutaRecoleccionPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.ReservasCatalogoPort;
+import com.barriocircular.backend.logistica.aplicacion.puertos.UbicacionRecicladorPort;
 import com.barriocircular.backend.logistica.dominio.modelo.PublicacionId;
 import com.barriocircular.backend.logistica.dominio.modelo.RecicladorId;
 import com.barriocircular.backend.logistica.dominio.modelo.RutaRecoleccion;
@@ -36,6 +37,8 @@ class RegistrarLlegadaParadaUseCaseTest {
 
   @Mock private ReservasCatalogoPort reservasCatalogoPort;
 
+  @Mock private UbicacionRecicladorPort ubicacionRecicladorPort;
+
   @Test
   void registraLlegadaCompletandoLaParadaMedianteElAgregado() {
     RutaRecoleccion ruta = rutaEnCurso();
@@ -46,14 +49,19 @@ class RegistrarLlegadaParadaUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
     when(reservasCatalogoPort.obtenerReservasActivasPorReciclador(ruta.recicladorId().valor()))
         .thenReturn(List.of(reserva(publicacionId)));
+    when(ubicacionRecicladorPort.obtenerUbicacionActual(ruta.recicladorId().valor()))
+        .thenReturn(Optional.of(new CoordenadaGPS(-0.180653, -78.467838)));
     RegistrarLlegadaParadaUseCase useCase =
-        new RegistrarLlegadaParadaUseCase(almacenRutaRecoleccionPort, reservasCatalogoPort);
+        new RegistrarLlegadaParadaUseCase(
+            almacenRutaRecoleccionPort, reservasCatalogoPort, ubicacionRecicladorPort);
 
     RutaRecoleccionResultado resultado =
         useCase.ejecutar(
             ruta.id().valor(), paradaId, LocalDate.of(2026, 7, 9), LocalTime.of(10, 15));
 
     assertEquals("COMPLETADA", resultado.paradas().get(0).estado());
+    assertEquals(-0.180653, resultado.origen().latitud());
+    assertEquals(-78.467838, resultado.origen().longitud());
     assertEquals("PET", resultado.paradas().get(0).tipoResiduo());
     assertEquals(14.2, resultado.paradas().get(0).pesoKg());
     assertNotNull(resultado.paradas().get(0).horaLlegadaReal());
@@ -66,7 +74,8 @@ class RegistrarLlegadaParadaUseCaseTest {
     UUID paradaId = ruta.paradas().get(0).id().valor();
     when(almacenRutaRecoleccionPort.buscarPorId(ruta.id().valor())).thenReturn(Optional.of(ruta));
     RegistrarLlegadaParadaUseCase useCase =
-        new RegistrarLlegadaParadaUseCase(almacenRutaRecoleccionPort, reservasCatalogoPort);
+        new RegistrarLlegadaParadaUseCase(
+            almacenRutaRecoleccionPort, reservasCatalogoPort, ubicacionRecicladorPort);
 
     assertThrows(
         IllegalStateException.class,

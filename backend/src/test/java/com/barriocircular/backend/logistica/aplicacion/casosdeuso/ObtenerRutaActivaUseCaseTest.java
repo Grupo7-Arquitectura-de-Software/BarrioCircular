@@ -8,6 +8,7 @@ import com.barriocircular.backend.logistica.aplicacion.dto.ReservaCatalogo;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.puertos.AlmacenRutaRecoleccionPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.ReservasCatalogoPort;
+import com.barriocircular.backend.logistica.aplicacion.puertos.UbicacionRecicladorPort;
 import com.barriocircular.backend.logistica.dominio.modelo.RecicladorId;
 import com.barriocircular.backend.logistica.dominio.modelo.RutaRecoleccion;
 import com.barriocircular.backend.logistica.dominio.objetosValor.CoordenadaGPS;
@@ -32,6 +33,8 @@ class ObtenerRutaActivaUseCaseTest {
 
   @Mock private ReservasCatalogoPort reservasCatalogoPort;
 
+  @Mock private UbicacionRecicladorPort ubicacionRecicladorPort;
+
   @Test
   void obtieneRutaActivaDelRecicladorComoDto() {
     UUID recicladorId = UUID.randomUUID();
@@ -41,14 +44,19 @@ class ObtenerRutaActivaUseCaseTest {
         .thenReturn(Optional.of(ruta));
     when(reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId))
         .thenReturn(List.of(reserva(publicacionId)));
+    when(ubicacionRecicladorPort.obtenerUbicacionActual(recicladorId))
+        .thenReturn(Optional.of(new CoordenadaGPS(-0.180653, -78.467838)));
     ObtenerRutaActivaUseCase useCase =
-        new ObtenerRutaActivaUseCase(almacenRutaRecoleccionPort, reservasCatalogoPort);
+        new ObtenerRutaActivaUseCase(
+            almacenRutaRecoleccionPort, reservasCatalogoPort, ubicacionRecicladorPort);
 
     Optional<RutaRecoleccionResultado> resultado = useCase.ejecutar(recicladorId);
 
     assertTrue(resultado.isPresent());
     assertEquals(ruta.id().valor(), resultado.get().rutaId());
     assertEquals("PLANIFICADA", resultado.get().estado());
+    assertEquals(-0.180653, resultado.get().origen().latitud());
+    assertEquals(-78.467838, resultado.get().origen().longitud());
     assertEquals("VIDRIO", resultado.get().paradas().get(0).tipoResiduo());
     assertEquals(8.5, resultado.get().paradas().get(0).pesoKg());
   }
@@ -59,7 +67,8 @@ class ObtenerRutaActivaUseCaseTest {
     when(almacenRutaRecoleccionPort.obtenerRutaActivaPorReciclador(recicladorId))
         .thenReturn(Optional.empty());
     ObtenerRutaActivaUseCase useCase =
-        new ObtenerRutaActivaUseCase(almacenRutaRecoleccionPort, reservasCatalogoPort);
+        new ObtenerRutaActivaUseCase(
+            almacenRutaRecoleccionPort, reservasCatalogoPort, ubicacionRecicladorPort);
 
     assertTrue(useCase.ejecutar(recicladorId).isEmpty());
   }
