@@ -1,5 +1,21 @@
-import { Badge, Box, Button, Flex, HStack, Image, Text, VStack } from "@chakra-ui/react";
-import { MdOutlineImage, MdOutlineLocationOn, MdOutlineScale } from "react-icons/md";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  IconButton,
+  Image,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import {
+  MdOutlineDelete,
+  MdOutlineEdit,
+  MdOutlineImage,
+  MdOutlineLocationOn,
+  MdOutlineScale,
+} from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
 
 const ESTILOS_ESTADO = {
@@ -25,6 +41,9 @@ const TarjetaPublicacion = ({
   etiquetaAccion,
   alAccionar,
   accionando,
+  alEditar,
+  alEliminar,
+  eliminando,
   alHacerClick,
 }) => {
   const estiloEstado = ESTILOS_ESTADO[estado] || ESTILOS_ESTADO.Disponible;
@@ -110,6 +129,42 @@ const TarjetaPublicacion = ({
           >
             {etiquetaAccion}
           </Button>
+        )}
+
+        {(alEditar || alEliminar) && (
+          <HStack gap={2}>
+            {alEditar && (
+              <Button
+                variant="outline"
+                colorPalette="azul"
+                rounded="lg"
+                size="sm"
+                flex="1"
+                onClick={(evento) => {
+                  evento.stopPropagation();
+                  alEditar();
+                }}
+              >
+                <MdOutlineEdit /> Editar
+              </Button>
+            )}
+            {alEliminar && (
+              <IconButton
+                aria-label="Eliminar publicación"
+                variant="outline"
+                colorPalette="red"
+                rounded="lg"
+                size="sm"
+                loading={eliminando}
+                onClick={(evento) => {
+                  evento.stopPropagation();
+                  alEliminar();
+                }}
+              >
+                <MdOutlineDelete />
+              </IconButton>
+            )}
+          </HStack>
         )}
       </VStack>
     </Flex>

@@ -28,3 +28,16 @@ export const finalizarPublicacion = (token, publicacionId) =>
     metodo: "POST",
     token,
   });
+
+export const actualizarPublicacion = (token, publicacionId, datosPublicacion) =>
+  solicitarApi(`/publicaciones/${publicacionId}`, {
+    metodo: "PUT",
+    token,
+    cuerpo: datosPublicacion,
+  });
+
+export const eliminarPublicacion = (token, publicacionId) =>
+  solicitarApi(`/publicaciones/${publicacionId}`, {
+    metodo: "DELETE",
+    token,
+  });

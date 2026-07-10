@@ -10,6 +10,7 @@ import PaginaPanelCiudadano from "@/paginas/PaginaPanelCiudadano.jsx";
 import PaginaConfiguracion from "@/paginas/PaginaConfiguracion.jsx";
 import PaginaAyuda from "@/paginas/PaginaAyuda.jsx";
 import PaginaCrearPublicaciones from "@/paginas/PaginaCrearPublicaciones.jsx";
+import PaginaEditarPublicacion from "@/paginas/PaginaEditarPublicacion.jsx";
 import PaginaPublicacionesDisponibles from "@/paginas/PaginaPublicacionesDisponibles.jsx";
 import PaginadeColeccionCoordenadas from "@/paginas/PaginadeColeccionCoordenadas.jsx";
 import PaginaEntregarMaterial from "@/paginas/PaginaEntregarMaterial.jsx";
@@ -47,6 +48,7 @@ function App() {
           />
           <Route path="/ciudadano/ayuda" element={<PaginaAyuda rol="ciudadano" />} />
           <Route path="/ciudadano/crear-publicacion" element={<PaginaCrearPublicaciones />} />
+          <Route path="/ciudadano/editar-publicacion/:id" element={<PaginaEditarPublicacion />} />
           <Route
             path="/ciudadano/publicacion-disponible"
             element={<PaginaPublicacionesDisponibles />}
@@ -66,6 +68,10 @@ function App() {
           <Route
             path="/recolector/vender/crear-publicacion"
             element={<PaginaCrearPublicaciones prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
+          />
+          <Route
+            path="/recolector/vender/editar-publicacion/:id"
+            element={<PaginaEditarPublicacion prefijoRuta={PREFIJO_RECOLECTOR_VENDER} />}
           />
           <Route
             path="/recolector/vender/publicacion-disponible"
