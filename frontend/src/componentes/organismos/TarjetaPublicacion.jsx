@@ -24,6 +24,7 @@ const TarjetaPublicacion = ({
   imagenUrl,
   etiquetaAccion,
   alAccionar,
+  accionando,
   alHacerClick,
 }) => {
   const estiloEstado = ESTILOS_ESTADO[estado] || ESTILOS_ESTADO.Disponible;
@@ -76,13 +77,32 @@ const TarjetaPublicacion = ({
           </Text>
         )}
 
-        {etiquetaAccion ? (
+        <HStack
+          justify="space-between"
+          borderTop="1px solid"
+          borderColor="gray.100"
+          pt={3}
+          mt={2}
+          color="gray.700"
+          fontSize="sm"
+        >
+          <HStack gap={1}>
+            <Icono componente={<MdOutlineScale />} tamanio="md" />
+            <Text fontWeight="600">{pesoKg} kg</Text>
+          </HStack>
+          <HStack gap={1}>
+            <Icono componente={<MdOutlineLocationOn />} tamanio="md" />
+            <Text>{ubicacion}</Text>
+          </HStack>
+        </HStack>
+
+        {etiquetaAccion && (
           <Button
             variant="outline"
             colorPalette="azul"
             rounded="lg"
             size="sm"
-            mt={2}
+            loading={accionando}
             onClick={(evento) => {
               evento.stopPropagation();
               alAccionar?.();
@@ -90,25 +110,6 @@ const TarjetaPublicacion = ({
           >
             {etiquetaAccion}
           </Button>
-        ) : (
-          <HStack
-            justify="space-between"
-            borderTop="1px solid"
-            borderColor="gray.100"
-            pt={3}
-            mt={2}
-            color="gray.700"
-            fontSize="sm"
-          >
-            <HStack gap={1}>
-              <Icono componente={<MdOutlineScale />} tamanio="md" />
-              <Text fontWeight="600">{pesoKg} kg</Text>
-            </HStack>
-            <HStack gap={1}>
-              <Icono componente={<MdOutlineLocationOn />} tamanio="md" />
-              <Text>{ubicacion}</Text>
-            </HStack>
-          </HStack>
         )}
       </VStack>
     </Flex>

@@ -22,3 +22,9 @@ export const reservarPublicacion = (token, publicacionId) =>
     metodo: "POST",
     token,
   });
+
+export const finalizarPublicacion = (token, publicacionId) =>
+  solicitarApi(`/publicaciones/${publicacionId}/finalizar`, {
+    metodo: "POST",
+    token,
+  });
