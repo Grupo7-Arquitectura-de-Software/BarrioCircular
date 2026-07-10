@@ -11,8 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
-import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.FinalizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.dto.CoordenadaRutaResultado;
@@ -41,6 +42,7 @@ class LogisticaRecoleccionControllerTest {
   private ObtenerRutaActivaUseCase obtenerRutaActivaUseCase;
   private ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase;
   private IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase;
+  private FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase;
   private ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
   private ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
@@ -53,6 +55,7 @@ class LogisticaRecoleccionControllerTest {
     obtenerRutaActivaUseCase = mock(ObtenerRutaActivaUseCase.class);
     actualizarRutaRecoleccionUseCase = mock(ActualizarRutaRecoleccionUseCase.class);
     iniciarRutaRecoleccionUseCase = mock(IniciarRutaRecoleccionUseCase.class);
+    finalizarRutaRecoleccionUseCase = mock(FinalizarRutaRecoleccionUseCase.class);
     obtenerRutaPorIdUseCase = mock(ObtenerRutaPorIdUseCase.class);
     registrarLlegadaParadaUseCase = mock(RegistrarLlegadaParadaUseCase.class);
     obtenerPerfilPorClerkIdUseCase = mock(ObtenerPerfilPorClerkIdUseCase.class);
@@ -60,14 +63,15 @@ class LogisticaRecoleccionControllerTest {
     when(obtenerPerfilPorClerkIdUseCase.ejecutar("user_123")).thenReturn(perfilReciclador());
 
     LogisticaRecoleccionController controlador =
-      new LogisticaRecoleccionController(
-        construirRutaRecoleccionUseCase,
-        obtenerRutaActivaUseCase,
-        actualizarRutaRecoleccionUseCase,
-        obtenerRutaPorIdUseCase,
-        registrarLlegadaParadaUseCase,
-        iniciarRutaRecoleccionUseCase,
-        obtenerPerfilPorClerkIdUseCase);
+        new LogisticaRecoleccionController(
+            construirRutaRecoleccionUseCase,
+            obtenerRutaActivaUseCase,
+            actualizarRutaRecoleccionUseCase,
+            obtenerRutaPorIdUseCase,
+            registrarLlegadaParadaUseCase,
+            iniciarRutaRecoleccionUseCase,
+            finalizarRutaRecoleccionUseCase,
+            obtenerPerfilPorClerkIdUseCase);
     mockMvc = MockMvcBuilders.standaloneSetup(controlador).build();
   }
 
@@ -174,6 +178,19 @@ class LogisticaRecoleccionControllerTest {
   }
 
   @Test
+  void finalizarRutaActivaDevuelve200ConRutaCompletada() throws Exception {
+    RutaRecoleccionResultado resultado = rutaResultadoCompletada();
+    when(finalizarRutaRecoleccionUseCase.ejecutar(recicladorId)).thenReturn(resultado);
+
+    mockMvc
+        .perform(post("/api/logistica/rutas/activa/finalizar").principal(autenticacion("user_123")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.rutaId").value(resultado.rutaId().toString()))
+        .andExpect(jsonPath("$.estado").value("COMPLETADA"))
+        .andExpect(jsonPath("$.origen.latitud").value(-0.180653));
+  }
+
+  @Test
   void rechazaUsuarioQueNoEsReciclador() throws Exception {
     when(obtenerPerfilPorClerkIdUseCase.ejecutar("user_123")).thenReturn(perfilCiudadano());
 
@@ -229,6 +246,16 @@ class LogisticaRecoleccionControllerTest {
                 java.time.ZonedDateTime.parse("2026-07-09T10:15:00-05:00[America/Guayaquil]"),
                 parada.latitud(),
                 parada.longitud())));
+  }
+
+  private RutaRecoleccionResultado rutaResultadoCompletada() {
+    RutaRecoleccionResultado resultado = rutaResultadoConLlegada();
+    return new RutaRecoleccionResultado(
+        resultado.rutaId(),
+        "COMPLETADA",
+        resultado.fecha(),
+        resultado.origen(),
+        resultado.paradas());
   }
 
   private PerfilResultado perfilReciclador() {

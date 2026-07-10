@@ -24,6 +24,12 @@ export const iniciarRutaActiva = (token) =>
     token,
   });
 
+export const finalizarRutaActiva = (token) =>
+  solicitarApi("/logistica/rutas/activa/finalizar", {
+    metodo: "POST",
+    token,
+  });
+
 export const registrarLlegadaParada = (token, rutaId, paradaId, datos) =>
   solicitarApi(`/logistica/rutas/${rutaId}/paradas/${paradaId}/llegada`, {
     metodo: "PATCH",

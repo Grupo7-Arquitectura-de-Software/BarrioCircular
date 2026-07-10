@@ -59,9 +59,11 @@ const PaginaRutaRecoleccion = () => {
     construyendo,
     registrandoLlegada,
     actualizandoRuta,
+    finalizandoRuta,
     cargarRutaActiva,
     construirRuta,
     actualizarRuta,
+    finalizarRuta,
     registrarLlegada,
   } = useRutaRecoleccion();
   const [paradaRegistrando, setParadaRegistrando] = useState(null);
@@ -97,6 +99,25 @@ const PaginaRutaRecoleccion = () => {
       fechaRuta: fechaActualEcuador(),
       horaInicioRuta: horaActualEcuador(),
     });
+  };
+
+  const manejarFinalizarRuta = async () => {
+    const rutaFinalizada = await finalizarRuta();
+    if (rutaFinalizada) {
+      toaster.create({
+        title: "Ruta finalizada",
+        description: "La ruta de recolección quedó completada.",
+        type: "success",
+        duration: 3000,
+      });
+    } else {
+      toaster.create({
+        title: "No se pudo finalizar la ruta",
+        description: mensajeError || "Intenta de nuevo más tarde.",
+        type: "error",
+        duration: 4500,
+      });
+    }
   };
 
   const estadoRuta = obtenerEstadoRuta(ruta?.estado);
@@ -173,6 +194,18 @@ const PaginaRutaRecoleccion = () => {
                 onClick={manejarActualizarRuta}
               >
                 Actualizar ruta
+              </Button>
+            )}
+            {ruta?.estado === "EN_CURSO" && (
+              <Button
+                colorPalette="verde"
+                rounded="lg"
+                size="sm"
+                loadingText="Finalizando"
+                isLoading={finalizandoRuta}
+                onClick={manejarFinalizarRuta}
+              >
+                Finalizar ruta
               </Button>
             )}
           </Flex>

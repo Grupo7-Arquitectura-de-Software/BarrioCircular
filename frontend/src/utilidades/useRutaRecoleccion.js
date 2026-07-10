@@ -8,6 +8,7 @@ import {
   actualizarRutaActiva,
   registrarLlegadaParada,
   iniciarRutaActiva,
+  finalizarRutaActiva,
 } from "@/servicios/logisticaService";
 
 const obtenerMensajeError = (error, mensajePorDefecto) => {
@@ -31,6 +32,7 @@ export const useRutaRecoleccion = () => {
   const [construyendo, setConstruyendo] = useState(false);
   const [registroLlegada, setRegistroLlegada] = useState(false);
   const [actualizandoRuta, setActualizandoRuta] = useState(false);
+  const [finalizandoRuta, setFinalizandoRuta] = useState(false);
 
   const obtenerTokenSesion = useCallback(async () => {
     const token = await getToken();
@@ -123,6 +125,22 @@ export const useRutaRecoleccion = () => {
     [obtenerTokenSesion],
   );
 
+  const finalizarRuta = useCallback(async () => {
+    setFinalizandoRuta(true);
+    setMensajeError("");
+    try {
+      const token = await obtenerTokenSesion();
+      const rutaFinalizada = await finalizarRutaActiva(token);
+      setRuta(rutaFinalizada);
+      return rutaFinalizada;
+    } catch (error) {
+      setMensajeError(obtenerMensajeError(error, "No fue posible finalizar la ruta."));
+      return null;
+    } finally {
+      setFinalizandoRuta(false);
+    }
+  }, [obtenerTokenSesion]);
+
   return {
     ruta,
     cargando,
@@ -130,9 +148,11 @@ export const useRutaRecoleccion = () => {
     construyendo,
     registrandoLlegada: registroLlegada,
     actualizandoRuta,
+    finalizandoRuta,
     cargarRutaActiva,
     construirRuta,
     actualizarRuta,
+    finalizarRuta,
     registrarLlegada,
   };
 };

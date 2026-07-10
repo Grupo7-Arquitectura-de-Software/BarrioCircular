@@ -60,10 +60,6 @@ public class RutaRecoleccion {
     if (estado != EstadoRutaRecoleccion.EN_CURSO) {
       throw new IllegalStateException("Solo una ruta en curso puede completarse.");
     }
-    if (!todasLasParadasFinalizadas()) {
-      throw new IllegalStateException(
-          "La ruta solo puede completarse con sus paradas finalizadas.");
-    }
     estado = EstadoRutaRecoleccion.COMPLETADA;
   }
 
@@ -141,14 +137,6 @@ public class RutaRecoleccion {
         .filter(parada -> parada.id().equals(paradaId))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("La parada no pertenece a esta ruta."));
-  }
-
-  private boolean todasLasParadasFinalizadas() {
-    return paradas.stream()
-        .allMatch(
-            parada ->
-                parada.estado() == EstadoParadaRecoleccion.COMPLETADA
-                    || parada.estado() == EstadoParadaRecoleccion.OMITIDA);
   }
 
   public RutaRecoleccionId id() {

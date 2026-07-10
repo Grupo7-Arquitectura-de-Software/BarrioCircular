@@ -100,7 +100,7 @@ class PlanificadorRutaRecoleccionTest {
   }
 
   @Test
-  void permiteCompletarRutaSoloCuandoSusParadasEstanFinalizadas() {
+  void permiteCompletarRutaEnCursoAunqueTengaParadasPendientes() {
     RutaRecoleccion ruta =
         planificador.planificar(
             RecicladorId.de(UUID.randomUUID()),
@@ -113,14 +113,6 @@ class PlanificadorRutaRecoleccionTest {
             LocalTime.of(9, 0));
 
     ruta.iniciar();
-
-    assertThrows(IllegalStateException.class, ruta::completar);
-
-    ruta.paradas()
-        .forEach(
-            parada ->
-                ruta.completarParada(
-                    parada.id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, parada.orden()))));
 
     ruta.completar();
 

@@ -2,10 +2,11 @@ package com.barriocircular.backend.logistica.interfaces.rest;
 
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.FinalizarRutaRecoleccionUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
-import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.ConstruirRutaRequest;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.RegistrarLlegadaParadaRequest;
@@ -41,6 +42,7 @@ public class LogisticaRecoleccionController {
   private final ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private final RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
   private final IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase;
+  private final FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase;
   private final ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
 
   public LogisticaRecoleccionController(
@@ -50,6 +52,7 @@ public class LogisticaRecoleccionController {
       ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase,
       RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase,
       IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase,
+      FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase,
       ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase) {
     this.construirRutaRecoleccionUseCase = Objects.requireNonNull(construirRutaRecoleccionUseCase);
     this.obtenerRutaActivaUseCase = Objects.requireNonNull(obtenerRutaActivaUseCase);
@@ -58,6 +61,7 @@ public class LogisticaRecoleccionController {
     this.obtenerRutaPorIdUseCase = Objects.requireNonNull(obtenerRutaPorIdUseCase);
     this.registrarLlegadaParadaUseCase = Objects.requireNonNull(registrarLlegadaParadaUseCase);
     this.iniciarRutaRecoleccionUseCase = Objects.requireNonNull(iniciarRutaRecoleccionUseCase);
+    this.finalizarRutaRecoleccionUseCase = Objects.requireNonNull(finalizarRutaRecoleccionUseCase);
     this.obtenerPerfilPorClerkIdUseCase = Objects.requireNonNull(obtenerPerfilPorClerkIdUseCase);
   }
 
@@ -65,6 +69,13 @@ public class LogisticaRecoleccionController {
   public ResponseEntity<RutaRecoleccionResponse> iniciarRutaActiva(Authentication autenticacion) {
     UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
     RutaRecoleccionResultado resultado = iniciarRutaRecoleccionUseCase.ejecutar(recicladorId);
+    return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
+  }
+
+  @PostMapping("/activa/finalizar")
+  public ResponseEntity<RutaRecoleccionResponse> finalizarRutaActiva(Authentication autenticacion) {
+    UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
+    RutaRecoleccionResultado resultado = finalizarRutaRecoleccionUseCase.ejecutar(recicladorId);
     return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
   }
 
@@ -102,7 +113,8 @@ public class LogisticaRecoleccionController {
   }
 
   @PutMapping("/activa")
-  public ResponseEntity<RutaRecoleccionResponse> actualizarRutaActiva(Authentication autenticacion) {
+  public ResponseEntity<RutaRecoleccionResponse> actualizarRutaActiva(
+      Authentication autenticacion) {
     UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
     RutaRecoleccionResultado resultado = actualizarRutaRecoleccionUseCase.ejecutar(recicladorId);
     return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
