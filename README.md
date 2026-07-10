@@ -147,35 +147,40 @@ Se aplica DDD para modelar fielmente los procesos de economía circular:
 
 BarrioCircular se estructura en **múltiples contextos delimitados** (Bounded Contexts) siguiendo DDD:
 
-### 1. **Contexto de Usuarios y Perfiles**
-Gestiona la identidad, autenticación y perfiles de los tres actores principales (Ciudadanos, Recicladores, Centros de Acopio).
+### 1. **Contexto de acceso**
+Gestiona las cuentas de un usuario aqui no interesa el rol sino la identidad validada por clerk.
 
-*Documentación detallada: `docs/contextos/usuarios.md`*
+*Documentación detallada: `docs/contextos/01-acceso.md`*
 
-### 2. **Contexto de Catálogo de Materiales**
+### 2. **Contexto de perfiles**
+Gestiona los roles de la aplicación y los datos del usuario.
+
+*Documentación detallada: `docs/contextos/02-perfiles.md`*
+
+### 3. **Contexto de publicacion**
 Define los tipos de materiales reciclables, características, valores de mercado y clasificaciones.
 
-*Documentación detallada: `docs/contextos/catalogo-materiales.md`*
+*Documentación detallada: `docs/contextos/03-publicacion.md`*
 
-### 3. **Contexto de Oferta y Demanda**
-Maneja la publicación de materiales disponibles y búsqueda de compradores/proveedores.
+### 4. **Contexto de emparejamiento**
+Maneja las publicaciones mediante el filtros de búsqueda y la geolocalización para emparejar oferta y demanda.
 
-*Documentación detallada: `docs/contextos/oferta-demanda.md`*
+*Documentación detallada: `docs/contextos/04-emparejamiento.md`*
 
-### 4. **Contexto de Transacciones y Pagos**
-Orquesta las transacciones, gestiona depósitos de garantía y procesa pagos.
-
-*Documentación detallada: `docs/contextos/transacciones.md`*
-
-### 5. **Contexto de Geolocalización y Logística**
+### 5. **Contexto de logistica**
 Maneja ubicaciones, rutas óptimas de recolección y emparejamiento geográfico.
 
-*Documentación detallada: `docs/contextos/logistica.md`*
+*Documentación detallada: `docs/contextos/05-logistica.md`*
 
-### 6. **Contexto de Reportes y Impacto Ambiental**
-Calcula y visualiza métricas de reducción de carbono y residuos reutilizados.
+### 6. **Contexto de sugerencia de precio**
+Proporciona recomendaciones de precios basadas en un modelo de IA como groQ.
 
-*Documentación detallada: `docs/contextos/impacto-ambiental.md`*
+*Documentación detallada: `docs/contextos/06-sugerencia-precio.md`*
+
+### 7. **Contexto de verificacion de identidad**
+Verifica la identidad de los usuarios mediante un codigo QR.
+
+*Documentación detallada: `docs/contextos/07-verificacion-identidad.md`*
 
 **Nota**: Cada contexto cuenta con su propia documentación técnica detallada en la carpeta `docs/contextos/`.
 
