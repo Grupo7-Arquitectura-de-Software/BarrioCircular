@@ -2,6 +2,7 @@ import {
   MdOutlineGridView,
   MdOutlineListAlt,
   MdOutlineLocalShipping,
+  MdOutlineMap,
   MdOutlineQrCode2,
   MdOutlineSell,
   MdOutlineSettings,
@@ -35,6 +36,11 @@ export const SUBTITULO_CENTRO = "Hub de Economía Circular";
 // Navegación híbrida del reciclador: opera rutas, compra y vende.
 export const NAVEGACION_RECOLECTOR = [
   { etiqueta: "Operaciones", icono: <MdOutlineLocalShipping />, ruta: "/recolector/inicio" },
+  {
+    etiqueta: "Ruta de recolección",
+    icono: <MdOutlineMap />,
+    ruta: "/recolector/ruta-recoleccion",
+  },
   {
     etiqueta: "Comprar",
     icono: <MdOutlineShoppingCart />,

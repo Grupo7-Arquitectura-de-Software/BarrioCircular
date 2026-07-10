@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineQrCode2 } from "react-icons/md";
 
@@ -7,6 +8,7 @@ import PanelRutaRecoleccion from "../componentes/organismos/PanelRutaRecoleccion
 import PanelCoordinacionMensajes from "../componentes/organismos/PanelCoordinacionMensajes.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navegacionPanel";
+import { useRutaRecoleccion } from "@/utilidades/useRutaRecoleccion";
 
 /**
  * Inicio del reciclador híbrido (mockup "Gestión Híbrida"): resumen
@@ -14,6 +16,14 @@ import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navega
  */
 const PaginaInicioRecolector = () => {
   const navigate = useNavigate();
+  const { ruta, cargando, mensajeError, cargarRutaActiva } = useRutaRecoleccion();
+  const cargaInicialRef = useRef(false);
+
+  useEffect(() => {
+    if (cargaInicialRef.current) return;
+    cargaInicialRef.current = true;
+    cargarRutaActiva();
+  }, [cargarRutaActiva]);
 
   return (
     <DiseniodeAplicacion
@@ -72,7 +82,12 @@ const PaginaInicioRecolector = () => {
 
         <Flex gap={6} align="stretch" direction={{ base: "column", lg: "row" }}>
           <Box flex="2" minW={0}>
-            <PanelRutaRecoleccion alVerRuta={() => {}} />
+            <PanelRutaRecoleccion
+              ruta={ruta}
+              cargando={cargando}
+              mensajeError={mensajeError}
+              alVerRuta={() => navigate("/recolector/ruta-recoleccion")}
+            />
           </Box>
           <Box flex="1" minW={{ lg: "320px" }}>
             <PanelCoordinacionMensajes alVerTodos={() => {}} />

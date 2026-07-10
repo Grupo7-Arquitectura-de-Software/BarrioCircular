@@ -1,54 +1,62 @@
-import { Badge, Box, Circle, Flex, HStack, Link, Text, VStack } from "@chakra-ui/react";
-import { MdCheck } from "react-icons/md";
+import { Badge, Box, Circle, Flex, HStack, Link, Spinner, Text, VStack } from "@chakra-ui/react";
+import { MdCheck, MdOutlineAccessTime, MdOutlineLocalShipping } from "react-icons/md";
 
-const PARADAS_EJEMPLO = [
-  {
-    id: 1,
-    titulo: "Centro La Mariscal",
-    detalle: "120kg de cartón recogido • 09:15 AM",
-    estado: "completado",
-  },
-  {
-    id: 2,
-    titulo: "Coop. Centro Histórico",
-    detalle: "Esperado: 45kg Vidrio • ETA: 10:30 AM",
-    estado: "actual",
-  },
-  {
-    id: 3,
-    titulo: "Punto de recolección Guápulo",
-    detalle: "Pendiente • Est. 11:45 AM",
-    estado: "pendiente",
-  },
-];
+import { etiquetaTipoResiduo } from "@/utilidades/catalogoMateriales";
+
+const FORMATEADOR_HORA_ECUADOR = new Intl.DateTimeFormat("es-EC", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "America/Guayaquil",
+});
+
+const ESTADOS_RUTA = {
+  PLANIFICADA: { etiqueta: "Planificada", color: "azul" },
+  EN_CURSO: { etiqueta: "En curso", color: "verde" },
+  COMPLETADA: { etiqueta: "Completada", color: "verde" },
+  CANCELADA: { etiqueta: "Cancelada", color: "red" },
+};
+
+const formatearHora = (fechaHora) => {
+  if (!fechaHora) return "Sin hora";
+  return FORMATEADOR_HORA_ECUADOR.format(new Date(fechaHora));
+};
+
+const obtenerEstadoRuta = (estado) =>
+  ESTADOS_RUTA[estado] || { etiqueta: "Sin ruta", color: "gray" };
+
+const obtenerParadaActual = (paradas) =>
+  paradas.find((parada) => parada.estado === "EN_CURSO") ||
+  paradas.find((parada) => parada.estado === "PENDIENTE") ||
+  paradas[0];
 
 const IndicadorParada = ({ estado }) => {
-  if (estado === "completado") {
+  if (estado === "COMPLETADA") {
     return (
       <Circle size="22px" bg="marca.primario" color="white">
         <MdCheck size={14} />
       </Circle>
     );
   }
-  if (estado === "actual") {
+  if (estado === "EN_CURSO") {
     return (
       <Circle size="22px" border="2px solid" borderColor="marca.primario" bg="fondo.tarjeta">
-        <Circle size="10px" bg="marca.primario" />
+        <MdOutlineLocalShipping size={13} color="var(--chakra-colors-marca-primario)" />
       </Circle>
     );
   }
-  return <Circle size="22px" bg="fondo.cabeceraTarjeta" />;
+  return (
+    <Circle size="22px" bg="fondo.cabeceraTarjeta" color="gray.500">
+      <MdOutlineAccessTime size={13} />
+    </Circle>
+  );
 };
 
-/**
- * Ruta de recolección del día (mockup "Gestión Híbrida"): mapa con estado en
- * vivo y línea de tiempo de paradas.
- */
-const PanelRutaRecoleccion = ({
-  paradas = PARADAS_EJEMPLO,
-  nombreRuta = "Ruta Q-Sur",
-  alVerRuta,
-}) => {
+const PanelRutaRecoleccion = ({ ruta, cargando = false, mensajeError = "", alVerRuta }) => {
+  const paradas = ruta?.paradas || [];
+  const estadoRuta = obtenerEstadoRuta(ruta?.estado);
+  const paradasResumen = paradas.slice(0, 3);
+  const paradaActual = obtenerParadaActual(paradas);
+
   return (
     <Box
       bg="fondo.tarjeta"
@@ -57,19 +65,35 @@ const PanelRutaRecoleccion = ({
       borderRadius="xl"
       overflow="hidden"
     >
-      {/* TODO: integrar mapa en vivo cuando exista el servicio de rutas. */}
-      <Box position="relative" h="220px" bg="fondo.cabeceraTarjeta">
-        <Flex h="100%" align="center" justify="center" color="gray.500" fontSize="sm">
-          Mapa de la ruta en Quito
+      <Box bg="fondo.cabeceraTarjeta" p={5}>
+        <Flex justify="space-between" align="flex-start" gap={4}>
+          <Box>
+            <Text fontSize="sm" color="gray.600">
+              Ruta del día
+            </Text>
+            <Text fontFamily="heading" fontWeight="700" fontSize="xl">
+              {ruta ? `${paradas.length} paradas programadas` : "Sin ruta activa"}
+            </Text>
+          </Box>
+          <Badge colorPalette={estadoRuta.color} borderRadius="full" px={3} py={1}>
+            {estadoRuta.etiqueta}
+          </Badge>
         </Flex>
-        <HStack position="absolute" top={4} left={4} gap={2}>
-          <Badge bg="verde.100" color="marca.primario" borderRadius="full" px={3} py={1}>
-            ● En vivo
-          </Badge>
-          <Badge bg="fondo.tarjeta" borderRadius="full" px={3} py={1} boxShadow="sm">
-            {nombreRuta}
-          </Badge>
-        </HStack>
+
+        {paradaActual && (
+          <Box mt={4} bg="fondo.tarjeta" borderRadius="lg" p={4}>
+            <Text fontSize="xs" color="gray.600" fontWeight="600">
+              Próxima parada
+            </Text>
+            <Text fontWeight="700">
+              {etiquetaTipoResiduo(paradaActual.tipoResiduo)} ·{" "}
+              {Number(paradaActual.pesoKg || 0).toFixed(1)} kg
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              ETA {formatearHora(paradaActual.horaLlegadaEstimada)}
+            </Text>
+          </Box>
+        )}
       </Box>
 
       <Box p={6}>
@@ -82,46 +106,70 @@ const PanelRutaRecoleccion = ({
           </Link>
         </Flex>
 
-        <VStack align="stretch" gap={0}>
-          {paradas.map((parada, indice) => {
-            const esActual = parada.estado === "actual";
-            return (
-              <Flex key={parada.id} gap={4} align="stretch">
-                <VStack gap={0} align="center">
-                  <IndicadorParada estado={parada.estado} />
-                  {indice < paradas.length - 1 && (
-                    <Box flex="1" w="2px" bg="gray.200" minH="24px" />
-                  )}
-                </VStack>
-                <Box
-                  flex="1"
-                  mb={indice < paradas.length - 1 ? 4 : 0}
-                  {...(esActual
-                    ? {
-                        bg: "fondo.pagina",
-                        border: "1px solid",
-                        borderColor: "verde.300",
-                        borderRadius: "lg",
-                        px: 4,
-                        py: 2,
-                      }
-                    : {})}
-                >
-                  <Text
-                    fontWeight="600"
-                    fontSize="sm"
-                    color={esActual ? "marca.primario" : "gray.800"}
+        {cargando ? (
+          <Flex justify="center" py={8}>
+            <Spinner color="marca.primario" />
+          </Flex>
+        ) : paradasResumen.length > 0 ? (
+          <VStack align="stretch" gap={0}>
+            {paradasResumen.map((parada, indice) => {
+              const esActual = parada.estado === "EN_CURSO";
+              return (
+                <Flex key={parada.paradaId || parada.publicacionId} gap={4} align="stretch">
+                  <VStack gap={0} align="center">
+                    <IndicadorParada estado={parada.estado} />
+                    {indice < paradasResumen.length - 1 && (
+                      <Box flex="1" w="2px" bg="gray.200" minH="24px" />
+                    )}
+                  </VStack>
+                  <Box
+                    flex="1"
+                    mb={indice < paradasResumen.length - 1 ? 4 : 0}
+                    bg={esActual ? "fondo.pagina" : "transparent"}
+                    border={esActual ? "1px solid" : "none"}
+                    borderColor="verde.300"
+                    borderRadius="lg"
+                    px={esActual ? 4 : 0}
+                    py={esActual ? 2 : 0}
                   >
-                    {parada.titulo}
-                  </Text>
-                  <Text fontSize="sm" color="gray.600">
-                    {parada.detalle}
-                  </Text>
-                </Box>
-              </Flex>
-            );
-          })}
-        </VStack>
+                    <Text
+                      fontWeight="600"
+                      fontSize="sm"
+                      color={esActual ? "marca.primario" : "gray.800"}
+                    >
+                      Parada {parada.orden}: {etiquetaTipoResiduo(parada.tipoResiduo)}
+                    </Text>
+                    <HStack gap={2} wrap="wrap">
+                      <Text fontSize="sm" color="gray.600">
+                        {Number(parada.pesoKg || 0).toFixed(1)} kg
+                      </Text>
+                      <Text fontSize="sm" color="gray.400">
+                        ·
+                      </Text>
+                      <Text fontSize="sm" color="gray.600">
+                        ETA {formatearHora(parada.horaLlegadaEstimada)}
+                      </Text>
+                    </HStack>
+                  </Box>
+                </Flex>
+              );
+            })}
+          </VStack>
+        ) : (
+          <Box
+            border="1px dashed"
+            borderColor="gray.300"
+            borderRadius="lg"
+            py={8}
+            px={4}
+            textAlign="center"
+          >
+            <Text fontWeight="600">No hay ruta activa</Text>
+            <Text fontSize="sm" color="gray.600">
+              {mensajeError || "Construye tu ruta para ver las paradas del día."}
+            </Text>
+          </Box>
+        )}
       </Box>
     </Box>
   );
