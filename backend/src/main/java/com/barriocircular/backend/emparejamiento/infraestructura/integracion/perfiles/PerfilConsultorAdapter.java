@@ -28,6 +28,7 @@ public class PerfilConsultorAdapter implements PerfilConsultor {
         .flatMap(repositorioPerfiles::buscarPorCuentaUsuarioId)
         .map(
             perfil ->
-                new PerfilCapacidadesComprador(perfil.getId(), perfil.puedeComprarMateriales()));
+                new PerfilCapacidadesComprador(
+                    perfil.getId(), perfil.puedeComprarMateriales(), perfil.getRol().name()));
   }
 }

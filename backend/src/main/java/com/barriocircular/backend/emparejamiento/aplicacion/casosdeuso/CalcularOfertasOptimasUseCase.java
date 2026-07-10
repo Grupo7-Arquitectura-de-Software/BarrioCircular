@@ -73,9 +73,11 @@ public class CalcularOfertasOptimasUseCase {
             comando.pesoMaximo());
 
     List<OfertaCatalogo> catalogoDisponible = obtenerCatalogoDisponible();
+    List<OfertaCatalogo> catalogoFiltrado =
+        filtrarPorRolComprador(catalogoDisponible, perfil.rol());
 
     List<PuntajeOferta> ofertasOrdenadas =
-        algoritmo.calcularOfertasOptimas(posicionOrigen, filtro, catalogoDisponible);
+        algoritmo.calcularOfertasOptimas(posicionOrigen, filtro, catalogoFiltrado);
 
     ResultadoEmparejamiento resultado =
         ResultadoEmparejamiento.calcular(compradorId, posicionOrigen, filtro, ofertasOrdenadas);
@@ -84,6 +86,18 @@ public class CalcularOfertasOptimasUseCase {
     publicarEventos(resultado);
 
     return convertirResultado(guardado);
+  }
+
+  /**
+   * Filtra el catálogo según el rol del comprador. CENTRO_RECOLECCION solo puede ver publicaciones
+   * de RECICLADOR. RECICLADOR puede ver todas las publicaciones disponibles.
+   */
+  private List<OfertaCatalogo> filtrarPorRolComprador(
+      List<OfertaCatalogo> catalogo, String rolComprador) {
+    if ("CENTRO_RECOLECCION".equals(rolComprador)) {
+      return catalogo.stream().filter(o -> "RECICLADOR".equals(o.creadorRol())).toList();
+    }
+    return catalogo;
   }
 
   private List<OfertaCatalogo> obtenerCatalogoDisponible() {

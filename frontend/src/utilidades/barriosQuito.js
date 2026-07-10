@@ -14,9 +14,7 @@ export const obtenerCoordenadasDeBarrio = (valorBarrio) => {
   return barrio ? { latitud: barrio.latitud, longitud: barrio.longitud } : null;
 };
 
-// Ubicación legible para una publicación: el barrio del catálogo más cercano
-// a sus coordenadas (aproximación euclidiana suficiente a escala de ciudad).
-export const barrioMasCercano = (latitud, longitud) => {
+const buscarBarrioMasCercano = (latitud, longitud) => {
   let masCercano = null;
   let menorDistancia = Infinity;
   for (const barrio of BARRIOS_QUITO) {
@@ -26,8 +24,18 @@ export const barrioMasCercano = (latitud, longitud) => {
       masCercano = barrio;
     }
   }
-  return masCercano ? masCercano.etiqueta : "Quito";
+  return masCercano;
 };
+
+// Ubicación legible para una publicación: el barrio del catálogo más cercano
+// a sus coordenadas (aproximación euclidiana suficiente a escala de ciudad).
+export const barrioMasCercano = (latitud, longitud) =>
+  buscarBarrioMasCercano(latitud, longitud)?.etiqueta || "Quito";
+
+// Valor (slug) del barrio más cercano, para preseleccionar el selector de
+// ubicación al editar una publicación existente.
+export const valorBarrioMasCercano = (latitud, longitud) =>
+  buscarBarrioMasCercano(latitud, longitud)?.valor || "";
 
 // Catálogo oficial del backend (enum TipoResiduo) con etiquetas de UI.
 export const ETIQUETAS_TIPO_RESIDUO = {

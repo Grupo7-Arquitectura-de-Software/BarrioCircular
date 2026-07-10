@@ -31,6 +31,7 @@ public class PerfilConsultorAdapter implements PerfilConsultor {
                 new PerfilCapacidades(
                     perfil.getId(),
                     perfil.puedePublicarMateriales(),
-                    perfil.puedeComprarMateriales()));
+                    perfil.puedeComprarMateriales(),
+                    perfil.getRol().name()));
   }
 }

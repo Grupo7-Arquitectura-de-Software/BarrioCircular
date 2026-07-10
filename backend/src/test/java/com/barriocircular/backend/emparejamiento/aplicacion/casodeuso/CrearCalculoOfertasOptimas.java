@@ -63,7 +63,8 @@ class CrearCalculoOfertasOptimas {
   @Test
   void calculaOfertasOptimasExitosamente() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, true);
+    PerfilCapacidadesComprador perfilCapacidades =
+        new PerfilCapacidadesComprador(perfilId, true, "RECICLADOR");
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 
@@ -75,7 +76,8 @@ class CrearCalculoOfertasOptimas {
             new BigDecimal("0.5"),
             -0.19,
             -78.49,
-            "DISPONIBLE");
+            "DISPONIBLE",
+            "RECICLADOR");
     when(catalogoPublicacionesPort.obtenerCatalogoDisponible()).thenReturn(List.of(oferta));
 
     when(emparejamientoRepositorio.guardar(any(ResultadoEmparejamiento.class)))
@@ -110,7 +112,8 @@ class CrearCalculoOfertasOptimas {
   @Test
   void lanzaExcepcionSiPerfilNoAutorizado() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, false);
+    PerfilCapacidadesComprador perfilCapacidades =
+        new PerfilCapacidadesComprador(perfilId, false, "CIUDADANO");
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 
@@ -125,7 +128,8 @@ class CrearCalculoOfertasOptimas {
   @Test
   void lanzaExcepcionSiCatalogoNoDisponible() {
     UUID perfilId = UUID.randomUUID();
-    PerfilCapacidadesComprador perfilCapacidades = new PerfilCapacidadesComprador(perfilId, true);
+    PerfilCapacidadesComprador perfilCapacidades =
+        new PerfilCapacidadesComprador(perfilId, true, "RECICLADOR");
     when(perfilConsultor.obtenerCapacidadesPorClerkId(clerkIdAutenticado))
         .thenReturn(Optional.of(perfilCapacidades));
 

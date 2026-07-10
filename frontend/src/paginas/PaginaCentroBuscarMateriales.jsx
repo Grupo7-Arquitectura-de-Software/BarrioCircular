@@ -1,6 +1,7 @@
 import { Box, Button, Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineEventAvailable, MdOutlineInbox, MdOutlineQrCode2 } from "react-icons/md";
+import { useEffect, useRef } from "react";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
@@ -8,14 +9,13 @@ import TarjetaMaterialRecomendado from "../componentes/organismos/TarjetaMateria
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
 import { barrioMasCercano, etiquetaTipoResiduo } from "@/utilidades/barriosQuito";
-import {
-  obtenerMisReservas,
-  obtenerPublicacionesDisponibles,
-} from "@/servicios/publicacionService";
+import { obtenerMisReservas } from "@/servicios/publicacionService";
 import { usePublicaciones } from "@/utilidades/usePublicaciones";
+import { useEmparejamiento } from "@/utilidades/useEmparejamiento";
 import { useReservarPublicacion } from "@/utilidades/useReservarPublicacion";
+import { useFinalizarPublicacion } from "@/utilidades/useFinalizarPublicacion";
 
-const TarjetaReservaActiva = ({ reserva, alCoordinar }) => (
+const TarjetaReservaActiva = ({ reserva, alCoordinar, alFinalizar, finalizando }) => (
   <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4}>
     <Flex justify="space-between" gap={2} mb={1}>
       <Text fontWeight="600" fontSize="sm">
@@ -28,9 +28,22 @@ const TarjetaReservaActiva = ({ reserva, alCoordinar }) => (
     <Text fontSize="xs" color="gray.600" mb={2}>
       {barrioMasCercano(reserva.latitud, reserva.longitud)}
     </Text>
-    <Button size="xs" variant="outline" colorPalette="verde" rounded="lg" onClick={alCoordinar}>
-      Coordinar recolección
-    </Button>
+    <HStack gap={2}>
+      <Button size="xs" variant="outline" colorPalette="verde" rounded="lg" onClick={alCoordinar}>
+        Coordinar recolección
+      </Button>
+      <Button
+        size="xs"
+        variant="solid"
+        colorPalette="azul"
+        rounded="lg"
+        loading={finalizando}
+        loadingText="Finalizando"
+        onClick={alFinalizar}
+      >
+        Finalizar
+      </Button>
+    </HStack>
   </Box>
 );
 
@@ -40,12 +53,33 @@ const TarjetaReservaActiva = ({ reserva, alCoordinar }) => (
  */
 const PaginaCentroBuscarMateriales = () => {
   const navigate = useNavigate();
-  const { publicaciones, cargando, mensajeError } = usePublicaciones(
-    obtenerPublicacionesDisponibles,
-  );
-  const { publicaciones: reservas, cargando: cargandoReservas } =
-    usePublicaciones(obtenerMisReservas);
+  const { publicaciones, cargando, mensajeError, buscar } = useEmparejamiento();
+  const {
+    publicaciones: reservas,
+    setPublicaciones: setReservas,
+    cargando: cargandoReservas,
+  } = usePublicaciones(obtenerMisReservas);
   const { reservar, reservandoId } = useReservarPublicacion("centro");
+  const { finalizar, finalizandoId } = useFinalizarPublicacion();
+  const busquedaInicialRef = useRef(false);
+
+  useEffect(() => {
+    if (!busquedaInicialRef.current) {
+      busquedaInicialRef.current = true;
+      buscar({ tipoMaterial: "TODOS", distancia: "5" });
+    }
+  }, [buscar]);
+
+  const manejarBusqueda = (filtros) => {
+    buscar(filtros);
+  };
+
+  const reservasActivas = reservas.filter((reserva) => reserva.estado !== "FINALIZADA");
+
+  const finalizarReserva = (publicacionId) =>
+    finalizar(publicacionId, () =>
+      setReservas((actuales) => actuales.filter((r) => r.publicacionId !== publicacionId)),
+    );
 
   return (
     <DiseniodeAplicacion
@@ -106,7 +140,7 @@ const PaginaCentroBuscarMateriales = () => {
           </Flex>
         </Box>
 
-        <FormularioBuscarMateriales />
+        <FormularioBuscarMateriales onBuscar={manejarBusqueda} />
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
           {/* Publicaciones disponibles */}
@@ -175,7 +209,7 @@ const PaginaCentroBuscarMateriales = () => {
               <Flex justify="center" py={6}>
                 <Spinner color="marca.primario" />
               </Flex>
-            ) : reservas.length === 0 ? (
+            ) : reservasActivas.length === 0 ? (
               <VStack
                 border="1px dashed"
                 borderColor="gray.300"
@@ -196,11 +230,13 @@ const PaginaCentroBuscarMateriales = () => {
               </VStack>
             ) : (
               <VStack align="stretch" gap={3}>
-                {reservas.map((reserva) => (
+                {reservasActivas.map((reserva) => (
                   <TarjetaReservaActiva
                     key={reserva.publicacionId}
                     reserva={reserva}
                     alCoordinar={() => navigate(`/centro/coordinar/${reserva.publicacionId}`)}
+                    alFinalizar={() => finalizarReserva(reserva.publicacionId)}
+                    finalizando={finalizandoId === reserva.publicacionId}
                   />
                 ))}
               </VStack>

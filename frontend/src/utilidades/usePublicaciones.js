@@ -32,5 +32,5 @@ export const usePublicaciones = (consultar) => {
     cargar();
   }, [getToken, consultar]);
 
-  return { publicaciones, cargando, mensajeError };
+  return { publicaciones, setPublicaciones, cargando, mensajeError };
 };
