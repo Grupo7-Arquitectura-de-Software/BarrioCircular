@@ -1,12 +1,14 @@
 package com.barriocircular.backend.publicacion.interfaces.rest;
 
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.CrearPublicacionUseCase;
+import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.FinalizarPublicacionUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.ListarMisPublicacionesUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.ListarMisReservasUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.ListarPublicacionesDisponiblesUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.ObtenerPublicacionUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.casosdeuso.ReservarPublicacionUseCase;
 import com.barriocircular.backend.publicacion.aplicacion.comandos.CrearPublicacionCommand;
+import com.barriocircular.backend.publicacion.aplicacion.comandos.FinalizarPublicacionCommand;
 import com.barriocircular.backend.publicacion.aplicacion.comandos.ReservarPublicacionCommand;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PublicacionResultado;
 import com.barriocircular.backend.publicacion.aplicacion.excepciones.IdentidadAutenticadaNoDisponibleException;
@@ -30,6 +32,7 @@ public class PublicacionController {
 
   private final CrearPublicacionUseCase crearPublicacionUseCase;
   private final ReservarPublicacionUseCase reservarPublicacionUseCase;
+  private final FinalizarPublicacionUseCase finalizarPublicacionUseCase;
   private final ListarPublicacionesDisponiblesUseCase listarPublicacionesDisponiblesUseCase;
   private final ListarMisPublicacionesUseCase listarMisPublicacionesUseCase;
   private final ListarMisReservasUseCase listarMisReservasUseCase;
@@ -38,12 +41,14 @@ public class PublicacionController {
   public PublicacionController(
       CrearPublicacionUseCase crearPublicacionUseCase,
       ReservarPublicacionUseCase reservarPublicacionUseCase,
+      FinalizarPublicacionUseCase finalizarPublicacionUseCase,
       ListarPublicacionesDisponiblesUseCase listarPublicacionesDisponiblesUseCase,
       ListarMisPublicacionesUseCase listarMisPublicacionesUseCase,
       ListarMisReservasUseCase listarMisReservasUseCase,
       ObtenerPublicacionUseCase obtenerPublicacionUseCase) {
     this.crearPublicacionUseCase = crearPublicacionUseCase;
     this.reservarPublicacionUseCase = reservarPublicacionUseCase;
+    this.finalizarPublicacionUseCase = finalizarPublicacionUseCase;
     this.listarPublicacionesDisponiblesUseCase = listarPublicacionesDisponiblesUseCase;
     this.listarMisPublicacionesUseCase = listarMisPublicacionesUseCase;
     this.listarMisReservasUseCase = listarMisReservasUseCase;
@@ -89,6 +94,15 @@ public class PublicacionController {
     String clerkId = extraerClerkId(autenticacion);
     ReservarPublicacionCommand comando = new ReservarPublicacionCommand(publicacionId);
     PublicacionResultado resultado = reservarPublicacionUseCase.ejecutar(comando, clerkId);
+    return ResponseEntity.ok(resultado);
+  }
+
+  @PostMapping("/{publicacionId}/finalizar")
+  public ResponseEntity<PublicacionResultado> finalizarPublicacion(
+      @PathVariable UUID publicacionId, Authentication autenticacion) {
+    String clerkId = extraerClerkId(autenticacion);
+    FinalizarPublicacionCommand comando = new FinalizarPublicacionCommand(publicacionId);
+    PublicacionResultado resultado = finalizarPublicacionUseCase.ejecutar(comando, clerkId);
     return ResponseEntity.ok(resultado);
   }
 
