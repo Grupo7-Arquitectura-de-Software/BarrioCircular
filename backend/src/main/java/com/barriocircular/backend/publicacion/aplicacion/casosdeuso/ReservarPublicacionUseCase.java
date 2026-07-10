@@ -1,5 +1,6 @@
 package com.barriocircular.backend.publicacion.aplicacion.casosdeuso;
 
+import com.barriocircular.backend.perfiles.dominio.repositorios.PerfilUsuarioRepository;
 import com.barriocircular.backend.publicacion.aplicacion.comandos.ReservarPublicacionCommand;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PerfilCapacidades;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PublicacionResultado;
@@ -22,14 +23,17 @@ public class ReservarPublicacionUseCase {
   private final PublicacionRepositorio publicacionRepositorio;
   private final ApplicationEventPublisher eventPublisher;
   private final PerfilConsultor perfilConsultor;
+  private final PerfilUsuarioRepository repositorioPerfiles;
 
   public ReservarPublicacionUseCase(
       PublicacionRepositorio publicacionRepositorio,
       ApplicationEventPublisher eventPublisher,
-      PerfilConsultor perfilConsultor) {
+      PerfilConsultor perfilConsultor,
+      PerfilUsuarioRepository repositorioPerfiles) {
     this.publicacionRepositorio = publicacionRepositorio;
     this.eventPublisher = eventPublisher;
     this.perfilConsultor = perfilConsultor;
+    this.repositorioPerfiles = repositorioPerfiles;
   }
 
   @Transactional
@@ -49,6 +53,18 @@ public class ReservarPublicacionUseCase {
 
     Publicacion publicacion =
         publicacionRepositorio.buscarPorId(id).orElseThrow(PublicacionNoEncontradaException::new);
+
+    if ("CENTRO_RECOLECCION".equals(perfil.rol())) {
+      String rolCreador =
+          repositorioPerfiles
+              .buscarPorId(publicacion.creador().valor())
+              .map(p -> p.getRol().name())
+              .orElse(null);
+      if (!"RECICLADOR".equals(rolCreador)) {
+        throw new PerfilNoAutorizadoException(
+            "Los centros de recoleccion solo pueden reservar publicaciones de recicladores.");
+      }
+    }
 
     publicacion.reservarPublicacionPor(ReservadorId.de(perfil.perfilId()));
 

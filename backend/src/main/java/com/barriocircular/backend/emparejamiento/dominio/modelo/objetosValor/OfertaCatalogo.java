@@ -11,7 +11,8 @@ public record OfertaCatalogo(
     BigDecimal precioPorKilo,
     double latitud,
     double longitud,
-    String estado) {
+    String estado,
+    String creadorRol) {
   public OfertaCatalogo {
     if (publicacionId == null) {
       throw new OfertaCatalogoInvalidaException("La oferta de catalogo requiere un publicacionId.");

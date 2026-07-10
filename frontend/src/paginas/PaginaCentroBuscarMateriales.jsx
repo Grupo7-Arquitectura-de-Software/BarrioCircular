@@ -1,6 +1,7 @@
 import { Box, Button, Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineEventAvailable, MdOutlineInbox, MdOutlineQrCode2 } from "react-icons/md";
+import { useEffect, useRef } from "react";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import FormularioBuscarMateriales from "../componentes/organismos/FormularioBuscarMateriales";
@@ -8,11 +9,9 @@ import TarjetaMaterialRecomendado from "../componentes/organismos/TarjetaMateria
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
 import { barrioMasCercano, etiquetaTipoResiduo } from "@/utilidades/barriosQuito";
-import {
-  obtenerMisReservas,
-  obtenerPublicacionesDisponibles,
-} from "@/servicios/publicacionService";
+import { obtenerMisReservas } from "@/servicios/publicacionService";
 import { usePublicaciones } from "@/utilidades/usePublicaciones";
+import { useEmparejamiento } from "@/utilidades/useEmparejamiento";
 import { useReservarPublicacion } from "@/utilidades/useReservarPublicacion";
 import { useFinalizarPublicacion } from "@/utilidades/useFinalizarPublicacion";
 
@@ -54,9 +53,7 @@ const TarjetaReservaActiva = ({ reserva, alCoordinar, alFinalizar, finalizando }
  */
 const PaginaCentroBuscarMateriales = () => {
   const navigate = useNavigate();
-  const { publicaciones, cargando, mensajeError } = usePublicaciones(
-    obtenerPublicacionesDisponibles,
-  );
+  const { publicaciones, cargando, mensajeError, buscar } = useEmparejamiento();
   const {
     publicaciones: reservas,
     setPublicaciones: setReservas,
@@ -64,6 +61,18 @@ const PaginaCentroBuscarMateriales = () => {
   } = usePublicaciones(obtenerMisReservas);
   const { reservar, reservandoId } = useReservarPublicacion("centro");
   const { finalizar, finalizandoId } = useFinalizarPublicacion();
+  const busquedaInicialRef = useRef(false);
+
+  useEffect(() => {
+    if (!busquedaInicialRef.current) {
+      busquedaInicialRef.current = true;
+      buscar({ tipoMaterial: "TODOS", distancia: "5" });
+    }
+  }, [buscar]);
+
+  const manejarBusqueda = (filtros) => {
+    buscar(filtros);
+  };
 
   const reservasActivas = reservas.filter((reserva) => reserva.estado !== "FINALIZADA");
 
@@ -131,7 +140,7 @@ const PaginaCentroBuscarMateriales = () => {
           </Flex>
         </Box>
 
-        <FormularioBuscarMateriales />
+        <FormularioBuscarMateriales onBuscar={manejarBusqueda} />
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
           {/* Publicaciones disponibles */}
