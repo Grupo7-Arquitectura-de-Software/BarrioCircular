@@ -21,6 +21,7 @@ import {
   BARRIOS_QUITO,
   ETIQUETAS_TIPO_RESIDUO,
   obtenerCoordenadasDeBarrio,
+  valorBarrioMasCercano,
 } from "@/utilidades/barriosQuito";
 import { sugerirPrecio } from "@/servicios/sugerenciaPrecioService";
 
@@ -60,13 +61,25 @@ const TarjetaSeccion = ({ titulo, children }) => (
 /**
  * Formulario "Nueva Publicación": recolecta los datos alineados al contrato
  * del backend (POST /api/publicaciones) y los entrega vía `alPublicar`.
+ * En `modoEdicion`, se precarga con `datosIniciales` (PUT /api/publicaciones/{id})
+ * y la foto de evidencia es opcional: si no se sube una nueva, se conserva la actual.
  */
-const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = false }) => {
+const FormularioCrearPublicacion = ({
+  alPublicar,
+  alCancelar,
+  estaEnviando = false,
+  modoEdicion = false,
+  datosIniciales,
+}) => {
   const { getToken } = useAuth();
-  const [tipoResiduo, setTipoResiduo] = useState("");
-  const [pesoKg, setPesoKg] = useState("");
-  const [precioPorKilo, setPrecioPorKilo] = useState("");
-  const [barrio, setBarrio] = useState("");
+  const [tipoResiduo, setTipoResiduo] = useState(datosIniciales?.tipoResiduo || "");
+  const [pesoKg, setPesoKg] = useState(datosIniciales ? String(datosIniciales.pesoKg) : "");
+  const [precioPorKilo, setPrecioPorKilo] = useState(
+    datosIniciales ? String(datosIniciales.precioPorKilo) : "",
+  );
+  const [barrio, setBarrio] = useState(
+    datosIniciales ? valorBarrioMasCercano(datosIniciales.latitud, datosIniciales.longitud) : "",
+  );
   const [archivoEvidencia, setArchivoEvidencia] = useState(null);
   const [estaSugiriendoPrecio, setEstaSugiriendoPrecio] = useState(false);
   const [justificacionSugerida, setJustificacionSugerida] = useState("");
@@ -133,7 +146,7 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = fal
       advertir("Selecciona la ubicación", "Indica el barrio de recogida.");
       return;
     }
-    if (!archivoEvidencia) {
+    if (!modoEdicion && !archivoEvidencia) {
       advertir("Falta la foto de evidencia", "Sube una foto del material para publicar.");
       return;
     }
@@ -178,8 +191,13 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = fal
             </Field.Root>
           </SimpleGrid>
 
-          <Field.Root required>
+          <Field.Root required={!modoEdicion}>
             <Field.Label fontWeight="600">Foto de Evidencia</Field.Label>
+            {modoEdicion && (
+              <Text fontSize="sm" color="gray.500" mb={2}>
+                Ya tienes una foto subida. Sube una nueva solo si quieres reemplazarla.
+              </Text>
+            )}
             <AreaCargaImagenes
               maximoArchivos={1}
               tamanioMaximoMB={10}
@@ -279,9 +297,9 @@ const FormularioCrearPublicacion = ({ alPublicar, alCancelar, estaEnviando = fal
           rounded="lg"
           px={5}
           loading={estaEnviando}
-          loadingText="Publicando"
+          loadingText={modoEdicion ? "Guardando" : "Publicando"}
         >
-          <MdOutlineFileUpload /> Publicar Material
+          <MdOutlineFileUpload /> {modoEdicion ? "Guardar Cambios" : "Publicar Material"}
         </Button>
       </Flex>
     </VStack>

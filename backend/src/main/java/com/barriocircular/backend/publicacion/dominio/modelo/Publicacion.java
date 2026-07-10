@@ -5,6 +5,7 @@ import com.barriocircular.backend.publicacion.dominio.eventos.PublicacionCancela
 import com.barriocircular.backend.publicacion.dominio.eventos.PublicacionCreada;
 import com.barriocircular.backend.publicacion.dominio.eventos.PublicacionFinalizada;
 import com.barriocircular.backend.publicacion.dominio.eventos.PublicacionReservada;
+import com.barriocircular.backend.publicacion.dominio.excepciones.EstadoInvalidoException;
 import com.barriocircular.backend.publicacion.dominio.excepciones.PublicacionInvalidaException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,10 +17,10 @@ public class Publicacion {
 
   private final PublicacionId id;
   private final CiudadanoId creador;
-  private final DetalleMaterial detalle;
-  private final PrecioPorKilo precioPorKilo;
-  private final UbicacionRecogida ubicacion;
-  private final EvidenciaVisual evidencia;
+  private DetalleMaterial detalle;
+  private PrecioPorKilo precioPorKilo;
+  private UbicacionRecogida ubicacion;
+  private EvidenciaVisual evidencia;
   private final Instant fechaCreacion;
 
   private EstadoPublicacion estado;
@@ -107,6 +108,25 @@ public class Publicacion {
     this.estado = estado.transicionarA(EstadoPublicacion.RESERVADA);
     this.reservadoPor = reservador;
     registrar(new PublicacionReservada(id, reservador, Instant.now()));
+  }
+
+  public void actualizarDatos(
+      DetalleMaterial detalle,
+      PrecioPorKilo precioPorKilo,
+      UbicacionRecogida ubicacion,
+      EvidenciaVisual evidencia) {
+    exigir(detalle != null, "El detalle del material es obligatorio.");
+    exigir(precioPorKilo != null, "El precio por kilo es obligatorio.");
+    exigir(ubicacion != null, "La ubicación de recogida es obligatoria.");
+    exigir(evidencia != null, "La evidencia visual es obligatoria.");
+    if (estado != EstadoPublicacion.DISPONIBLE) {
+      throw new EstadoInvalidoException(
+          "Solo se puede editar una publicación mientras está DISPONIBLE.");
+    }
+    this.detalle = detalle;
+    this.precioPorKilo = precioPorKilo;
+    this.ubicacion = ubicacion;
+    this.evidencia = evidencia;
   }
 
   public void finalizar() {

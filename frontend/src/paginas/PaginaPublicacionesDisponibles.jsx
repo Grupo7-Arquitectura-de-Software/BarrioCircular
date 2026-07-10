@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Button, Flex, SimpleGrid, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { MdAdd, MdOutlineInbox } from "react-icons/md";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
 import TarjetaPublicacion from "../componentes/organismos/TarjetaPublicacion.jsx";
+import ModalConfirmacion from "../componentes/moleculas/ModalConfirmacion.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import {
   NAVEGACION_CIUDADANO,
@@ -17,17 +19,43 @@ import {
 } from "@/utilidades/barriosQuito";
 import { obtenerMisPublicaciones } from "@/servicios/publicacionService";
 import { usePublicaciones } from "@/utilidades/usePublicaciones";
+import { useFinalizarPublicacion } from "@/utilidades/useFinalizarPublicacion";
+import { useEliminarPublicacion } from "@/utilidades/useEliminarPublicacion";
 
 /**
  * Mis Publicaciones: lista real de las publicaciones del usuario autenticado
  * (GET /api/publicaciones/mias), compartida por ciudadano y reciclador.
+ * Las publicaciones FINALIZADA se muestran aparte, en el Historial.
  */
 const PaginaPublicacionesDisponibles = ({ prefijoRuta = "/ciudadano" }) => {
   const navigate = useNavigate();
   const esCiudadano = prefijoRuta === "/ciudadano";
-  const { publicaciones, cargando, mensajeError } = usePublicaciones(obtenerMisPublicaciones);
+  const { publicaciones, setPublicaciones, cargando, mensajeError } =
+    usePublicaciones(obtenerMisPublicaciones);
+  const { finalizar, finalizandoId } = useFinalizarPublicacion();
+  const { eliminar, eliminandoId } = useEliminarPublicacion();
+  const [publicacionAEliminar, setPublicacionAEliminar] = useState(null);
+
+  const publicacionesActivas = publicaciones.filter((p) => p.estado !== "FINALIZADA");
+  const historial = publicaciones.filter((p) => p.estado === "FINALIZADA");
+
+  const finalizarPublicacionActiva = (publicacionId) =>
+    finalizar(publicacionId, (resultado) =>
+      setPublicaciones((actuales) =>
+        actuales.map((p) => (p.publicacionId === publicacionId ? resultado : p)),
+      ),
+    );
+
+  const confirmarEliminacion = () =>
+    eliminar(publicacionAEliminar, () => {
+      setPublicaciones((actuales) =>
+        actuales.filter((p) => p.publicacionId !== publicacionAEliminar),
+      );
+      setPublicacionAEliminar(null);
+    });
 
   const rutaCrear = `${prefijoRuta}/crear-publicacion`;
+  const rutaEditar = (publicacionId) => `${prefijoRuta}/editar-publicacion/${publicacionId}`;
 
   return (
     <DiseniodeAplicacion
@@ -79,21 +107,72 @@ const PaginaPublicacionesDisponibles = ({ prefijoRuta = "/ciudadano" }) => {
             </Button>
           </VStack>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
-            {publicaciones.map((publicacion) => (
-              <TarjetaPublicacion
-                key={publicacion.publicacionId}
-                titulo={`${publicacion.pesoKg}kg de ${etiquetaTipoResiduo(publicacion.tipoResiduo)}`}
-                descripcion={`$${Number(publicacion.precioPorKilo).toFixed(2)} por kilo`}
-                pesoKg={publicacion.pesoKg}
-                ubicacion={barrioMasCercano(publicacion.latitud, publicacion.longitud)}
-                estado={etiquetaEstadoPublicacion(publicacion.estado)}
-                imagenUrl={publicacion.evidenciaUrl}
-              />
-            ))}
-          </SimpleGrid>
+          <>
+            {publicacionesActivas.length === 0 ? (
+              <Text color="gray.600">No tienes publicaciones activas por ahora.</Text>
+            ) : (
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
+                {publicacionesActivas.map((publicacion) => (
+                  <TarjetaPublicacion
+                    key={publicacion.publicacionId}
+                    titulo={`${publicacion.pesoKg}kg de ${etiquetaTipoResiduo(publicacion.tipoResiduo)}`}
+                    descripcion={`$${Number(publicacion.precioPorKilo).toFixed(2)} por kilo`}
+                    pesoKg={publicacion.pesoKg}
+                    ubicacion={barrioMasCercano(publicacion.latitud, publicacion.longitud)}
+                    estado={etiquetaEstadoPublicacion(publicacion.estado)}
+                    imagenUrl={publicacion.evidenciaUrl}
+                    etiquetaAccion={publicacion.estado === "RESERVADA" ? "Finalizar" : undefined}
+                    accionando={finalizandoId === publicacion.publicacionId}
+                    alAccionar={() => finalizarPublicacionActiva(publicacion.publicacionId)}
+                    alEditar={
+                      publicacion.estado === "DISPONIBLE"
+                        ? () => navigate(rutaEditar(publicacion.publicacionId))
+                        : undefined
+                    }
+                    alEliminar={
+                      publicacion.estado === "DISPONIBLE"
+                        ? () => setPublicacionAEliminar(publicacion.publicacionId)
+                        : undefined
+                    }
+                    eliminando={eliminandoId === publicacion.publicacionId}
+                  />
+                ))}
+              </SimpleGrid>
+            )}
+
+            {historial.length > 0 && (
+              <VStack align="stretch" gap={4} mt={2}>
+                <Text fontFamily="heading" fontWeight="700" fontSize="xl">
+                  Historial
+                </Text>
+                <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
+                  {historial.map((publicacion) => (
+                    <TarjetaPublicacion
+                      key={publicacion.publicacionId}
+                      titulo={`${publicacion.pesoKg}kg de ${etiquetaTipoResiduo(publicacion.tipoResiduo)}`}
+                      descripcion={`$${Number(publicacion.precioPorKilo).toFixed(2)} por kilo`}
+                      pesoKg={publicacion.pesoKg}
+                      ubicacion={barrioMasCercano(publicacion.latitud, publicacion.longitud)}
+                      estado={etiquetaEstadoPublicacion(publicacion.estado)}
+                      imagenUrl={publicacion.evidenciaUrl}
+                    />
+                  ))}
+                </SimpleGrid>
+              </VStack>
+            )}
+          </>
         )}
       </VStack>
+
+      <ModalConfirmacion
+        abierto={publicacionAEliminar !== null}
+        alCerrar={() => setPublicacionAEliminar(null)}
+        titulo="¿Eliminar esta publicación?"
+        mensaje="Esta acción no se puede deshacer. La publicación dejará de estar disponible para otros usuarios."
+        textoConfirmar="Eliminar"
+        confirmando={eliminandoId === publicacionAEliminar}
+        alConfirmar={confirmarEliminacion}
+      />
     </DiseniodeAplicacion>
   );
 };
