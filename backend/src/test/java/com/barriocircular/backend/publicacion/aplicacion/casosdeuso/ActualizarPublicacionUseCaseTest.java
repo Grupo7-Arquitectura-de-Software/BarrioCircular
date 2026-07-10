@@ -42,7 +42,7 @@ class ActualizarPublicacionUseCaseTest {
     UUID creadorId = UUID.randomUUID();
     Publicacion publicacion = crearPublicacionDisponible(creadorId);
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     var comando =
@@ -72,7 +72,7 @@ class ActualizarPublicacionUseCaseTest {
     Publicacion publicacion = crearPublicacionDisponible(UUID.randomUUID());
     UUID intrusoId = UUID.randomUUID();
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_intruso"))
-        .thenReturn(Optional.of(new PerfilCapacidades(intrusoId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(intrusoId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     var comando =
@@ -99,7 +99,7 @@ class ActualizarPublicacionUseCaseTest {
     UUID creadorId = UUID.randomUUID();
     Publicacion publicacion = crearPublicacionReservada(creadorId, UUID.randomUUID());
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     var comando =
@@ -125,7 +125,7 @@ class ActualizarPublicacionUseCaseTest {
     UUID clerkPerfilId = UUID.randomUUID();
     PublicacionId idInexistente = PublicacionId.nuevo();
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(clerkPerfilId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(clerkPerfilId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(idInexistente)).thenReturn(Optional.empty());
 
     var comando =

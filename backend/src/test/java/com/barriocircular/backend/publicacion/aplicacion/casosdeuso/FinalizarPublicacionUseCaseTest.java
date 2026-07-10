@@ -44,7 +44,7 @@ class FinalizarPublicacionUseCaseTest {
     UUID reservadorId = UUID.randomUUID();
     Publicacion publicacion = crearPublicacionReservadaPor(reservadorId);
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_reservador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(reservadorId, false, true)));
+        .thenReturn(Optional.of(new PerfilCapacidades(reservadorId, false, true, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     var resultado =
@@ -65,7 +65,7 @@ class FinalizarPublicacionUseCaseTest {
     UUID creadorId = UUID.randomUUID();
     Publicacion publicacion = crearPublicacionReservadaConCreador(creadorId, UUID.randomUUID());
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     var resultado =
@@ -85,7 +85,7 @@ class FinalizarPublicacionUseCaseTest {
     Publicacion publicacion = crearPublicacionReservadaPor(UUID.randomUUID());
     UUID intrusoId = UUID.randomUUID();
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_intruso"))
-        .thenReturn(Optional.of(new PerfilCapacidades(intrusoId, false, true)));
+        .thenReturn(Optional.of(new PerfilCapacidades(intrusoId, false, true, "CIUDADANO")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     assertThrows(
@@ -106,7 +106,7 @@ class FinalizarPublicacionUseCaseTest {
     UUID creadorId = UUID.randomUUID();
     Publicacion publicacion = crearPublicacionDisponible(creadorId);
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(creadorId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(publicacion.id())).thenReturn(Optional.of(publicacion));
 
     assertThrows(
@@ -127,7 +127,7 @@ class FinalizarPublicacionUseCaseTest {
     UUID clerkPerfilId = UUID.randomUUID();
     PublicacionId idInexistente = PublicacionId.nuevo();
     when(perfilConsultor.obtenerCapacidadesPorClerkId("user_creador"))
-        .thenReturn(Optional.of(new PerfilCapacidades(clerkPerfilId, true, false)));
+        .thenReturn(Optional.of(new PerfilCapacidades(clerkPerfilId, true, false, "RECICLADOR")));
     when(repositorio.buscarPorId(idInexistente)).thenReturn(Optional.empty());
 
     assertThrows(

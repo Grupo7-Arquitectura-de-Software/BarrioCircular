@@ -86,7 +86,7 @@ class CrearPublicacionFlujoCompletoIntegrationTest {
     PerfilConsultor perfilConsultorSimulado() {
       return clerkId ->
           CLERK_ID_PUBLICADOR.equals(clerkId)
-              ? Optional.of(new PerfilCapacidades(PERFIL_ID_PUBLICADOR, true, false))
+              ? Optional.of(new PerfilCapacidades(PERFIL_ID_PUBLICADOR, true, false, "RECICLADOR"))
               : Optional.empty();
     }
   }
