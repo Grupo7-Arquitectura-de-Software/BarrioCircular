@@ -8,6 +8,7 @@ import PanelDetalleOperacion from "../componentes/moleculas/PanelDetalleOperacio
 import TarjetaVendedor from "../componentes/moleculas/TarjetaVendedor.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
+import { marcarCitaConfirmada } from "@/utilidades/progresoReserva";
 
 /**
  * Coordinar logística del intercambio (mockup Entregable 4): calendario,
@@ -17,6 +18,12 @@ const PaginaCoordinarRecoleccion = ({ rol = "recolector" }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const esCentro = rol === "centro";
+  const publicacionId = id ?? "1";
+
+  const confirmarCita = () => {
+    marcarCitaConfirmada(publicacionId);
+    navigate(`/${rol}/verificar/${publicacionId}`);
+  };
 
   return (
     <DiseniodeAplicacion
@@ -45,9 +52,7 @@ const PaginaCoordinarRecoleccion = ({ rol = "recolector" }) => {
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
           <Box flex="1" w="100%">
-            <CalendarioCoordinacion
-              alConfirmarCita={() => navigate(`/${rol}/verificar/${id ?? "1"}`)}
-            />
+            <CalendarioCoordinacion alConfirmarCita={confirmarCita} />
           </Box>
 
           <VStack align="stretch" gap={5} w={{ base: "100%", lg: "340px" }} flexShrink={0}>
