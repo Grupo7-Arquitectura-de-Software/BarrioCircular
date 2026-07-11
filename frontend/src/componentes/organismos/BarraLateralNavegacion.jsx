@@ -1,8 +1,8 @@
-import { Box, Button, Circle, Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Image, Text, VStack } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LuLeaf } from "react-icons/lu";
 import { MdAdd, MdOutlineHelpOutline, MdOutlineLogout } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
+import logoBarrioCircular from "@/assets/LogoBarrioCircular.png";
 import { useCerrarSesion } from "@/utilidades/useCerrarSesion";
 
 const ElementoNavegacion = ({ etiqueta, icono, activo, alHacerClick, deshabilitado }) => (
@@ -33,41 +33,54 @@ const ElementoNavegacion = ({ etiqueta, icono, activo, alHacerClick, deshabilita
 /**
  * Barra lateral de navegación del panel (mockups Entregables 3-5).
  * `elementos`: [{ etiqueta, icono, ruta }] — sin `ruta` se muestra deshabilitado.
+ * `variante="cajon"` la renderiza a ancho completo para usarla dentro del
+ * Drawer móvil; `alNavegar` avisa al contenedor (para cerrar el cajón).
  */
 const BarraLateralNavegacion = ({
   elementos = [],
   subtitulo = "Centro de Economía Circular",
   rutaNuevaPublicacion,
+  variante = "lateral",
+  alNavegar,
 }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const cerrarSesion = useCerrarSesion();
+  const esCajon = variante === "cajon";
 
   // La ruta de ayuda vive bajo el prefijo del rol (/ciudadano, /recolector, /centro),
   // que se deriva del primer elemento de navegación con ruta.
   const prefijoRol = elementos.find((elemento) => elemento.ruta)?.ruta.split("/")[1];
   const rutaAyuda = prefijoRol ? `/${prefijoRol}/ayuda` : null;
 
+  const irA = (ruta) => {
+    navigate(ruta);
+    alNavegar?.();
+  };
+
   return (
     <Flex
-      as="aside"
+      as={esCajon ? "nav" : "aside"}
       direction="column"
-      w="256px"
+      w={esCajon ? "100%" : "256px"}
       flexShrink={0}
       h="100%"
       overflowY="auto"
       bg="fondo.pagina"
-      borderRight="1px solid"
+      borderRight={esCajon ? undefined : "1px solid"}
       borderColor="gray.200"
       px={4}
       py={5}
-      display={{ base: "none", lg: "flex" }}
+      display={esCajon ? "flex" : { base: "none", lg: "flex" }}
     >
       {/* Marca */}
       <HStack gap={2} px={2} mb={8} align="center">
-        <Circle size="36px" bg="fondo.tarjeta" border="1px solid" borderColor="gray.200">
-          <Icono componente={<LuLeaf />} tamanio="lg" color="marca.primario" />
-        </Circle>
+        <Image
+          src={logoBarrioCircular}
+          alt="Logotipo de BarrioCircular"
+          boxSize="40px"
+          fit="contain"
+        />
         <Box>
           <Text fontFamily="heading" fontWeight="700" fontSize="lg" color="marca.primario">
             BarrioCircular
@@ -87,7 +100,7 @@ const BarraLateralNavegacion = ({
             icono={elemento.icono}
             activo={Boolean(elemento.ruta && pathname.startsWith(elemento.ruta))}
             deshabilitado={!elemento.ruta}
-            alHacerClick={() => elemento.ruta && navigate(elemento.ruta)}
+            alHacerClick={() => elemento.ruta && irA(elemento.ruta)}
           />
         ))}
       </VStack>
@@ -101,7 +114,7 @@ const BarraLateralNavegacion = ({
           icono={<MdOutlineHelpOutline />}
           activo={Boolean(rutaAyuda && pathname.startsWith(rutaAyuda))}
           deshabilitado={!rutaAyuda}
-          alHacerClick={() => rutaAyuda && navigate(rutaAyuda)}
+          alHacerClick={() => rutaAyuda && irA(rutaAyuda)}
         />
         <ElementoNavegacion
           etiqueta="Cerrar Sesión"
@@ -114,7 +127,7 @@ const BarraLateralNavegacion = ({
             bg="marca.primario"
             rounded="lg"
             mt={2}
-            onClick={() => navigate(rutaNuevaPublicacion)}
+            onClick={() => irA(rutaNuevaPublicacion)}
           >
             <MdAdd /> Nueva Publicación
           </Button>

@@ -1,3 +1,18 @@
+// Bounding box de Quito que exige el backend para las coordenadas de una
+// publicación (lat [-0.50, 0.10], lon [-78.70, -78.20]).
+export const LIMITES_QUITO = {
+  latitudMinima: -0.5,
+  latitudMaxima: 0.1,
+  longitudMinima: -78.7,
+  longitudMaxima: -78.2,
+};
+
+export const estaDentroDeQuito = (latitud, longitud) =>
+  latitud >= LIMITES_QUITO.latitudMinima &&
+  latitud <= LIMITES_QUITO.latitudMaxima &&
+  longitud >= LIMITES_QUITO.longitudMinima &&
+  longitud <= LIMITES_QUITO.longitudMaxima;
+
 // Barrios de Quito con coordenadas representativas, dentro del bounding box
 // que exige el backend (lat [-0.50, 0.10], lon [-78.70, -78.20]).
 export const BARRIOS_QUITO = [
