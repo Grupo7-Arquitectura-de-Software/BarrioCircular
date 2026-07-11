@@ -1,5 +1,5 @@
 import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 
 import DiseniodeAplicacion from "@/componentes/plantillas/DiseniodeAplicacion";
@@ -8,12 +8,20 @@ import PanelDetalleOperacion from "@/componentes/moleculas/PanelDetalleOperacion
 import TarjetaVendedor from "@/componentes/moleculas/TarjetaVendedor.jsx";
 import Icono from "@/componentes/atomos/Icono.jsx";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
+import { limpiarEtapaReserva } from "@/utilidades/progresoReserva";
 
 /**
  * Confirmación de recepción del material (mockup "Confirmar Recepción").
  */
 const PaginaCentroValidacionMaterial = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  // La operación termina: se descarta la etapa guardada de la reserva.
+  const confirmarRecepcion = () => {
+    limpiarEtapaReserva(id);
+    navigate("/centro/resultado");
+  };
 
   return (
     <DiseniodeAplicacion
@@ -42,10 +50,7 @@ const PaginaCentroValidacionMaterial = () => {
 
         <Flex gap={6} align="flex-start" direction={{ base: "column", lg: "row" }}>
           <Box flex="1" w="100%">
-            <FormulariodeVerificacion
-              pesoEstimadoKg={250}
-              alConfirmar={() => navigate("/centro/resultado")}
-            />
+            <FormulariodeVerificacion pesoEstimadoKg={250} alConfirmar={confirmarRecepcion} />
           </Box>
 
           <VStack align="stretch" gap={5} w={{ base: "100%", lg: "340px" }} flexShrink={0}>

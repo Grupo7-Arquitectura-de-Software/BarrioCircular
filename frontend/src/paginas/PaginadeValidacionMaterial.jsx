@@ -13,7 +13,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   MdArrowBack,
   MdCheckCircleOutline,
@@ -25,6 +25,7 @@ import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.j
 import SelectorEstadoMaterial from "../componentes/moleculas/SelectorEstadoMaterial.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navegacionPanel";
+import { limpiarEtapaReserva } from "@/utilidades/progresoReserva";
 
 /**
  * Verificación de peso y estado del material recolectado
@@ -32,7 +33,14 @@ import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navega
  */
 const PaginadeValidacionMaterial = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [estadoMaterial, setEstadoMaterial] = useState("BUENO");
+
+  // La operación termina: se descarta la etapa guardada de la reserva.
+  const confirmarOperacion = () => {
+    limpiarEtapaReserva(id);
+    navigate("/recolector/resultado");
+  };
 
   return (
     <DiseniodeAplicacion
@@ -193,7 +201,7 @@ const PaginadeValidacionMaterial = () => {
                   bg="marca.primario"
                   rounded="lg"
                   flex="1"
-                  onClick={() => navigate("/recolector/resultado")}
+                  onClick={confirmarOperacion}
                 >
                   <MdCheckCircleOutline /> Confirmar Operación
                 </Button>
