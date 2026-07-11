@@ -1,6 +1,7 @@
-import { Circle, Flex, HStack, Input, InputGroup, Link, Text } from "@chakra-ui/react";
+import { Circle, Flex, HStack, IconButton, Input, InputGroup, Link, Text } from "@chakra-ui/react";
 import {
   MdArrowBack,
+  MdMenu,
   MdOutlineAccountCircle,
   MdOutlineNotifications,
   MdOutlineSearch,
@@ -9,8 +10,10 @@ import Icono from "../atomos/Icono.jsx";
 
 /**
  * Barra superior del panel: enlace de regreso opcional, buscador e iconos.
+ * `alAbrirMenu` muestra el botón hamburguesa en pantallas pequeñas, donde la
+ * barra lateral se reemplaza por un cajón de navegación.
  */
-const BarraSuperiorApp = ({ etiquetaVolver, alVolver, mostrarBuscador = true }) => {
+const BarraSuperiorApp = ({ etiquetaVolver, alVolver, mostrarBuscador = true, alAbrirMenu }) => {
   return (
     <Flex
       as="header"
@@ -23,7 +26,20 @@ const BarraSuperiorApp = ({ etiquetaVolver, alVolver, mostrarBuscador = true }) 
       align="center"
       justify="space-between"
     >
-      <HStack gap={4} flex="1" minW={0}>
+      <HStack gap={{ base: 2, md: 4 }} flex="1" minW={0}>
+        {alAbrirMenu && (
+          <IconButton
+            aria-label="Abrir menú de navegación"
+            variant="ghost"
+            colorPalette="gray"
+            size="sm"
+            display={{ base: "inline-flex", lg: "none" }}
+            flexShrink={0}
+            onClick={alAbrirMenu}
+          >
+            <MdMenu />
+          </IconButton>
+        )}
         {alVolver && (
           <Link
             onClick={alVolver}

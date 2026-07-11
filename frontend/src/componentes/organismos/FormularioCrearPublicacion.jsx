@@ -15,6 +15,7 @@ import {
 import { MdOutlineFileUpload, MdOutlineLocationOn, MdOutlineAutoAwesome } from "react-icons/md";
 import SelectorDesplegable from "../atomos/SelectorDesplegable.jsx";
 import AreaCargaImagenes from "../moleculas/AreaCargaImagenes.jsx";
+import SelectorUbicacionMapa from "./SelectorUbicacionMapa.jsx";
 import Icono from "../atomos/Icono.jsx";
 import { toaster } from "@/components/ui/toaster-instance";
 import {
@@ -77,8 +78,8 @@ const FormularioCrearPublicacion = ({
   const [precioPorKilo, setPrecioPorKilo] = useState(
     datosIniciales ? String(datosIniciales.precioPorKilo) : "",
   );
-  const [barrio, setBarrio] = useState(
-    datosIniciales ? valorBarrioMasCercano(datosIniciales.latitud, datosIniciales.longitud) : "",
+  const [ubicacion, setUbicacion] = useState(
+    datosIniciales ? { latitud: datosIniciales.latitud, longitud: datosIniciales.longitud } : null,
   );
   const [archivoEvidencia, setArchivoEvidencia] = useState(null);
   const [estaSugiriendoPrecio, setEstaSugiriendoPrecio] = useState(false);
@@ -142,8 +143,11 @@ const FormularioCrearPublicacion = ({
       advertir("Precio inválido", "El precio por kilo debe ser mayor que 0.");
       return;
     }
-    if (!barrio) {
-      advertir("Selecciona la ubicación", "Indica el barrio de recogida.");
+    if (!ubicacion) {
+      advertir(
+        "Selecciona la ubicación",
+        "Marca el punto de recogida en el mapa o usa tu ubicación actual.",
+      );
       return;
     }
     if (!modoEdicion && !archivoEvidencia) {
@@ -155,7 +159,8 @@ const FormularioCrearPublicacion = ({
       tipoResiduo,
       pesoKg: Number(pesoKg),
       precioPorKilo: Number(precioPorKilo),
-      ...obtenerCoordenadasDeBarrio(barrio),
+      latitud: ubicacion.latitud,
+      longitud: ubicacion.longitud,
       archivoEvidencia,
     });
   };
@@ -257,17 +262,28 @@ const FormularioCrearPublicacion = ({
 
       <TarjetaSeccion titulo="Ubicación de Recogida">
         <VStack gap={5} align="stretch">
-          <Field.Root required>
-            <Field.Label fontWeight="600">Ubicación de Recogida (Barrios de Quito)</Field.Label>
+          <Field.Root>
+            <Field.Label fontWeight="600">Barrio de referencia (opcional)</Field.Label>
             <SelectorDesplegable
               titulo="Seleccionar barrio"
               colecciondeDatos={barriosQuito}
               mostrarEtiqueta={false}
-              valor={barrio}
-              alCambiar={setBarrio}
+              valor={ubicacion ? valorBarrioMasCercano(ubicacion.latitud, ubicacion.longitud) : ""}
+              alCambiar={(valorBarrio) => {
+                const coordenadas = obtenerCoordenadasDeBarrio(valorBarrio);
+                if (coordenadas) setUbicacion(coordenadas);
+              }}
               iconoInicio={
                 <Icono componente={<MdOutlineLocationOn />} tamanio="md" color="marca.primario" />
               }
+            />
+          </Field.Root>
+
+          <Field.Root required>
+            <Field.Label fontWeight="600">Punto exacto en el mapa</Field.Label>
+            <SelectorUbicacionMapa
+              valor={ubicacion}
+              alCambiar={(latitud, longitud) => setUbicacion({ latitud, longitud })}
             />
           </Field.Root>
         </VStack>

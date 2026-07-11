@@ -1,11 +1,10 @@
-import { HStack, Text, VStack } from "@chakra-ui/react";
-import { LuLeaf } from "react-icons/lu";
-import Icono from "./Icono.jsx";
+import { HStack, Image, Text, VStack } from "@chakra-ui/react";
+import logoBarrioCircular from "@/assets/LogoBarrioCircular.png";
 
 const TAMANIOS = {
-  sm: { icono: "2xl", fuente: "xl" },
-  md: { icono: "3xl", fuente: "2xl" },
-  lg: { icono: "4xl", fuente: "3xl" },
+  sm: { logo: "36px", fuente: "xl" },
+  md: { logo: "48px", fuente: "2xl" },
+  lg: { logo: "64px", fuente: "3xl" },
 };
 
 const LogotipoApp = ({ tamanio = "md", orientacion = "vertical", mostrarNombre = true }) => {
@@ -14,7 +13,12 @@ const LogotipoApp = ({ tamanio = "md", orientacion = "vertical", mostrarNombre =
 
   return (
     <Contenedor gap={2} align="center" justify="center">
-      <Icono componente={<LuLeaf />} tamanio={s.icono} color="marca.primario" />
+      <Image
+        src={logoBarrioCircular}
+        alt="Logotipo de BarrioCircular"
+        boxSize={s.logo}
+        fit="contain"
+      />
       {mostrarNombre && (
         <Text
           fontFamily="heading"
