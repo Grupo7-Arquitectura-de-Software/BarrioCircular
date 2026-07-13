@@ -2,14 +2,14 @@ package com.barriocircular.backend.sugerenciaprecio.infraestructura.integracion.
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.SugerenciaIA;
-import com.barriocircular.backend.sugerenciaprecio.dominio.modelo.TipoMaterialSugerido;
+import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.AnalisisIA;
 import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,86 +20,90 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
-class GroqSugeridorPrecioAdapterTest {
+class GroqAnalizadorMaterialAdapterTest {
+
+  private static final String IMAGEN_BASE64 = "data:image/jpeg;base64,ZmFrZS1pbWFnZQ==";
 
   private MockRestServiceServer servidorSimulado;
-  private GroqSugeridorPrecioAdapter adapter;
+  private GroqAnalizadorMaterialAdapter adapter;
 
   @BeforeEach
   void configurar() {
     RestClient.Builder builder = RestClient.builder().baseUrl("http://fake-groq");
     servidorSimulado = MockRestServiceServer.bindTo(builder).build();
     adapter =
-        new GroqSugeridorPrecioAdapter(
-            "fake-api-key",
-            "llama-3.1-8b-instant",
-            "vision-model-test",
-            "http://fake-groq",
-            builder,
-            new ObjectMapper());
+        new GroqAnalizadorMaterialAdapter(
+            "fake-api-key", "vision-model-test", "http://fake-groq", builder, new ObjectMapper());
   }
 
   @Test
-  void devuelveLaSugerenciaCuandoGroqRespondeUnJsonValido() {
+  void devuelveElAnalisisCompletoCuandoGroqRespondeUnJsonValido() {
     servidorSimulado
         .expect(requestTo("http://fake-groq/chat/completions"))
         .andExpect(method(HttpMethod.POST))
+        .andExpect(jsonPath("$.model").value("vision-model-test"))
+        .andExpect(jsonPath("$.messages[0].content[1].image_url.url").value(IMAGEN_BASE64))
         .andRespond(
             withSuccess(
                 """
                 {
                   "choices": [
-                    { "message": { "content": "{\\"precioPorKiloUsd\\": 0.42, \\"justificacion\\": \\"buen precio\\"}" } }
+                    { "message": { "content": "{\\"esMaterialReciclaje\\": true, \\"fotoClara\\": true, \\"multiplesMateriales\\": false, \\"tipoMaterial\\": \\"PET\\", \\"pesoEstimadoKg\\": 2.5, \\"estadoMaterial\\": \\"BUENO\\", \\"recomendacion\\": \\"Botellas limpias\\"}" } }
                   ]
                 }
                 """,
                 MediaType.APPLICATION_JSON));
 
-    Optional<SugerenciaIA> resultado = adapter.sugerirPrecio(TipoMaterialSugerido.PET, 10.0, null);
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
 
     assertTrue(resultado.isPresent());
-    assertEquals(0, resultado.get().precioPorKilo().compareTo(new java.math.BigDecimal("0.42")));
-    assertEquals("buen precio", resultado.get().justificacion());
+    AnalisisIA analisis = resultado.get();
+    assertTrue(analisis.esMaterialReciclaje());
+    assertTrue(analisis.fotoClara());
+    assertFalse(analisis.multiplesMateriales());
+    assertEquals("PET", analisis.tipoMaterial());
+    assertEquals(2.5, analisis.pesoEstimadoKg());
+    assertEquals("BUENO", analisis.estadoMaterial());
+    assertEquals("Botellas limpias", analisis.recomendacion());
   }
 
   @Test
-  void usaElModeloDeVisionYEnviaLaImagenCuandoSeAdjuntaUnaFoto() {
-    String imagenBase64 = "data:image/jpeg;base64,ZmFrZS1pbWFnZQ==";
-    servidorSimulado
-        .expect(requestTo("http://fake-groq/chat/completions"))
-        .andExpect(jsonPath("$.model").value("vision-model-test"))
-        .andExpect(jsonPath("$.messages[0].content[1].image_url.url").value(imagenBase64))
-        .andRespond(
-            withSuccess(
-                """
-                { "choices": [ { "message": { "content": "{\\"precioPorKiloUsd\\": 0.5, \\"justificacion\\": \\"buen estado\\"}" } } ] }
-                """,
-                MediaType.APPLICATION_JSON));
-
-    Optional<SugerenciaIA> resultado =
-        adapter.sugerirPrecio(TipoMaterialSugerido.PET, 10.0, imagenBase64);
-
-    assertTrue(resultado.isPresent());
-    assertEquals("buen estado", resultado.get().justificacion());
-  }
-
-  @Test
-  void marcaMaterialNoCoincideCuandoLaImagenNoCorrespondeAlMaterialDeclarado() {
-    String imagenBase64 = "data:image/jpeg;base64,ZmFrZS1pbWFnZQ==";
+  void toleraCamposNulosYBloquesMarkdownEnLaRespuesta() {
     servidorSimulado
         .expect(requestTo("http://fake-groq/chat/completions"))
         .andRespond(
             withSuccess(
                 """
-                { "choices": [ { "message": { "content": "{\\"precioPorKiloUsd\\": 0.3, \\"justificacion\\": \\"la foto muestra un gato, no carton\\", \\"materialCoincide\\": false}" } } ] }
+                { "choices": [ { "message": { "content": "```json\\n{\\"esMaterialReciclaje\\": false, \\"fotoClara\\": true, \\"multiplesMateriales\\": false, \\"tipoMaterial\\": null, \\"pesoEstimadoKg\\": null, \\"estadoMaterial\\": null, \\"recomendacion\\": \\"La foto muestra un gato\\"}\\n```" } } ] }
                 """,
                 MediaType.APPLICATION_JSON));
 
-    Optional<SugerenciaIA> resultado =
-        adapter.sugerirPrecio(TipoMaterialSugerido.CARTON, 5.0, imagenBase64);
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
 
     assertTrue(resultado.isPresent());
-    assertFalse(resultado.get().materialCoincide());
+    assertFalse(resultado.get().esMaterialReciclaje());
+    assertNull(resultado.get().tipoMaterial());
+    assertNull(resultado.get().pesoEstimadoKg());
+    assertEquals("La foto muestra un gato", resultado.get().recomendacion());
+  }
+
+  @Test
+  void devuelveVeredictosNulosCuandoFaltanEnElJsonSinInventarValores() {
+    servidorSimulado
+        .expect(requestTo("http://fake-groq/chat/completions"))
+        .andRespond(
+            withSuccess(
+                """
+                { "choices": [ { "message": { "content": "{\\"tipoMaterial\\": \\"PET\\"}" } } ] }
+                """,
+                MediaType.APPLICATION_JSON));
+
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
+
+    assertTrue(resultado.isPresent());
+    assertNull(resultado.get().esMaterialReciclaje());
+    assertNull(resultado.get().fotoClara());
+    assertNull(resultado.get().multiplesMateriales());
   }
 
   @Test
@@ -113,25 +117,18 @@ class GroqSugeridorPrecioAdapterTest {
                 """,
                 MediaType.APPLICATION_JSON));
 
-    Optional<SugerenciaIA> resultado =
-        adapter.sugerirPrecio(TipoMaterialSugerido.CARTON, 5.0, null);
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
 
     assertTrue(resultado.isEmpty());
   }
 
   @Test
-  void devuelveVacioCuandoFaltaElCampoPrecio() {
+  void devuelveVacioCuandoLaRespuestaVieneSinChoices() {
     servidorSimulado
         .expect(requestTo("http://fake-groq/chat/completions"))
-        .andRespond(
-            withSuccess(
-                """
-                { "choices": [ { "message": { "content": "{\\"justificacion\\": \\"sin precio\\"}" } } ] }
-                """,
-                MediaType.APPLICATION_JSON));
+        .andRespond(withSuccess("{ \"choices\": [] }", MediaType.APPLICATION_JSON));
 
-    Optional<SugerenciaIA> resultado =
-        adapter.sugerirPrecio(TipoMaterialSugerido.VIDRIO, null, null);
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
 
     assertTrue(resultado.isEmpty());
   }
@@ -145,8 +142,7 @@ class GroqSugeridorPrecioAdapterTest {
               throw new IOException("timeout simulado");
             });
 
-    Optional<SugerenciaIA> resultado =
-        adapter.sugerirPrecio(TipoMaterialSugerido.CHATARRA, 8.0, null);
+    Optional<AnalisisIA> resultado = adapter.analizar(IMAGEN_BASE64);
 
     assertTrue(resultado.isEmpty());
   }

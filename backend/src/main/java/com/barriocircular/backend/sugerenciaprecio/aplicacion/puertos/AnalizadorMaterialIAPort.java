@@ -1,17 +1,15 @@
 package com.barriocircular.backend.sugerenciaprecio.aplicacion.puertos;
 
-import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.SugerenciaIA;
-import com.barriocircular.backend.sugerenciaprecio.dominio.modelo.TipoMaterialSugerido;
+import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.AnalisisIA;
 import java.util.Optional;
 
 /**
  * Contrato importante: las implementaciones nunca deben propagar excepciones por fallos de
  * red/timeout/parseo del proveedor de IA — deben devolver {@link Optional#empty()} en esos casos.
  * Un fallo del proveedor no es una condición excepcional para este dominio, es un camino esperado
- * que activa el catálogo de respaldo.
+ * que produce un análisis IA_NO_DISPONIBLE y deja al usuario continuar manualmente.
  */
-public interface SugeridorPrecioIAPort {
+public interface AnalizadorMaterialIAPort {
 
-  Optional<SugerenciaIA> sugerirPrecio(
-      TipoMaterialSugerido tipoMaterial, Double pesoKg, String imagenBase64);
+  Optional<AnalisisIA> analizar(String imagenBase64);
 }

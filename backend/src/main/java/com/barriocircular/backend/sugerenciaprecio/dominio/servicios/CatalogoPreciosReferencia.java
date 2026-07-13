@@ -1,24 +1,47 @@
 package com.barriocircular.backend.sugerenciaprecio.dominio.servicios;
 
+import com.barriocircular.backend.sugerenciaprecio.dominio.modelo.EstadoMaterial;
 import com.barriocircular.backend.sugerenciaprecio.dominio.modelo.PrecioSugerido;
 import com.barriocircular.backend.sugerenciaprecio.dominio.modelo.TipoMaterialSugerido;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 /**
- * Piso de seguridad cuando GroQ no responde o responde algo fuera de rango. Valores ilustrativos,
- * no datos de mercado verificados — deben confirmarse o ajustarse antes de considerar esta tabla
- * "de producción".
+ * Precios base de mercado por material (USD/kg). Los valores llegan por constructor desde la
+ * configuración (variables de entorno PRECIO_KG_*), de modo que el precio sugerido sea determinista
+ * y ajustable sin recompilar: la IA nunca decide el precio, solo el estado del material.
  */
 public class CatalogoPreciosReferencia {
 
-  private static final Map<TipoMaterialSugerido, PrecioSugerido> PRECIOS_DE_REFERENCIA =
-      Map.of(
-          TipoMaterialSugerido.PET, PrecioSugerido.de(0.30),
-          TipoMaterialSugerido.CARTON, PrecioSugerido.de(0.10),
-          TipoMaterialSugerido.VIDRIO, PrecioSugerido.de(0.03),
-          TipoMaterialSugerido.CHATARRA, PrecioSugerido.de(0.25));
+  private final Map<TipoMaterialSugerido, PrecioSugerido> preciosDeReferencia;
+
+  public CatalogoPreciosReferencia(
+      BigDecimal precioPet,
+      BigDecimal precioCarton,
+      BigDecimal precioVidrio,
+      BigDecimal precioChatarra) {
+    this.preciosDeReferencia =
+        Map.of(
+            TipoMaterialSugerido.PET, new PrecioSugerido(precioPet),
+            TipoMaterialSugerido.CARTON, new PrecioSugerido(precioCarton),
+            TipoMaterialSugerido.VIDRIO, new PrecioSugerido(precioVidrio),
+            TipoMaterialSugerido.CHATARRA, new PrecioSugerido(precioChatarra));
+  }
 
   public PrecioSugerido precioDeReferencia(TipoMaterialSugerido tipoMaterial) {
-    return PRECIOS_DE_REFERENCIA.get(tipoMaterial);
+    return preciosDeReferencia.get(tipoMaterial);
+  }
+
+  /**
+   * Precio base del material ajustado por su estado de conservación: base × factor del estado,
+   * redondeado a centavos.
+   */
+  public PrecioSugerido precioSugerido(
+      TipoMaterialSugerido tipoMaterial, EstadoMaterial estadoMaterial) {
+    BigDecimal precioBase = precioDeReferencia(tipoMaterial).valor();
+    BigDecimal precioAjustado =
+        precioBase.multiply(estadoMaterial.factor()).setScale(2, RoundingMode.HALF_UP);
+    return new PrecioSugerido(precioAjustado);
   }
 }

@@ -13,15 +13,29 @@ export const estaDentroDeQuito = (latitud, longitud) =>
   longitud >= LIMITES_QUITO.longitudMinima &&
   longitud <= LIMITES_QUITO.longitudMaxima;
 
-// Barrios de Quito con coordenadas representativas, dentro del bounding box
-// que exige el backend (lat [-0.50, 0.10], lon [-78.70, -78.20]).
+// Barrios de referencia de Quito con coordenadas representativas, dentro del
+// bounding box que exige el backend (lat [-0.50, 0.10], lon [-78.70, -78.20]).
+// Cobertura general por zonas (norte, centro, sur y valles) sin ser exhaustiva.
 export const BARRIOS_QUITO = [
-  { etiqueta: "La Floresta", valor: "la_floresta", latitud: -0.205, longitud: -78.483 },
-  { etiqueta: "Cumbayá", valor: "cumbaya", latitud: -0.201, longitud: -78.426 },
+  // Norte
+  { etiqueta: "Carcelén", valor: "carcelen", latitud: -0.093, longitud: -78.467 },
+  { etiqueta: "El Condado", valor: "el_condado", latitud: -0.085, longitud: -78.51 },
+  { etiqueta: "Calderón", valor: "calderon", latitud: -0.096, longitud: -78.421 },
+  { etiqueta: "Cotocollao", valor: "cotocollao", latitud: -0.106, longitud: -78.497 },
+  // Centro-norte
   { etiqueta: "La Carolina", valor: "la_carolina", latitud: -0.183, longitud: -78.483 },
   { etiqueta: "La Mariscal", valor: "la_mariscal", latitud: -0.203, longitud: -78.49 },
+  { etiqueta: "La Floresta", valor: "la_floresta", latitud: -0.205, longitud: -78.483 },
+  // Centro
   { etiqueta: "Centro Histórico", valor: "centro_historico", latitud: -0.22, longitud: -78.513 },
+  // Sur
+  { etiqueta: "Solanda", valor: "solanda", latitud: -0.27, longitud: -78.537 },
+  { etiqueta: "Chillogallo", valor: "chillogallo", latitud: -0.295, longitud: -78.565 },
   { etiqueta: "Quitumbe", valor: "quitumbe", latitud: -0.296, longitud: -78.548 },
+  { etiqueta: "Guamaní", valor: "guamani", latitud: -0.337, longitud: -78.554 },
+  // Valles (este)
+  { etiqueta: "Cumbayá", valor: "cumbaya", latitud: -0.201, longitud: -78.426 },
+  { etiqueta: "Tumbaco", valor: "tumbaco", latitud: -0.207, longitud: -78.4 },
 ];
 
 export const obtenerCoordenadasDeBarrio = (valorBarrio) => {
