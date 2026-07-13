@@ -203,10 +203,12 @@ const PaginadeColeccionCoordenadas = ({ prefijoRuta = "/ciudadano" }) => {
               Coordinación por WhatsApp
             </Text>
             <Text color="gray.600" maxW="400px" mb={6}>
-              La coordinación de la entrega se realiza directamente por WhatsApp. El recolector se contactará contigo para acordar los detalles.
+              La coordinación de la entrega se realiza directamente por WhatsApp. El recolector se
+              contactará contigo para acordar los detalles.
             </Text>
             <Text fontSize="sm" color="gray.500">
-              Recuerda tener a mano el material empacado y tu código QR si el recolector lo solicita.
+              Recuerda tener a mano el material empacado y tu código QR si el recolector lo
+              solicita.
             </Text>
           </Box>
         </Box>

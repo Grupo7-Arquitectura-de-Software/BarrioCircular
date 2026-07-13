@@ -49,12 +49,7 @@ const TarjetaVendedor = ({
         </HStack>
       </Box>
       <Spacer />
-      {telefono && (
-        <BotonWhatsApp
-          telefono={telefono}
-          tamanio="md"
-        />
-      )}
+      {telefono && <BotonWhatsApp telefono={telefono} tamanio="md" />}
     </HStack>
   );
 };

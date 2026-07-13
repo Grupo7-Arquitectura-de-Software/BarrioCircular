@@ -29,11 +29,12 @@ public class PerfilConsultorAdapter implements PerfilConsultor {
         .map(cuentaAcceso -> cuentaAcceso.getCuentaId().uuid())
         .flatMap(repositorioPerfiles::buscarPorCuentaUsuarioId)
         .map(
-            perfil -> new PerfilCapacidades(
-                perfil.getId(),
-                perfil.puedePublicarMateriales(),
-                perfil.puedeComprarMateriales(),
-                perfil.getRol().name()));
+            perfil ->
+                new PerfilCapacidades(
+                    perfil.getId(),
+                    perfil.puedePublicarMateriales(),
+                    perfil.puedeComprarMateriales(),
+                    perfil.getRol().name()));
   }
 
   @Override
@@ -42,9 +43,10 @@ public class PerfilConsultorAdapter implements PerfilConsultor {
         .buscarPorId(perfilId)
         .map(
             perfil -> {
-              String nombre = perfil.getNombreComercial() != null
-                  ? perfil.getNombreComercial()
-                  : perfil.getNombreCompleto();
+              String nombre =
+                  perfil.getNombreComercial() != null
+                      ? perfil.getNombreComercial()
+                      : perfil.getNombreCompleto();
               String telefono = perfil.getInformacionContacto().getTelefono();
               return new InfoContactoCreador(nombre, telefono);
             });

@@ -41,4 +41,3 @@ public class ObtenerPublicacionUseCase {
         .orElseThrow(PublicacionNoEncontradaException::new);
   }
 }
-

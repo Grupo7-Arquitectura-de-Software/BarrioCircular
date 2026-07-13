@@ -106,8 +106,9 @@ const PaginaInicioRecolector = () => {
                   Coordinación Directa
                 </Text>
                 <Text color="gray.600" fontSize="sm">
-                  Ahora puedes contactar a los ciudadanos directamente a través de WhatsApp para coordinar los retiros más fácilmente. 
-                  Encuentra el botón de WhatsApp en cada publicación y reserva.
+                  Ahora puedes contactar a los ciudadanos directamente a través de WhatsApp para
+                  coordinar los retiros más fácilmente. Encuentra el botón de WhatsApp en cada
+                  publicación y reserva.
                 </Text>
               </VStack>
             </Box>
