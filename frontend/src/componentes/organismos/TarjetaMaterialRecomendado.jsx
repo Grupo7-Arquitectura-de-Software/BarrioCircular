@@ -1,6 +1,7 @@
 import { Badge, Box, Button, Circle, Flex, HStack, Image, Text } from "@chakra-ui/react";
 import { MdOutlineImage, MdOutlineLocationOn, MdOutlineScale, MdVerified } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
+import BotonWhatsApp from "../atomos/BotonWhatsApp.jsx";
 
 /**
  * Tarjeta horizontal de material recomendado (mockup "Abastecimiento de
@@ -17,6 +18,7 @@ const TarjetaMaterialRecomendado = ({
   puntuacion,
   imagenUrl,
   verificado = true,
+  telefonoCreador,
   alVerDetalle,
   alReservar,
   reservando = false,
@@ -106,6 +108,11 @@ const TarjetaMaterialRecomendado = ({
             <MdOutlineLocationOn /> {ubicacion}
             {distanciaKm !== undefined && ` - ${distanciaKm}km`}
           </Badge>
+          {telefonoCreador && (
+            <Box ml={2}>
+              <BotonWhatsApp telefono={telefonoCreador} tamanio="sm" />
+            </Box>
+          )}
         </HStack>
 
         <Text fontSize="sm" color="gray.600" flex="1">

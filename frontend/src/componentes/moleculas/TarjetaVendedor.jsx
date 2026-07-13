@@ -1,5 +1,6 @@
-import { Box, Circle, HStack, Text } from "@chakra-ui/react";
+import { Box, Circle, HStack, Spacer, Text } from "@chakra-ui/react";
 import { MdStar } from "react-icons/md";
+import BotonWhatsApp from "../atomos/BotonWhatsApp.jsx";
 
 const obtenerIniciales = (nombre = "") =>
   nombre
@@ -19,6 +20,7 @@ const TarjetaVendedor = ({
   nombre = "Vendedor",
   calificacion = "4.9",
   detalleCalificacion = "",
+  telefono,
 }) => {
   return (
     <HStack
@@ -46,6 +48,13 @@ const TarjetaVendedor = ({
           </Text>
         </HStack>
       </Box>
+      <Spacer />
+      {telefono && (
+        <BotonWhatsApp
+          telefono={telefono}
+          tamanio="md"
+        />
+      )}
     </HStack>
   );
 };
