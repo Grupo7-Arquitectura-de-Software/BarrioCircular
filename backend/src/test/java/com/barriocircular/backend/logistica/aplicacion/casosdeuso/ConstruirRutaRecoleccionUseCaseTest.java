@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.barriocircular.backend.logistica.aplicacion.dto.ReservaCatalogo;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
+import com.barriocircular.backend.logistica.aplicacion.excepciones.SinReservasElegiblesException;
 import com.barriocircular.backend.logistica.aplicacion.puertos.AlmacenRutaRecoleccionPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.ReservasCatalogoPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.UbicacionRecicladorPort;
@@ -75,9 +76,9 @@ class ConstruirRutaRecoleccionUseCaseTest {
         new ConstruirRutaRecoleccionUseCase(
             reservasCatalogoPort, ubicacionRecicladorPort, almacenRutaRecoleccionPort);
 
-    IllegalStateException error =
+    SinReservasElegiblesException error =
         assertThrows(
-            IllegalStateException.class,
+            SinReservasElegiblesException.class,
             () -> useCase.ejecutar(recicladorId, LocalTime.of(9, 0), LocalDate.of(2026, 7, 9)));
 
     assertTrue(error.getMessage().contains("reservas activas"));

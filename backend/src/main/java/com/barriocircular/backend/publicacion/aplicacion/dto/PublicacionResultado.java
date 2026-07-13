@@ -16,7 +16,37 @@ public record PublicacionResultado(
     String evidenciaUrl,
     String estado,
     Instant fechaCreacion,
-    UUID reservadoPor) {
+    UUID reservadoPor,
+    Double pesoRealVerificado,
+    String observacionesVerificacion) {
+
+  public PublicacionResultado(
+      UUID publicacionId,
+      UUID creadorId,
+      String tipoResiduo,
+      double pesoKg,
+      BigDecimal precioPorKilo,
+      double latitud,
+      double longitud,
+      String evidenciaUrl,
+      String estado,
+      Instant fechaCreacion,
+      UUID reservadoPor) {
+    this(
+        publicacionId,
+        creadorId,
+        tipoResiduo,
+        pesoKg,
+        precioPorKilo,
+        latitud,
+        longitud,
+        evidenciaUrl,
+        estado,
+        fechaCreacion,
+        reservadoPor,
+        null,
+        null);
+  }
 
   public static PublicacionResultado desde(Publicacion publicacion) {
     return new PublicacionResultado(
@@ -30,6 +60,8 @@ public record PublicacionResultado(
         publicacion.evidencia().url(),
         publicacion.estado().name(),
         publicacion.fechaCreacion(),
-        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor());
+        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor(),
+        publicacion.pesoRealVerificado(),
+        publicacion.observacionesVerificacion());
   }
 }

@@ -1,5 +1,6 @@
 import { Badge, Box, Button, Flex, Spinner, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineAddRoad, MdOutlineLocalShipping } from "react-icons/md";
 
 import { toaster } from "@/components/ui/toaster-instance";
@@ -51,11 +52,22 @@ const obtenerEstadoRuta = (estado) =>
     color: "gray",
   };
 
+const crearRutaVerificacion = (publicacionId, rutaId, paradaId) => {
+  const parametros = new URLSearchParams({
+    rutaId: String(rutaId),
+    paradaId: String(paradaId),
+  });
+  return `/recolector/verificar/${encodeURIComponent(publicacionId)}?${parametros.toString()}`;
+};
+
 const PaginaRutaRecoleccion = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     ruta,
     cargando,
     mensajeError,
+    sinReservasElegibles,
     construyendo,
     registrandoLlegada,
     actualizandoRuta,
@@ -68,6 +80,7 @@ const PaginaRutaRecoleccion = () => {
   } = useRutaRecoleccion();
   const [paradaRegistrando, setParadaRegistrando] = useState(null);
   const cargaInicialRef = useRef(false);
+  const rutaCompletada = Boolean(location.state?.rutaCompletada);
 
   const manejarActualizarRuta = async () => {
     const rutaActualizada = await actualizarRuta();
@@ -122,9 +135,27 @@ const PaginaRutaRecoleccion = () => {
 
   const estadoRuta = obtenerEstadoRuta(ruta?.estado);
   const paradas = ruta?.paradas || [];
+  const hayParadasSinCerrar = paradas.some((parada) =>
+    ["PENDIENTE", "EN_PROGRESO"].includes(parada.estado),
+  );
+  const tituloEstadoVacio = sinReservasElegibles
+    ? "Aún no tienes recolecciones reservadas"
+    : "No tienes una ruta activa";
+  const descripcionEstadoVacio = sinReservasElegibles
+    ? "Reserva una publicación disponible y vuelve para construir tu ruta de hoy."
+    : rutaCompletada
+      ? "Ruta completada correctamente."
+      : mensajeError || "Construye una ruta con tus reservas activas para empezar el recorrido.";
 
-  const manejarRegistrarLlegada = async (paradaId) => {
+  const manejarRegistrarLlegada = async (parada) => {
     if (!ruta?.rutaId) return;
+    const paradaId = parada?.paradaId;
+    if (!paradaId) return;
+
+    if (parada.estado === "EN_PROGRESO") {
+      navigate(crearRutaVerificacion(parada.publicacionId, ruta.rutaId, paradaId));
+      return;
+    }
 
     setParadaRegistrando(paradaId);
     const datosLlegada = {
@@ -133,12 +164,20 @@ const PaginaRutaRecoleccion = () => {
     };
     const rutaActualizada = await registrarLlegada(ruta.rutaId, paradaId, datosLlegada);
     if (rutaActualizada) {
+      const paradaActualizada = rutaActualizada.paradas?.find(
+        (item) => item.paradaId === paradaId,
+      );
       toaster.create({
         title: "Llegada registrada",
-        description: "El estado de la ruta se actualizó correctamente.",
+        description: "Verifica el material para completar la recolección.",
         type: "success",
         duration: 3000,
       });
+      if (paradaActualizada?.publicacionId) {
+        navigate(
+          crearRutaVerificacion(paradaActualizada.publicacionId, rutaActualizada.rutaId, paradaId),
+        );
+      }
     } else {
       toaster.create({
         title: "No se pudo registrar la llegada",
@@ -203,6 +242,7 @@ const PaginaRutaRecoleccion = () => {
                 size="sm"
                 loadingText="Finalizando"
                 isLoading={finalizandoRuta}
+                disabled={hayParadasSinCerrar}
                 onClick={manejarFinalizarRuta}
               >
                 Finalizar ruta
@@ -299,12 +339,9 @@ const PaginaRutaRecoleccion = () => {
               </Box>
               <VStack gap={1}>
                 <Text fontFamily="heading" fontWeight="700" fontSize="xl">
-                  No tienes una ruta activa
+                  {tituloEstadoVacio}
                 </Text>
-                <Text color="gray.600">
-                  {mensajeError ||
-                    "Construye una ruta con tus reservas activas para empezar el recorrido."}
-                </Text>
+                <Text color="gray.600">{descripcionEstadoVacio}</Text>
               </VStack>
               <Button
                 colorPalette="verde"

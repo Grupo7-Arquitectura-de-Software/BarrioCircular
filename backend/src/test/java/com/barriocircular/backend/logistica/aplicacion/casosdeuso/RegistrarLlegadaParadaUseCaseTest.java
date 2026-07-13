@@ -40,7 +40,7 @@ class RegistrarLlegadaParadaUseCaseTest {
   @Mock private UbicacionRecicladorPort ubicacionRecicladorPort;
 
   @Test
-  void registraLlegadaCompletandoLaParadaMedianteElAgregado() {
+  void registraLlegadaIniciandoLaParadaMedianteElAgregado() {
     RutaRecoleccion ruta = rutaEnCurso();
     UUID paradaId = ruta.paradas().get(0).id().valor();
     UUID publicacionId = ruta.paradas().get(0).publicacionId().valor();
@@ -59,7 +59,7 @@ class RegistrarLlegadaParadaUseCaseTest {
         useCase.ejecutar(
             ruta.id().valor(), paradaId, LocalDate.of(2026, 7, 9), LocalTime.of(10, 15));
 
-    assertEquals("COMPLETADA", resultado.paradas().get(0).estado());
+    assertEquals("EN_PROGRESO", resultado.paradas().get(0).estado());
     assertEquals(-0.180653, resultado.origen().latitud());
     assertEquals(-78.467838, resultado.origen().longitud());
     assertEquals("PET", resultado.paradas().get(0).tipoResiduo());

@@ -36,3 +36,10 @@ export const registrarLlegadaParada = (token, rutaId, paradaId, datos) =>
     token,
     cuerpo: datos,
   });
+
+export const confirmarRecoleccion = (token, rutaId, paradaId, datos) =>
+  solicitarApi(`/logistica/rutas/${rutaId}/paradas/${paradaId}/confirmar`, {
+    metodo: "POST",
+    token,
+    cuerpo: datos,
+  });

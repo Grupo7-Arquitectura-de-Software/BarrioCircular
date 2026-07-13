@@ -43,6 +43,8 @@ class RutaRecoleccionRepositorioAdapterTest {
   void guardaYRecuperaRutaPorId() {
     RutaRecoleccion ruta = rutaPlanificada(UUID.randomUUID(), LocalDate.of(2026, 7, 9));
     ruta.iniciar();
+    ruta.iniciarParada(
+        ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
     ruta.completarParada(
         ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
 
@@ -76,6 +78,8 @@ class RutaRecoleccionRepositorioAdapterTest {
   void conservaZonaOperativaEnHorariosDespuesDePersistir() {
     RutaRecoleccion ruta = rutaPlanificada(UUID.randomUUID(), LocalDate.of(2026, 7, 9));
     ruta.iniciar();
+    ruta.iniciarParada(
+        ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
     ruta.completarParada(
         ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
 
@@ -99,9 +103,7 @@ class RutaRecoleccionRepositorioAdapterTest {
     UUID publicacionDos = UUID.randomUUID();
     RutaRecoleccion rutaInicial =
         rutaPlanificada(
-            recicladorId,
-            fecha,
-            List.of(destino(publicacionRetirada, -0.1907, -78.4684)));
+            recicladorId, fecha, List.of(destino(publicacionRetirada, -0.1907, -78.4684)));
     RutaRecoleccion guardada = adapter.guardar(rutaInicial);
 
     RutaRecoleccion recargada = adapter.buscarPorId(guardada.id().valor()).orElseThrow();
@@ -150,9 +152,7 @@ class RutaRecoleccionRepositorioAdapterTest {
     RutaRecoleccion recargada = adapter.buscarPorId(guardada.id().valor()).orElseThrow();
     RutaRecoleccion rutaReplanificada =
         rutaPlanificada(
-            recicladorId,
-            fecha,
-            List.of(destino(publicacionConservada, -0.1907, -78.4684)));
+            recicladorId, fecha, List.of(destino(publicacionConservada, -0.1907, -78.4684)));
 
     recargada.replanificar(rutaReplanificada.paradas());
     adapter.guardar(recargada);
@@ -172,10 +172,7 @@ class RutaRecoleccionRepositorioAdapterTest {
     UUID publicacionUno = UUID.randomUUID();
     UUID publicacionDos = UUID.randomUUID();
     RutaRecoleccion rutaInicial =
-        rutaPlanificada(
-            recicladorId,
-            fecha,
-            List.of(destino(publicacionUno, -0.1907, -78.4684)));
+        rutaPlanificada(recicladorId, fecha, List.of(destino(publicacionUno, -0.1907, -78.4684)));
     RutaRecoleccion guardada = adapter.guardar(rutaInicial);
     RutaRecoleccion rutaReplanificada =
         rutaPlanificada(
@@ -197,7 +194,9 @@ class RutaRecoleccionRepositorioAdapterTest {
     assertEquals(2, recuperada.paradas().size());
     assertEquals(
         2,
-        recuperada.paradas().stream().map(parada -> parada.publicacionId().valor()).distinct()
+        recuperada.paradas().stream()
+            .map(parada -> parada.publicacionId().valor())
+            .distinct()
             .count());
   }
 

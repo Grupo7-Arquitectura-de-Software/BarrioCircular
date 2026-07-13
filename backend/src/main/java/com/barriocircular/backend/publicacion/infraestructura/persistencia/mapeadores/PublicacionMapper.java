@@ -29,7 +29,9 @@ public class PublicacionMapper {
         publicacion.evidencia().url(),
         publicacion.fechaCreacion(),
         publicacion.estado().name(),
-        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor());
+        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor(),
+        publicacion.pesoRealVerificado(),
+        publicacion.observacionesVerificacion());
   }
 
   public Publicacion toDomain(PublicacionEntity entity) {
@@ -49,6 +51,8 @@ public class PublicacionMapper {
         new EvidenciaVisual(entity.getEvidenciaUrl()),
         entity.getFechaCreacion(),
         EstadoPublicacion.valueOf(entity.getEstado()),
-        reservadoPor);
+        reservadoPor,
+        entity.getPesoRealVerificado(),
+        entity.getObservacionesVerificacion());
   }
 }

@@ -7,6 +7,7 @@ import CalendarioCoordinacion from "../componentes/organismos/CalendarioCoordina
 import PanelDetalleOperacion from "../componentes/moleculas/PanelDetalleOperacion.jsx";
 import TarjetaVendedor from "../componentes/moleculas/TarjetaVendedor.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
+import { toaster } from "@/components/ui/toaster-instance";
 import { NAVEGACION_CENTRO, SUBTITULO_CENTRO } from "@/utilidades/navegacionPanel";
 import { marcarCitaConfirmada } from "@/utilidades/progresoReserva";
 
@@ -22,7 +23,18 @@ const PaginaCoordinarRecoleccion = ({ rol = "recolector" }) => {
 
   const confirmarCita = () => {
     marcarCitaConfirmada(publicacionId);
-    navigate(`/${rol}/verificar/${publicacionId}`);
+    if (esCentro) {
+      navigate(`/${rol}/verificar/${publicacionId}`);
+      return;
+    }
+
+    toaster.create({
+      title: "Publicación reservada correctamente",
+      description: "Ahora puedes incluirla en tu ruta de recolección.",
+      type: "success",
+      duration: 4500,
+    });
+    navigate("/recolector/inicio");
   };
 
   return (

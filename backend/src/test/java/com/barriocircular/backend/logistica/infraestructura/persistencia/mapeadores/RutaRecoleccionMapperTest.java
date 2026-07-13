@@ -44,6 +44,8 @@ class RutaRecoleccionMapperTest {
   void convierteEntidadADominioPreservandoIdentidadEstadoYHorarios() {
     RutaRecoleccion ruta = rutaPlanificada();
     ruta.iniciar();
+    ruta.iniciarParada(
+        ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
     ruta.completarParada(
         ruta.paradas().get(0).id(), HorarioParada.de(ruta.fecha(), LocalTime.of(10, 15)));
     RutaRecoleccionEntity entity = mapper.toEntity(ruta, Instant.parse("2026-07-09T14:00:00Z"));

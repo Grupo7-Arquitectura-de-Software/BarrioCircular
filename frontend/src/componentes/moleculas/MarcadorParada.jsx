@@ -10,6 +10,10 @@ const ESTADOS_PARADA = {
     etiqueta: "En curso",
     color: "#2563EB",
   },
+  EN_PROGRESO: {
+    etiqueta: "En progreso",
+    color: "#2563EB",
+  },
   PENDIENTE: {
     etiqueta: "Pendiente",
     color: "#6B7280",

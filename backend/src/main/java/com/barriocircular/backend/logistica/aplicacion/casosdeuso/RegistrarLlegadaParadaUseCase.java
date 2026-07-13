@@ -43,7 +43,7 @@ public class RegistrarLlegadaParadaUseCase {
             .buscarPorId(rutaId)
             .orElseThrow(() -> new IllegalStateException("No existe la ruta solicitada."));
 
-    ruta.completarParada(
+    ruta.iniciarParada(
         ParadaRecoleccionId.de(paradaId), HorarioParada.de(fechaLlegada, horaLlegada));
 
     RutaRecoleccion guardada = almacenRutaRecoleccionPort.guardar(ruta);

@@ -60,6 +60,9 @@ public class RutaRecoleccion {
     if (estado != EstadoRutaRecoleccion.EN_CURSO) {
       throw new IllegalStateException("Solo una ruta en curso puede completarse.");
     }
+    if (!todasLasParadasAtendidas()) {
+      throw new IllegalStateException("La ruta no puede completarse con paradas pendientes.");
+    }
     estado = EstadoRutaRecoleccion.COMPLETADA;
   }
 
@@ -80,14 +83,20 @@ public class RutaRecoleccion {
     this.paradas.addAll(ordenadas);
   }
 
-  public void iniciarParada(ParadaRecoleccionId paradaId) {
+  public void iniciarParada(ParadaRecoleccionId paradaId, HorarioParada horarioReal) {
     exigirRutaEnCurso();
-    buscarParada(paradaId).iniciar();
+    if (tieneParadaEnProgreso()) {
+      throw new IllegalStateException("Ya existe una parada en progreso en esta ruta.");
+    }
+    buscarParada(paradaId).iniciar(horarioReal);
   }
 
   public void completarParada(ParadaRecoleccionId paradaId, HorarioParada horarioReal) {
     exigirRutaEnCurso();
     buscarParada(paradaId).completar(horarioReal);
+    if (todasLasParadasAtendidas()) {
+      completar();
+    }
   }
 
   public void omitirParada(ParadaRecoleccionId paradaId) {
@@ -137,6 +146,18 @@ public class RutaRecoleccion {
         .filter(parada -> parada.id().equals(paradaId))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("La parada no pertenece a esta ruta."));
+  }
+
+  public boolean tieneParadaEnProgreso() {
+    return paradas.stream().anyMatch(ParadaRecoleccion::estaEnProgreso);
+  }
+
+  public boolean todasLasParadasAtendidas() {
+    return paradas.stream().allMatch(ParadaRecoleccion::estaAtendida);
+  }
+
+  public ParadaRecoleccion obtenerParada(ParadaRecoleccionId paradaId) {
+    return buscarParada(paradaId);
   }
 
   public RutaRecoleccionId id() {

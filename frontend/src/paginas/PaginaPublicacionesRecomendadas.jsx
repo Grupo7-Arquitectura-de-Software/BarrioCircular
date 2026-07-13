@@ -204,7 +204,13 @@ const PaginaPublicacionesRecomendadas = ({ rol = "recolector" }) => {
                       esCentro ? undefined : () => navigate("/recolector/ruta-recoleccion")
                     }
                     alCoordinar={() => navigate(`/${rol}/coordinar/${reserva.publicacionId}`)}
-                    alVerificar={() => navigate(`/${rol}/verificar/${reserva.publicacionId}`)}
+                    alVerificar={() =>
+                      navigate(
+                        esCentro
+                          ? `/${rol}/verificar/${reserva.publicacionId}`
+                          : "/recolector/ruta-recoleccion",
+                      )
+                    }
                   />
                 ))}
               </VStack>
