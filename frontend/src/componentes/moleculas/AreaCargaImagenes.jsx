@@ -1,15 +1,31 @@
-import { FileUpload, Text, VStack } from "@chakra-ui/react";
-import { MdOutlineAddAPhoto } from "react-icons/md";
+import { useState } from "react";
+import { Button, FileUpload, Text, VStack, useFileUpload } from "@chakra-ui/react";
+import { MdOutlineAddAPhoto, MdOutlineCameraAlt } from "react-icons/md";
 import Icono from "../atomos/Icono.jsx";
+import CamaraCaptura from "./CamaraCaptura.jsx";
 
-const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiarArchivos }) => {
+/**
+ * Área de carga de imágenes (arrastrar/soltar o explorar archivos). Con
+ * `permitirCamara`, ofrece además tomar la foto con la cámara del dispositivo;
+ * la captura entra al mismo flujo que un archivo subido (dispara
+ * `alCambiarArchivos`).
+ */
+const AreaCargaImagenes = ({
+  maximoArchivos = 3,
+  tamanioMaximoMB = 10,
+  alCambiarArchivos,
+  permitirCamara = false,
+}) => {
+  const [camaraAbierta, setCamaraAbierta] = useState(false);
+  const cargaArchivos = useFileUpload({
+    accept: "image/*",
+    maxFiles: maximoArchivos,
+    maxFileSize: tamanioMaximoMB * 1024 * 1024,
+    onFileChange: alCambiarArchivos,
+  });
+
   return (
-    <FileUpload.Root
-      accept="image/*"
-      maxFiles={maximoArchivos}
-      maxFileSize={tamanioMaximoMB * 1024 * 1024}
-      onFileChange={alCambiarArchivos}
-    >
+    <FileUpload.RootProvider value={cargaArchivos}>
       <FileUpload.HiddenInput />
 
       <FileUpload.Dropzone
@@ -35,6 +51,26 @@ const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiar
         </VStack>
       </FileUpload.Dropzone>
 
+      {permitirCamara && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            colorPalette="verde"
+            rounded="lg"
+            w="100%"
+            onClick={() => setCamaraAbierta(true)}
+          >
+            <MdOutlineCameraAlt /> Tomar foto con la cámara
+          </Button>
+          <CamaraCaptura
+            abierto={camaraAbierta}
+            alCerrar={() => setCamaraAbierta(false)}
+            alCapturar={(archivo) => cargaArchivos.setFiles([archivo])}
+          />
+        </>
+      )}
+
       <FileUpload.ItemGroup>
         <FileUpload.Context>
           {({ acceptedFiles }) =>
@@ -59,7 +95,7 @@ const AreaCargaImagenes = ({ maximoArchivos = 3, tamanioMaximoMB = 10, alCambiar
           }
         </FileUpload.Context>
       </FileUpload.ItemGroup>
-    </FileUpload.Root>
+    </FileUpload.RootProvider>
   );
 };
 

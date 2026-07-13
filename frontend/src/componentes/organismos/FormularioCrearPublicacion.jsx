@@ -222,13 +222,14 @@ const FormularioCrearPublicacion = ({
         <Field.Root required={!modoEdicion}>
           <Text fontSize="sm" color="gray.500" mb={2}>
             {modoEdicion
-              ? "Ya tienes una foto subida. Sube una nueva solo si quieres reemplazarla; se volverá a analizar con IA."
-              : "Empieza subiendo la foto: la IA la validará y sugerirá el tipo, peso y precio del material."}
+              ? "Ya tienes una foto subida. Sube o toma una nueva solo si quieres reemplazarla; se volverá a analizar con IA."
+              : "Empieza subiendo o tomando la foto: la IA la validará y sugerirá el tipo, peso y precio del material."}
           </Text>
           <AreaCargaImagenes
             maximoArchivos={1}
             tamanioMaximoMB={10}
             alCambiarArchivos={alCambiarFoto}
+            permitirCamara
           />
 
           {estadoAnalisis === "analizando" && (
