@@ -1,10 +1,10 @@
 package com.barriocircular.backend.sugerenciaprecio.interfaces.rest;
 
-import com.barriocircular.backend.sugerenciaprecio.aplicacion.casosdeuso.SugerirPrecioUseCase;
-import com.barriocircular.backend.sugerenciaprecio.aplicacion.comandos.SugerirPrecioCommand;
-import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.SugerenciaPrecioResultado;
+import com.barriocircular.backend.sugerenciaprecio.aplicacion.casosdeuso.AnalizarMaterialUseCase;
+import com.barriocircular.backend.sugerenciaprecio.aplicacion.comandos.AnalizarMaterialCommand;
+import com.barriocircular.backend.sugerenciaprecio.aplicacion.dto.AnalisisMaterialResultado;
 import com.barriocircular.backend.sugerenciaprecio.aplicacion.excepciones.IdentidadAutenticadaNoDisponibleException;
-import com.barriocircular.backend.sugerenciaprecio.interfaces.rest.dto.SugerirPrecioRequest;
+import com.barriocircular.backend.sugerenciaprecio.interfaces.rest.dto.AnalizarMaterialRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -14,23 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/sugerencias-precio")
-public class SugerenciaPrecioController {
+@RequestMapping("/api/analisis-material")
+public class AnalisisMaterialController {
 
-  private final SugerirPrecioUseCase sugerirPrecioUseCase;
+  private final AnalizarMaterialUseCase analizarMaterialUseCase;
 
-  public SugerenciaPrecioController(SugerirPrecioUseCase sugerirPrecioUseCase) {
-    this.sugerirPrecioUseCase = sugerirPrecioUseCase;
+  public AnalisisMaterialController(AnalizarMaterialUseCase analizarMaterialUseCase) {
+    this.analizarMaterialUseCase = analizarMaterialUseCase;
   }
 
   @PostMapping
-  public ResponseEntity<SugerenciaPrecioResultado> sugerirPrecio(
-      @RequestBody SugerirPrecioRequest solicitud, Authentication autenticacion) {
+  public ResponseEntity<AnalisisMaterialResultado> analizarMaterial(
+      @RequestBody AnalizarMaterialRequest solicitud, Authentication autenticacion) {
     String clerkId = extraerClerkId(autenticacion);
-    SugerirPrecioCommand comando =
-        new SugerirPrecioCommand(
-            solicitud.tipoResiduo(), solicitud.pesoKg(), solicitud.imagenBase64());
-    SugerenciaPrecioResultado resultado = sugerirPrecioUseCase.ejecutar(comando, clerkId);
+    AnalizarMaterialCommand comando = new AnalizarMaterialCommand(solicitud.imagenBase64());
+    AnalisisMaterialResultado resultado = analizarMaterialUseCase.ejecutar(comando, clerkId);
     return ResponseEntity.ok(resultado);
   }
 

@@ -1,495 +1,234 @@
-# 💡 Contexto de Sugerencia de Precio (IA)
+# 💡 Contexto de Sugerencia de Precio / Análisis de Material (IA)
 
 ## 📋 Descripción General
 
-El **Contexto de Sugerencia de Precio** utiliza inteligencia artificial para recomendar precios competitivos y justos basados en tipo de material, peso, mercado actual y datos históricos.
+El **Contexto de Sugerencia de Precio** analiza con IA (Groq + Llama 4 Scout, visión) la foto del material **antes** de crear una publicación, con un flujo "imagen primero": el usuario sube la foto, la IA la valida y, si es válida, autocompleta tipo de material, peso estimado y precio sugerido (todo editable por el usuario).
 
 **Responsabilidades principales:**
-- Generar sugerencias de precio mediante IA (Groq)
-- Mantener histórico de sugerencias
-- Considerar precios de mercado actual
-- Evaluar tendencias de demanda
-- Proporcionar análisis de competitividad
+- Validar que la foto muestre material de reciclaje (rechaza personas, paisajes, comida, etc.)
+- Validar la calidad de la foto (borrosa, oscura, lejana → pide repetirla con una recomendación concreta)
+- Detectar mezcla de materiales distintos (pide mostrar un solo material)
+- Clasificar el material dentro del catálogo (PET, CARTON, VIDRIO, CHATARRA)
+- Estimar el peso visible en kg
+- Calcular el **precio sugerido de forma determinista**: la IA nunca decide el precio
+- Mantener histórico de análisis (auditoría)
+
+**Regla de oro del precio:**
+
+```
+precioSugerido = precioBaseMercado(tipo) × factorEstado
+  precioBaseMercado: variables de entorno PRECIO_KG_* (USD/kg)
+  factorEstado: EXCELENTE=1.0, BUENO=0.9, REGULAR=0.8
+```
 
 ---
 
 ## 🏛️ Capa de Dominio
 
-### Agregado Raíz: `SugerenciaPrecio`
+### Agregado Raíz: `AnalisisMaterial`
 
 ```java
-SugerenciaPrecio {
-  ├─ sugerenciaPrecioId: SugerenciaPrecioId [PK]
-  ├─ tipoMaterial: TipoMaterialSugerido
-  ├─ precioSugerido: PrecioSugerido
-  ├─ fuenteSugerencia: FuenteSugerencia
-  ├─ motivoSugerencia: String
-  ├─ precioMinimo: BigDecimal
-  ├─ precioMaximo: BigDecimal
-  ├─ confianza: Integer (0-100)
-  ├─ factoresConsiderados: List<String>
-  └─ fechaGeneracion: LocalDateTime
+AnalisisMaterial {
+  ├─ id: AnalisisMaterialId [PK, UUID]
+  ├─ resultado: ResultadoAnalisis
+  ├─ tipoMaterial: TipoMaterialSugerido (solo si VALIDO)
+  ├─ pesoEstimadoKg: Double (opcional, solo si VALIDO)
+  ├─ estadoMaterial: EstadoMaterial (solo si VALIDO)
+  ├─ precioSugerido: PrecioSugerido (solo si VALIDO)
+  ├─ recomendacion: String (mensaje de la IA para el usuario)
+  ├─ solicitanteClerkId: String
+  └─ fechaAnalisis: Instant
 }
 ```
 
-### Value Objects
+**Invariante:** `VALIDO` ⇒ tipo, estado y precio obligatorios; cualquier otro resultado ⇒ sin sugerencias.
+
+### Value Objects / Enums
 
 | Objeto de Valor | Descripción | Restricciones |
 |----------------|-----------|---------------|
-| `TipoMaterialSugerido` | Material a precios | PLASTICO, VIDRIO, etc |
-| `PrecioSugerido` | Precio recomendado | Positivo, 2 decimales |
-| `FuenteSugerencia` | Origen de sugerencia | MERCADO, HISTORICO, IA |
-| `SugerenciaPrecioId` | UUID único | Autogenerado |
+| `ResultadoAnalisis` | Veredicto del análisis | VALIDO, NO_ES_RECICLAJE, FOTO_NO_CLARA, MULTIPLES_MATERIALES, MATERIAL_NO_SOPORTADO, IA_NO_DISPONIBLE |
+| `TipoMaterialSugerido` | Catálogo de materiales (ACL) | PET, CARTON, VIDRIO, CHATARRA |
+| `EstadoMaterial` | Estado de conservación con factor de precio | EXCELENTE (1.0), BUENO (0.9), REGULAR (0.8) |
+| `PrecioSugerido` | Precio recomendado | > 0 y ≤ 10.00 USD/kg (techo anti-alucinación) |
+| `AnalisisMaterialId` | UUID único | Autogenerado |
 
 ### Servicios de Dominio
 
 #### `CatalogoPreciosReferencia`
-```
-Operación: obtenerPreciosActuales(TipoMaterial)
-
-Consulta: Base de datos de precios de referencia
-
-Retorna:
-  - precioPromedio
-  - precioMinimo
-  - precioMaximo
-  - ultimas24horas
-```
-
-### Eventos de Dominio
+Precios base de mercado por material (USD/kg), inyectados por constructor desde configuración (env vars `PRECIO_KG_*`).
 
 ```
-✓ SugerenciaPrecioGenerada
-  - IA generó nueva sugerencia
-  - Incluye: material, precio, confianza
+precioDeReferencia(tipo)          → precio base del material
+precioSugerido(tipo, estado)      → base × factor del estado, redondeado a centavos
 ```
 
 ---
 
 ## 🎯 Capa de Aplicación
 
-### Use Cases
+### Use Case: `AnalizarMaterialUseCase`
 
-#### 1. `SugerirPrecioUseCase`
 ```
-Operación: ejecutar(SugerirPrecioCommand, clerkId)
+Operación: ejecutar(AnalizarMaterialCommand, clerkId)
 
 Entrada:
-  - tipoMaterial: String
-  - pesoKg: Double
-  - ubicacion: CoordenadaGPS (opcional)
+  - imagenBase64: String (data URI, "data:image/...")
 
 Proceso:
-  1. Validar tipo de material conocido
-  2. Consultar CatalogoPreciosReferencia
-  3. Llamar SugeridorPrecioIAPort (Groq API)
-  4. IA analiza:
-     - Precios históricos
-     - Demanda actual
-     - Peso del material
-     - Ubicación en Quito
-  5. Generar SugerenciaPrecio con confianza
-  6. Guardar en repositorio
-  7. Emitir: SugerenciaPrecioGenerada
-  
-Salida: SugerenciaPrecioResultado
+  1. Validar imagen (data URI) → si no, 400
+  2. Llamar AnalizadorMaterialIAPort (Groq, Llama 4 Scout visión)
+  3. Interpretar respuesta cruda en orden de prioridad:
+     - IA falla / veredictos incompletos → IA_NO_DISPONIBLE
+     - no es reciclaje → NO_ES_RECICLAJE
+     - foto no clara → FOTO_NO_CLARA (+recomendación)
+     - varios materiales → MULTIPLES_MATERIALES
+     - tipo fuera del catálogo ("OTRO") → MATERIAL_NO_SOPORTADO
+     - resto → VALIDO
+  4. Anti-alucinación: peso fuera de [0.1, 1000] kg se descarta (null);
+     estado no reconocido → default BUENO; el precio SIEMPRE lo calcula
+     el backend con el catálogo (nunca la IA)
+  5. Persistir AnalisisMaterial (auditoría)
 
-Excepciones:
-  ✗ TipoMaterialSugeridoInvalidoException
-  ✗ ServicioIANoDisponibleException
+Salida: AnalisisMaterialResultado
+
+Garantía: nunca responde 5xx por fallos de la IA (peor caso: IA_NO_DISPONIBLE
+y el usuario completa el formulario manualmente).
 ```
 
-### Comando
+### Puerto
 
 ```java
-record SugerirPrecioCommand(
-    String tipoMaterial,
-    Double pesoKg,
-    Double latitud,
-    Double longitud
-) {}
+interface AnalizadorMaterialIAPort {
+  Optional<AnalisisIA> analizar(String imagenBase64);
+  // Nunca propaga excepciones del proveedor: fallo → Optional.empty()
+}
 ```
 
 ### DTOs
 
 ```java
-record SugerenciaPrecioResultado(
-    UUID sugerenciaPrecioId,
-    String tipoMaterial,
-    BigDecimal precioSugerido,
-    BigDecimal precioMinimo,
-    BigDecimal precioMaximo,
-    Integer confianza,
-    String fuenteSugerencia,
-    String motivoSugerencia,
-    LocalDateTime fechaGeneracion
-) {}
+// Respuesta cruda del modelo (sin validar)
+record AnalisisIA(
+    Boolean esMaterialReciclaje, Boolean fotoClara, Boolean multiplesMateriales,
+    String tipoMaterial, Double pesoEstimadoKg, String estadoMaterial,
+    String recomendacion) {}
 
-record SugerenciaIA(
-    BigDecimal precioRecomendado,
-    Integer nivelConfianza,
-    String analisisDetallado,
-    List<String> factoresConsiderados
-) {}
+// Respuesta del endpoint
+record AnalisisMaterialResultado(
+    UUID analisisId, ResultadoAnalisis resultado,
+    TipoMaterialSugerido tipoMaterial, Double pesoEstimadoKg,
+    EstadoMaterial estadoMaterial, BigDecimal precioSugeridoPorKilo,
+    String recomendacion, Instant fechaAnalisis) {}
 ```
 
 ---
 
 ## 🔌 Capa de Infraestructura
 
-### Adaptadores de Integración
+### `GroqAnalizadorMaterialAdapter`
+**Implementa**: `AnalizadorMaterialIAPort` — **Integración**: Groq API
 
-#### `GroqSugeridorPrecioAdapter`
-**Implementa**: `SugeridorPrecioIAPort`
-**Integración**: Groq API (IA)
-
-```java
-@Component
-public class GroqSugeridorPrecioAdapter implements SugeridorPrecioIAPort {
-    
-    private final RestTemplate restTemplate;
-    private final GroqProperties groqProps;
-    
-    @Override
-    public SugerenciaIA sugerirPrecio(
-        String tipoMaterial, 
-        Double pesoKg,
-        List<PrecioHistorico> historico,
-        Double demandaActual) {
-        
-        // Construir prompt para Groq
-        String prompt = construirPromptAnalisis(
-            tipoMaterial, pesoKg, historico, demandaActual);
-        
-        // Llamar Groq API
-        GroqRequest request = new GroqRequest(
-            "mixtral-8x7b-32768",
-            List.of(new Message("user", prompt)),
-            0.7,  // temperatura
-            1000  // max tokens
-        );
-        
-        GroqResponse response = restTemplate.postForObject(
-            "https://api.groq.com/openai/v1/chat/completions",
-            request,
-            GroqResponse.class
-        );
-        
-        // Parsear respuesta
-        return parsearRespuestaIA(response);
-    }
-    
-    private String construirPromptAnalisis(
-        String tipoMaterial, Double pesoKg, 
-        List<PrecioHistorico> historico, 
-        Double demandaActual) {
-        
-        return """
-            Analiza y sugiere el mejor precio para vender %s de %s kg en Quito, Ecuador.
-            
-            Datos históricos (últimas 2 semanas):
-            - Precio promedio: $%.2f por kg
-            - Precio mínimo: $%.2f
-            - Precio máximo: $%.2f
-            - Transacciones: %d
-            
-            Demanda actual (índice 0-100): %.1f
-            
-            Consideraciones:
-            1. Es más competitivo si el precio es cercano al promedio
-            2. Demanda alta permite precios más altos
-            3. Evitar precios fuera del rango histórico
-            
-            Proporciona:
-            1. Precio sugerido (en dollars USD)
-            2. Confianza de la sugerencia (0-100)
-            3. Justificación de la recomendación
-            4. Factores considerados
-            
-            Responde en formato JSON.
-            """
-            .formatted(
-                tipoMaterial, pesoKg,
-                historico.stream().mapToDouble(h -> h.precioPromedio()).average().orElse(0),
-                historico.stream().mapToDouble(h -> h.precioMinimo()).min().orElse(0),
-                historico.stream().mapToDouble(h -> h.precioMaximo()).max().orElse(0),
-                historico.size(),
-                demandaActual
-            );
-    }
-}
-```
+- Siempre usa el modelo con visión (`groq.vision-model`, Llama 4 Scout)
+- `temperature=0` y `response_format=json_object` para respuestas estables y parseables
+- Prompt "inspector de materiales reciclables" que exige un JSON exacto con los 7 campos de `AnalisisIA`, con referencias de peso (botella PET ≈ 0.02 kg, caja de cartón ≈ 0.5 kg, etc.)
+- Cualquier fallo de red/parseo → `Optional.empty()` (nunca propaga)
 
 ### Persistencia
 
-#### Entidad JPA
+Tabla `analisis_material` (Hibernate `ddl-auto=update` la crea):
 
-```java
-@Entity
-@Table(name = "sugerencias_precio")
-public class SugerenciaPrecioEntity {
-    @Id
-    private UUID sugerenciaPrecioId;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoMaterialSugerido tipoMaterial;
-    
-    @Column(name = "precio_sugerido", precision = 10, scale = 2)
-    private BigDecimal precioSugerido;
-    
-    @Column(name = "precio_minimo", precision = 10, scale = 2)
-    private BigDecimal precioMinimo;
-    
-    @Column(name = "precio_maximo", precision = 10, scale = 2)
-    private BigDecimal precioMaximo;
-    
-    @Column(name = "confianza")
-    private Integer confianza;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private FuenteSugerencia fuenteSugerencia;
-    
-    @Column(name = "motivo", columnDefinition = "TEXT")
-    private String motivoSugerencia;
-    
-    @Column(columnDefinition = "JSONB")
-    private String factoresConsiderados;
-    
-    @Column(name = "fecha_generacion")
-    private LocalDateTime fechaGeneracion;
-}
+```sql
+analisis_material (
+    id UUID PRIMARY KEY,
+    resultado VARCHAR(40) NOT NULL,
+    tipo_material VARCHAR(40),
+    peso_estimado_kg DOUBLE PRECISION,
+    estado_material VARCHAR(40),
+    precio_sugerido NUMERIC(12,2),
+    recomendacion VARCHAR(500),
+    solicitante_clerk_id VARCHAR(255),
+    fecha_analisis TIMESTAMP NOT NULL
+)
 ```
 
-#### Repositorio Spring Data
-
-```java
-@Repository
-public interface SpringDataSugerenciaPrecioRepository 
-    extends JpaRepository<SugerenciaPrecioEntity, UUID> {
-    
-    Optional<SugerenciaPrecioEntity> findFirstByTipoMaterialOrderByFechaGeneracionDesc(
-        TipoMaterialSugerido tipo);
-    
-    List<SugerenciaPrecioEntity> findByTipoMaterialAndFechaGeneracionAfter(
-        TipoMaterialSugerido tipo, LocalDateTime fecha);
-}
-```
-
-#### Repositorio Implementación
-
-```java
-@Component
-public class SugerenciaPrecioRepositorioAdapter 
-    implements SugerenciaPrecioRepositorio {
-    
-    private final SpringDataSugerenciaPrecioRepository springDataRepo;
-    private final SugerenciaPrecioMapper mapper;
-    
-    @Override
-    public void guardar(SugerenciaPrecio sugerencia) {
-        SugerenciaPrecioEntity entity = mapper.aEntity(sugerencia);
-        springDataRepo.save(entity);
-    }
-    
-    @Override
-    public Optional<SugerenciaPrecio> obtenerUltima(TipoMaterialSugerido tipo) {
-        return springDataRepo
-            .findFirstByTipoMaterialOrderByFechaGeneracionDesc(tipo)
-            .map(mapper::aDominio);
-    }
-}
-```
-
-### Tecnología Utilizada
-
-| Componente | Tecnología | Propósito |
-|-----------|-----------|----------|
-| **IA** | Groq API (Mixtral) | Análisis y sugerencias |
-| **Persistencia** | PostgreSQL | Histórico sugerencias |
-| **ORM** | Spring Data JPA | Mapeo OR |
-| **Caché** | Spring Cache | Últimas sugerencias |
+> Nota: la tabla `sugerencias_precio` del endpoint anterior queda en BD solo como histórico; su código fue eliminado.
 
 ---
 
 ## 🌐 Capa de Interfaces (REST)
 
-### Endpoints
-
-#### `POST /api/sugerencias-precio/sugerir`
-Solicitar sugerencia de precio para material
+### `POST /api/analisis-material` (requiere JWT de Clerk)
 
 **Request:**
 ```json
-{
-  "tipoMaterial": "PLASTICO",
-  "pesoKg": 5.5,
-  "latitud": -0.2299,
-  "longitud": -78.5099
-}
+{ "imagenBase64": "data:image/jpeg;base64,..." }
 ```
 
-**Response (200 OK):**
+**Response (200 OK) — foto válida:**
 ```json
 {
-  "sugerenciaPrecioId": "b17ac10b-58cc-4372-a567-0e02b2c3d479",
-  "tipoMaterial": "PLASTICO",
-  "precioSugerido": 0.50,
-  "precioMinimo": 0.40,
-  "precioMaximo": 0.65,
-  "confianza": 85,
-  "fuenteSugerencia": "IA",
-  "motivoSugerencia": "Precio competitivo basado en demanda actual alta",
-  "factoresConsiderados": [
-    "Precio promedio mercado: $0.48",
-    "Demanda actual: ALTA (78/100)",
-    "Peso: 5.5 kg (volumen moderado)",
-    "Ubicación: Zona Centro (alta demanda)"
-  ],
-  "fechaGeneracion": "2026-07-10T16:45:00Z"
+  "analisisId": "b17ac10b-58cc-4372-a567-0e02b2c3d479",
+  "resultado": "VALIDO",
+  "tipoMaterial": "PET",
+  "pesoEstimadoKg": 2.5,
+  "estadoMaterial": "BUENO",
+  "precioSugeridoPorKilo": 0.27,
+  "recomendacion": "Botellas limpias, listas para la venta.",
+  "fechaAnalisis": "2026-07-13T16:45:00Z"
 }
 ```
 
+**Response (200 OK) — foto rechazada:** `resultado` con el motivo (`NO_ES_RECICLAJE`, `FOTO_NO_CLARA`, `MULTIPLES_MATERIALES`, `MATERIAL_NO_SOPORTADO`) y `recomendacion` para el usuario; los campos de sugerencia vienen en `null`.
+
 **Status Codes:**
-- `200 OK` - Sugerencia generada
-- `400 Bad Request` - Material o datos inválidos
-- `503 Service Unavailable` - IA no disponible
-- `429 Too Many Requests` - Límite de requests excedido
-
----
-
-## 🔗 Mapeo de Contextos (Integración)
-
-### Independencia Relativa
-
-Este contexto es relativamente independiente:
-- ✅ No requiere otros contextos
-- ✅ Consulta datos históricos propios
-- ℹ️ Podría escalar a servicio separado
-
-### Consumidor Potencial: Contexto de Publicación
-
-**Uso futuro**: Sugerir precio al crear publicación
-```
-PublicacionController (frontend)
-  └─ Propone usar SugerirPrecioUseCase
-      └─ Si precio propuesto es razonable
-```
-
----
-
-## 📊 Modelo de Datos (PostgreSQL)
-
-```sql
-CREATE TABLE sugerencias_precio (
-    sugerencia_precio_id UUID PRIMARY KEY,
-    tipo_material VARCHAR(50) NOT NULL,
-    precio_sugerido DECIMAL(10, 2) NOT NULL,
-    precio_minimo DECIMAL(10, 2),
-    precio_maximo DECIMAL(10, 2),
-    confianza INT CHECK (confianza BETWEEN 0 AND 100),
-    fuente_sugerencia VARCHAR(50) NOT NULL,
-    motivo VARCHAR(500),
-    factores_considerados JSONB,
-    fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    INDEX idx_tipo_material (tipo_material),
-    INDEX idx_fecha_generacion (fecha_generacion DESC)
-);
-
--- Tabla para histórico de precios de referencia
-CREATE TABLE precios_referencia_historico (
-    id UUID PRIMARY KEY,
-    tipo_material VARCHAR(50) NOT NULL,
-    precio_promedio DECIMAL(10, 2),
-    precio_minimo DECIMAL(10, 2),
-    precio_maximo DECIMAL(10, 2),
-    cantidad_transacciones INT,
-    fecha_registro DATE DEFAULT CURRENT_DATE,
-    
-    UNIQUE(tipo_material, fecha_registro),
-    INDEX idx_tipo_fecha (tipo_material, fecha_registro DESC)
-);
-```
+- `200 OK` — Análisis completado (incluye rechazos e `IA_NO_DISPONIBLE`)
+- `400 Bad Request` — Imagen ausente o no es un data URI de imagen
+- `401 Unauthorized` — Sin identidad Clerk
 
 ---
 
 ## ⚙️ Configuración Necesaria
 
 ```env
-# Groq API Configuration
+# Groq
 GROQ_API_KEY=gsk_xxxxxxxxxxxxx
-GROQ_API_ENDPOINT=https://api.groq.com/openai/v1/chat/completions
-GROQ_MODEL=mixtral-8x7b-32768
-GROQ_TEMPERATURE=0.7
-GROQ_MAX_TOKENS=1000
+GROQ_MODEL=llama-3.1-8b-instant
+GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+GROQ_BASE_URL=https://api.groq.com/openai/v1
 
-# Rate Limiting
-GROQ_RATE_LIMIT_REQUESTS=10
-GROQ_RATE_LIMIT_WINDOW_SECONDS=60
-
-# Cache
-SPRING_CACHE_CAFFEINE_SPEC=maximumSize=500,expireAfterWrite=10m
+# Precios base de mercado por material en Quito (USD/kg)
+PRECIO_KG_PET=0.30
+PRECIO_KG_CARTON=0.10
+PRECIO_KG_VIDRIO=0.03
+PRECIO_KG_CHATARRA=0.25
 ```
 
 ---
 
-## 🔄 Flujo de Sugerencia de Precio
+## 🔄 Flujo "imagen primero" al crear publicación
 
 ```
-┌──────────────────────────┐
-│ Usuario (Ciudadano)      │
-│ Quiere saber precio      │
-└──────────┬───────────────┘
-           │
-           │ POST /api/sugerencias-precio/sugerir
-           │ {tipoMaterial, pesoKg, ubicacion}
-           ↓
-┌──────────────────────────────────────┐
-│ SugerirPrecioUseCase                 │
-│ 1. Validar tipoMaterial              │
-│ 2. Consultar CatalogoPreciosRef      │
-│ 3. Llamar SugeridorPrecioIAPort      │
-└──────────┬──────────────────────────┬┘
-           │                          │
-           │                    Puerto IA
-           │                          │
-           │                          ↓
-           │                  ┌──────────────────┐
-           │                  │ Groq API         │
-           │                  │ (Mixtral 8x7b)  │
-           │                  │                  │
-           │                  │ Análisis:        │
-           │                  │ - Histórico      │
-           │                  │ - Demanda        │
-           │                  │ - Competencia    │
-           │                  └──────────┬───────┘
-           │                             │
-           │                    SugerenciaIA
-           │                             │
-           ↓                             ↓
-┌──────────────────────────────────────────┐
-│ Crear SugerenciaPrecio (Agregado)        │
-│ - Guardar en BD                          │
-│ - Emitir: SugerenciaPrecioGenerada       │
-└──────────┬───────────────────────────────┘
-           │
-           │ Response al cliente
-           ↓
-┌──────────────────────────────────────────┐
-│ Usuario recibe sugerencia                │
-│ - Precio recomendado                     │
-│ - Rango min/max                          │
-│ - Confianza                              │
-│ - Justificación                          │
-└──────────────────────────────────────────┘
+Usuario sube foto en "Nueva Publicación" (frontend)
+   │  (automático, sin botón)
+   ↓
+POST /api/analisis-material {imagenBase64}
+   │
+   ↓
+AnalizarMaterialUseCase ──→ GroqAnalizadorMaterialAdapter ──→ Llama 4 Scout (visión)
+   │                                                            (valida + clasifica + estima)
+   ↓
+resultado = VALIDO
+   ├─ Sí → autocompleta tipo, peso y precio (catálogo × estado); usuario puede editar
+   ├─ Rechazo → mensaje + recomendación; se bloquea publicar hasta cambiar la foto
+   └─ IA_NO_DISPONIBLE → aviso; el usuario completa manualmente (no se bloquea)
+   ↓
+Usuario ajusta datos y publica → POST /api/publicaciones (contexto Publicación)
 ```
 
 ---
 
 ## 📚 Referencias Relacionadas
 
-- Contexto de Publicación: Podría usar para sugerir precio al crear
-- Independiente: No requiere otros contextos
-
+- Contexto de Publicación: consume las sugerencias del análisis al crear/editar publicaciones
+- Frontend: `FormularioCrearPublicacion.jsx` + `analisisMaterialService.js`
