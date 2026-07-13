@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AnalizarMaterialUseCase {
 
   private static final double PESO_MINIMO_KG = 0.1;
-  private static final double PESO_MAXIMO_KG = 1000.0;
   private static final int LONGITUD_MAXIMA_RECOMENDACION = 500;
   private static final String RECOMENDACION_FOTO_NO_CLARA_POR_DEFECTO =
       "Vuelve a tomar la foto con mejor luz y más cerca del material.";
@@ -112,7 +111,7 @@ public class AnalizarMaterialUseCase {
 
     EstadoMaterial estadoMaterial =
         EstadoMaterial.desde(analisisIA.estadoMaterial()).orElse(EstadoMaterial.BUENO);
-    Double pesoEstimadoKg = validarPesoEstimado(analisisIA.pesoEstimadoKg());
+    Double pesoEstimadoKg = validarPesoEstimado(analisisIA.pesoEstimadoKg(), tipoMaterial);
     PrecioSugerido precioSugerido =
         catalogoPreciosReferencia.precioSugerido(tipoMaterial, estadoMaterial);
 
@@ -140,14 +139,18 @@ public class AnalizarMaterialUseCase {
     }
   }
 
-  /** Un peso fuera de rango es una alucinación: se descarta en vez de ajustarlo a la fuerza. */
-  private Double validarPesoEstimado(Double pesoEstimadoKg) {
+  /**
+   * Un peso fuera del rango razonable del material es una alucinación: se descarta en vez de
+   * ajustarlo a la fuerza. El tope depende del material (una foto no muestra 300 kg de botellas
+   * PET, pero sí puede mostrar esa chatarra). El valor aceptado se redondea a 1 decimal.
+   */
+  private Double validarPesoEstimado(Double pesoEstimadoKg, TipoMaterialSugerido tipoMaterial) {
     if (pesoEstimadoKg == null
         || pesoEstimadoKg < PESO_MINIMO_KG
-        || pesoEstimadoKg > PESO_MAXIMO_KG) {
+        || pesoEstimadoKg > tipoMaterial.pesoMaximoRazonableKg()) {
       return null;
     }
-    return pesoEstimadoKg;
+    return Math.round(pesoEstimadoKg * 10.0) / 10.0;
   }
 
   private String normalizarRecomendacion(String recomendacion) {

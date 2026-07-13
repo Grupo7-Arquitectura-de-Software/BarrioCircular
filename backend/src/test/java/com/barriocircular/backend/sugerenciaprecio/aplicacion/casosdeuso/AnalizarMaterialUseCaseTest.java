@@ -165,6 +165,48 @@ class AnalizarMaterialUseCaseTest {
   }
 
   @Test
+  void elTopeDePesoRazonableDependeDelMaterial() {
+    // 150 kg de botellas PET en una foto no es creíble (tope 100), pero sí lo es
+    // en cartón (tope 200): el mismo peso se descarta o se acepta según el material.
+    AnalisisMaterialRepositorioFake repositorio = new AnalisisMaterialRepositorioFake();
+    AnalizadorMaterialIAPortFake puertoPet =
+        AnalizadorMaterialIAPortFake.queDevuelve(
+            new AnalisisIA(true, true, false, "PET", 150.0, "BUENO", null));
+    AnalizarMaterialUseCase casoUsoPet =
+        new AnalizarMaterialUseCase(repositorio, puertoPet, catalogo);
+
+    AnalisisMaterialResultado resultadoPet =
+        casoUsoPet.ejecutar(new AnalizarMaterialCommand(IMAGEN_VALIDA), "user_123");
+
+    assertNull(resultadoPet.pesoEstimadoKg());
+
+    AnalizadorMaterialIAPortFake puertoCarton =
+        AnalizadorMaterialIAPortFake.queDevuelve(
+            new AnalisisIA(true, true, false, "CARTON", 150.0, "BUENO", null));
+    AnalizarMaterialUseCase casoUsoCarton =
+        new AnalizarMaterialUseCase(repositorio, puertoCarton, catalogo);
+
+    AnalisisMaterialResultado resultadoCarton =
+        casoUsoCarton.ejecutar(new AnalizarMaterialCommand(IMAGEN_VALIDA), "user_123");
+
+    assertEquals(150.0, resultadoCarton.pesoEstimadoKg());
+  }
+
+  @Test
+  void redondeaElPesoAceptadoAUnDecimal() {
+    AnalisisMaterialRepositorioFake repositorio = new AnalisisMaterialRepositorioFake();
+    AnalizadorMaterialIAPortFake puertoIA =
+        AnalizadorMaterialIAPortFake.queDevuelve(
+            new AnalisisIA(true, true, false, "PET", 2.4678, "BUENO", null));
+    AnalizarMaterialUseCase casoUso = new AnalizarMaterialUseCase(repositorio, puertoIA, catalogo);
+
+    AnalisisMaterialResultado resultado =
+        casoUso.ejecutar(new AnalizarMaterialCommand(IMAGEN_VALIDA), "user_123");
+
+    assertEquals(2.5, resultado.pesoEstimadoKg());
+  }
+
+  @Test
   void asumeEstadoBuenoCuandoLaIaRespondeUnEstadoNoReconocido() {
     AnalisisMaterialRepositorioFake repositorio = new AnalisisMaterialRepositorioFake();
     AnalizadorMaterialIAPortFake puertoIA =

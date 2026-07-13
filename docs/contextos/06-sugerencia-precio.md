@@ -48,7 +48,7 @@ AnalisisMaterial {
 | Objeto de Valor | Descripción | Restricciones |
 |----------------|-----------|---------------|
 | `ResultadoAnalisis` | Veredicto del análisis | VALIDO, NO_ES_RECICLAJE, FOTO_NO_CLARA, MULTIPLES_MATERIALES, MATERIAL_NO_SOPORTADO, IA_NO_DISPONIBLE |
-| `TipoMaterialSugerido` | Catálogo de materiales (ACL) | PET, CARTON, VIDRIO, CHATARRA |
+| `TipoMaterialSugerido` | Catálogo de materiales (ACL) con peso máximo razonable por foto | PET (100 kg), CARTON (200), VIDRIO (300), CHATARRA (500) |
 | `EstadoMaterial` | Estado de conservación con factor de precio | EXCELENTE (1.0), BUENO (0.9), REGULAR (0.8) |
 | `PrecioSugerido` | Precio recomendado | > 0 y ≤ 10.00 USD/kg (techo anti-alucinación) |
 | `AnalisisMaterialId` | UUID único | Autogenerado |
@@ -85,9 +85,11 @@ Proceso:
      - varios materiales → MULTIPLES_MATERIALES
      - tipo fuera del catálogo ("OTRO") → MATERIAL_NO_SOPORTADO
      - resto → VALIDO
-  4. Anti-alucinación: peso fuera de [0.1, 1000] kg se descarta (null);
-     estado no reconocido → default BUENO; el precio SIEMPRE lo calcula
-     el backend con el catálogo (nunca la IA)
+  4. Anti-alucinación: el peso se valida con un tope razonable POR MATERIAL
+     (PET 100 kg, CARTON 200, VIDRIO 300, CHATARRA 500; mínimo 0.1) — fuera
+     de rango se descarta (null) — y se redondea a 1 decimal; estado no
+     reconocido → default BUENO; el precio SIEMPRE lo calcula el backend
+     con el catálogo (nunca la IA)
   5. Persistir AnalisisMaterial (auditoría)
 
 Salida: AnalisisMaterialResultado
@@ -131,7 +133,7 @@ record AnalisisMaterialResultado(
 
 - Siempre usa el modelo con visión (`groq.vision-model`, Llama 4 Scout)
 - `temperature=0` y `response_format=json_object` para respuestas estables y parseables
-- Prompt "inspector de materiales reciclables" que exige un JSON exacto con los 7 campos de `AnalisisIA`, con referencias de peso (botella PET ≈ 0.02 kg, caja de cartón ≈ 0.5 kg, etc.)
+- Prompt "inspector de materiales reciclables" que exige un JSON exacto con los 7 campos de `AnalisisIA`. Para el peso usa un método de conteo: identificar unidades → contarlas → multiplicar por pesos unitarios de referencia por material (botella PET 500 ml ≈ 0.02 kg, caja de cartón mediana ≈ 0.5 kg, botella de vidrio ≈ 0.4 kg, lata ≈ 0.015 kg, etc.) → redondear a 1 decimal
 - Cualquier fallo de red/parseo → `Optional.empty()` (nunca propaga)
 
 ### Persistencia

@@ -117,11 +117,25 @@ public class GroqAnalizadorMaterialAdapter implements AnalizadorMaterialIAPort {
            latas, hierro, aluminio. Si es reciclable pero no encaja en esas 4 categorias
            (ej. ropa, madera, electronicos), responde "OTRO". Si esMaterialReciclaje es
            false, responde null.
-        5. pesoEstimadoKg: estima el peso total del material visible, en kilogramos, usando
-           referencias (botella PET de 500 ml vacia = 0.02 kg aprox, caja de carton mediana
-           = 0.5 kg aprox, botella de vidrio = 0.4 kg aprox, lata de aluminio = 0.015 kg
-           aprox). Debe estar entre 0.1 y 1000. Si no puedes estimarlo con la foto,
-           responde null. No inventes un valor.
+        5. pesoEstimadoKg: estima el peso total SOLO del material visible siguiendo este
+           metodo: (a) identifica las unidades visibles y su tamano; (b) cuenta o aproxima
+           cuantas unidades hay (si estan apiladas o en fundas, estima por volumen);
+           (c) multiplica por el peso unitario de referencia; (d) redondea a 1 decimal.
+           Pesos unitarios de referencia:
+           - PET: botella de 500 ml vacia = 0.02 kg; botella de 2-3 L = 0.05 kg;
+             funda o saco lleno de botellas = 2 a 4 kg.
+           - CARTON: caja pequena plegada = 0.2 kg; caja mediana = 0.5 kg; caja grande =
+             1 kg; pila de laminas de 30 cm de alto = 5 kg aprox.
+           - VIDRIO: botella = 0.4 kg; frasco = 0.25 kg; jaba o caja llena de botellas =
+             8 kg aprox.
+           - CHATARRA: lata de aluminio = 0.015 kg; funda llena de latas = 1 kg;
+             olla o pieza metalica mediana = 1 a 3 kg; pieza grande (tubo, plancha,
+             electrodomestico) = 5 a 20 kg.
+           El resultado debe ser coherente con lo que se ve: una foto tipica de reciclaje
+           domestico suele pesar entre 0.5 y 30 kg; sospecha de cualquier resultado mayor
+           a 100 y recalcula. Casi siempre es posible dar un estimado aproximado; responde
+           null solo si el material casi no se distingue. Minimo 0.1 (una sola botella o
+           lata cuenta como 0.1).
         6. estadoMaterial: EXCELENTE = limpio, seco y sin danos; BUENO = uso normal con
            suciedad leve; REGULAR = sucio, humedo, aplastado o deteriorado. null si
            esMaterialReciclaje es false.

@@ -27,4 +27,12 @@ class TipoMaterialSugeridoTest {
     assertThrows(
         TipoMaterialSugeridoInvalidoException.class, () -> TipoMaterialSugerido.desde(null));
   }
+
+  @Test
+  void cadaMaterialTieneUnPesoMaximoRazonableAcordeASuDensidad() {
+    assertEquals(100.0, TipoMaterialSugerido.PET.pesoMaximoRazonableKg());
+    assertEquals(200.0, TipoMaterialSugerido.CARTON.pesoMaximoRazonableKg());
+    assertEquals(300.0, TipoMaterialSugerido.VIDRIO.pesoMaximoRazonableKg());
+    assertEquals(500.0, TipoMaterialSugerido.CHATARRA.pesoMaximoRazonableKg());
+  }
 }
