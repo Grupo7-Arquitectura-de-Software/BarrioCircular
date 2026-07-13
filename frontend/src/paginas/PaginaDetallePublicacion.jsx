@@ -84,7 +84,8 @@ const PaginaDetallePublicacion = ({ rol = "recolector" }) => {
             precioPorKilo={`$${Number(publicacion.precioPorKilo).toFixed(2)}`}
             descripcion={`Publicado el ${new Date(publicacion.fechaCreacion).toLocaleDateString()}.`}
             estado={etiquetaEstadoPublicacion(publicacion.estado)}
-            vendedor="Vendedor de la comunidad"
+            vendedor={publicacion.nombreCreador || "Vendedor de la comunidad"}
+            telefonoCreador={publicacion.telefonoCreador}
             rotuloVendedor="VENDEDOR"
             calificacionVendedor="—"
             detalleCalificacion="Sin calificaciones aún"

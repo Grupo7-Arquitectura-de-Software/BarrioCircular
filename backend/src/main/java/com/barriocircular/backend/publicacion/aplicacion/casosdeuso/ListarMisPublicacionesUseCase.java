@@ -7,6 +7,7 @@ import com.barriocircular.backend.publicacion.aplicacion.puertos.PerfilConsultor
 import com.barriocircular.backend.publicacion.dominio.modelo.CiudadanoId;
 import com.barriocircular.backend.publicacion.dominio.repositorios.PublicacionRepositorio;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,8 @@ public class ListarMisPublicacionesUseCase {
   private final PerfilConsultor perfilConsultor;
 
   public ListarMisPublicacionesUseCase(
-      PublicacionRepositorio publicacionRepositorio, PerfilConsultor perfilConsultor) {
+      PublicacionRepositorio publicacionRepositorio,
+      @Qualifier("perfilConsultorPublicacion") PerfilConsultor perfilConsultor) {
     this.publicacionRepositorio = publicacionRepositorio;
     this.perfilConsultor = perfilConsultor;
   }

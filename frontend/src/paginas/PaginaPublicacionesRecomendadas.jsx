@@ -138,6 +138,7 @@ const PaginaPublicacionesRecomendadas = ({ rol = "recolector" }) => {
                     ubicacion={barrioMasCercano(publicacion.latitud, publicacion.longitud)}
                     descripcion={`Publicado el ${new Date(publicacion.fechaCreacion).toLocaleDateString()}`}
                     imagenUrl={publicacion.evidenciaUrl}
+                    telefonoCreador={publicacion.telefonoCreador}
                     alVerDetalle={() => navigate(`/${rol}/detalle/${publicacion.publicacionId}`)}
                     alReservar={() => reservar(publicacion.publicacionId)}
                     reservando={reservandoId === publicacion.publicacionId}

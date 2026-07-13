@@ -19,9 +19,9 @@ import {
   MdVerified,
 } from "react-icons/md";
 import { LuLeaf } from "react-icons/lu";
+import { FaWhatsapp } from "react-icons/fa";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion.jsx";
-import ChatdeCoordinacion from "../componentes/organismos/ChatdeCoordinacion";
 import Icono from "../componentes/atomos/Icono.jsx";
 import {
   NAVEGACION_CIUDADANO,
@@ -31,7 +31,7 @@ import {
 
 /**
  * Coordinación de recolección (mockup Entregable 3): resumen de la
- * publicación reservada a la izquierda y chat con el comprador a la derecha.
+ * publicación reservada a la izquierda y recordatorio de WhatsApp a la derecha.
  */
 const PaginadeColeccionCoordenadas = ({ prefijoRuta = "/ciudadano" }) => {
   const navigate = useNavigate();
@@ -181,9 +181,36 @@ const PaginadeColeccionCoordenadas = ({ prefijoRuta = "/ciudadano" }) => {
           </Button>
         </VStack>
 
-        {/* Chat */}
-        <Box gridColumn={{ lg: "span 3" }} h={{ lg: "calc(100vh - 160px)" }} minH="480px">
-          <ChatdeCoordinacion participante="Carlos R." />
+        {/* WhatsApp Panel */}
+        <Box gridColumn={{ lg: "span 3" }} h="100%">
+          <Box
+            bg="fondo.tarjeta"
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="xl"
+            p={8}
+            h="100%"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+          >
+            <Box color="#25D366" bg="green.50" p={6} borderRadius="full" mb={6}>
+              <FaWhatsapp size={64} />
+            </Box>
+            <Text fontFamily="heading" fontWeight="700" fontSize="2xl" mb={3}>
+              Coordinación por WhatsApp
+            </Text>
+            <Text color="gray.600" maxW="400px" mb={6}>
+              La coordinación de la entrega se realiza directamente por WhatsApp. El recolector se
+              contactará contigo para acordar los detalles.
+            </Text>
+            <Text fontSize="sm" color="gray.500">
+              Recuerda tener a mano el material empacado y tu código QR si el recolector lo
+              solicita.
+            </Text>
+          </Box>
         </Box>
       </SimpleGrid>
     </DiseniodeAplicacion>

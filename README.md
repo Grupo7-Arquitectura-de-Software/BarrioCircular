@@ -6,19 +6,19 @@ Plataforma inteligente que conecta ciudadanos, recicladores y centros de acopio 
 
 ## Tabla de Contenidos
 
-- [ Motivación](#-motivación)
-- [ Características Principales](#-características-principales)
-- [ Arquitectura del Proyecto](#️-arquitectura-del-proyecto)
-- [ Stack Tecnológico](#️-stack-tecnológico)
-- [ Contextos del Dominio](#-contextos-del-dominio)
-- [ Capturas de Pantalla](#-capturas-de-pantalla)
-- [ Estructura del Proyecto](#-estructura-del-proyecto)
-- [ Guía de Instalación](#-guía-de-instalación)
-- [ Variables de Entorno](#-variables-de-entorno)
-- [ Despliegue con Docker](#-despliegue-con-docker)
-- [ Documentación Adicional](#-documentación-adicional)
-- [ Autores](#️-autores)
-- [ Licencia](#-licencia)
+- [ Motivación](#motivación)
+- [ Características Principales](#características-principales)
+- [ Arquitectura del Proyecto](#arquitectura-del-proyecto)
+- [ Stack Tecnológico](#stack-tecnológico)
+- [ Contextos del Dominio](#contextos-del-dominio)
+- [ Capturas de Pantalla](#capturas-de-pantalla)
+- [ Estructura del Proyecto](#estructura-del-proyecto)
+- [ Guía de Instalación](#guía-de-instalación)
+- [ Variables de Entorno](#variables-de-entorno)
+- [ Despliegue con Docker](#despliegue-con-docker)
+- [ Documentación Adicional](#documentación-adicional)
+- [ Autores](#autores)
+- [ Licencia](#licencia)
 
 ---
 

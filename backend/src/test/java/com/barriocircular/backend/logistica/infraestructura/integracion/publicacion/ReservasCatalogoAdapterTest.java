@@ -133,7 +133,9 @@ class ReservasCatalogoAdapterTest {
         "https://example.com/evidencia.jpg",
         estado,
         fechaCreacion,
-        reservadoPor);
+        reservadoPor,
+        "Vendedor Demo",
+        "0991234567");
   }
 
   private PerfilUsuario perfil(
