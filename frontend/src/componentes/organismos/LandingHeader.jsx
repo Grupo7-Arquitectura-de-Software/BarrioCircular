@@ -61,7 +61,11 @@ const LandingHeader = () => {
           fontWeight="600"
           fontSize="sm"
           _hover={{ color: "marca.primario", textDecoration: "none" }}
-          _focusVisible={{ outline: "2px solid", outlineColor: "marca.primario", outlineOffset: "3px" }}
+          _focusVisible={{
+            outline: "2px solid",
+            outlineColor: "marca.primario",
+            outlineOffset: "3px",
+          }}
           onClick={cerrarMenu}
         >
           {enlace.etiqueta}
@@ -90,7 +94,11 @@ const LandingHeader = () => {
         <Link
           href="#inicio"
           _hover={{ textDecoration: "none" }}
-          _focusVisible={{ outline: "2px solid", outlineColor: "marca.primario", outlineOffset: "3px" }}
+          _focusVisible={{
+            outline: "2px solid",
+            outlineColor: "marca.primario",
+            outlineOffset: "3px",
+          }}
           onClick={cerrarMenu}
         >
           <LogotipoApp tamanio="sm" orientacion="horizontal" />
@@ -101,10 +109,20 @@ const LandingHeader = () => {
         </HStack>
 
         <HStack gap={3} display={{ base: "none", lg: "flex" }}>
-          <Button variant="outline" colorPalette="verde" rounded="lg" onClick={() => navigate("/auth")}>
+          <Button
+            variant="outline"
+            colorPalette="verde"
+            rounded="lg"
+            onClick={() => navigate("/auth")}
+          >
             Iniciar sesión
           </Button>
-          <Button colorPalette="verde" bg="marca.primario" rounded="lg" onClick={() => navigate("/seleccionar-rol")}>
+          <Button
+            colorPalette="verde"
+            bg="marca.primario"
+            rounded="lg"
+            onClick={() => navigate("/seleccionar-rol")}
+          >
             Únete ahora
           </Button>
         </HStack>
@@ -122,7 +140,11 @@ const LandingHeader = () => {
         </IconButton>
       </Flex>
 
-      <Drawer.Root open={menuAbierto} onOpenChange={(evento) => setMenuAbierto(evento.open)} placement="end">
+      <Drawer.Root
+        open={menuAbierto}
+        onOpenChange={(evento) => setMenuAbierto(evento.open)}
+        placement="end"
+      >
         <Portal>
           <Drawer.Backdrop />
           <Drawer.Positioner>
@@ -137,10 +159,20 @@ const LandingHeader = () => {
                   </VStack>
                   <Box borderTop="1px solid" borderColor="gray.200" pt={5}>
                     <VStack align="stretch" gap={3}>
-                      <Button variant="outline" colorPalette="verde" rounded="lg" onClick={() => navegarARuta("/auth")}>
+                      <Button
+                        variant="outline"
+                        colorPalette="verde"
+                        rounded="lg"
+                        onClick={() => navegarARuta("/auth")}
+                      >
                         Iniciar sesión
                       </Button>
-                      <Button colorPalette="verde" bg="marca.primario" rounded="lg" onClick={() => navegarARuta("/seleccionar-rol")}>
+                      <Button
+                        colorPalette="verde"
+                        bg="marca.primario"
+                        rounded="lg"
+                        onClick={() => navegarARuta("/seleccionar-rol")}
+                      >
                         Únete ahora
                       </Button>
                     </VStack>

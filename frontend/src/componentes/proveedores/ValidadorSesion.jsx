@@ -108,7 +108,15 @@ const ValidadorSesion = ({ children }) => {
     return () => {
       componenteActivoRef.current = false;
     };
-  }, [esRutaLandingPublica, esRutaVerificacionPublica, getToken, isLoaded, isSignedIn, navigate, pathname]);
+  }, [
+    esRutaLandingPublica,
+    esRutaVerificacionPublica,
+    getToken,
+    isLoaded,
+    isSignedIn,
+    navigate,
+    pathname,
+  ]);
 
   if (esRutaLandingPublica || esRutaVerificacionPublica) {
     return children;

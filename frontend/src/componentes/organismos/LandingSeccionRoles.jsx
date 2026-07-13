@@ -34,7 +34,14 @@ const LandingSeccionRoles = () => {
   const navigate = useNavigate();
 
   return (
-    <Box as="section" id="roles" scrollMarginTop="96px" px={{ base: 4, md: 8 }} py={{ base: 10, md: 14 }} bg="fondo.pagina">
+    <Box
+      as="section"
+      id="roles"
+      scrollMarginTop="96px"
+      px={{ base: 4, md: 8 }}
+      py={{ base: 10, md: 14 }}
+      bg="fondo.pagina"
+    >
       <VStack maxW="1180px" mx="auto" gap={8}>
         <VStack gap={2} textAlign="center" maxW="700px">
           <Text as="h2" fontFamily="heading" fontWeight="800" fontSize={{ base: "3xl", md: "4xl" }}>

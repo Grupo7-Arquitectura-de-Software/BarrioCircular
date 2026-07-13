@@ -28,8 +28,19 @@ const LandingHero = () => {
         w="100%"
         alignItems="center"
       >
-        <VStack align={{ base: "stretch", md: "start" }} gap={5} textAlign={{ base: "center", md: "left" }}>
-          <Badge colorPalette="verde" variant="subtle" px={3} py={1} borderRadius="full" alignSelf={{ base: "center", md: "start" }}>
+        <VStack
+          align={{ base: "stretch", md: "start" }}
+          gap={5}
+          textAlign={{ base: "center", md: "left" }}
+        >
+          <Badge
+            colorPalette="verde"
+            variant="subtle"
+            px={3}
+            py={1}
+            borderRadius="full"
+            alignSelf={{ base: "center", md: "start" }}
+          >
             Reciclaje conectado con tu comunidad
           </Badge>
           <VStack align={{ base: "center", md: "start" }} gap={4}>
@@ -44,10 +55,16 @@ const LandingHero = () => {
               Convierte tus residuos en nuevas oportunidades
             </Text>
             <Text color="gray.700" fontSize={{ base: "md", md: "lg" }} maxW="620px">
-              Conecta con recicladores y centros de acopio para publicar, recolectar y aprovechar materiales reciclables de forma organizada.
+              Conecta con recicladores y centros de acopio para publicar, recolectar y aprovechar
+              materiales reciclables de forma organizada.
             </Text>
           </VStack>
-          <Flex gap={3} wrap="wrap" w={{ base: "100%", sm: "auto" }} justify={{ base: "stretch", sm: "center", md: "start" }}>
+          <Flex
+            gap={3}
+            wrap="wrap"
+            w={{ base: "100%", sm: "auto" }}
+            justify={{ base: "stretch", sm: "center", md: "start" }}
+          >
             <Button
               colorPalette="verde"
               bg="marca.primario"
@@ -58,13 +75,25 @@ const LandingHero = () => {
             >
               Comenzar a reciclar
             </Button>
-            <Button as="a" href="#como-funciona" variant="outline" colorPalette="verde" size="lg" rounded="lg" w={{ base: "100%", sm: "auto" }}>
+            <Button
+              as="a"
+              href="#como-funciona"
+              variant="outline"
+              colorPalette="verde"
+              size="lg"
+              rounded="lg"
+              w={{ base: "100%", sm: "auto" }}
+            >
               Ver cómo funciona
             </Button>
           </Flex>
         </VStack>
 
-        <Box position="relative" minH={{ base: "340px", sm: "360px", md: "390px" }} overflow="hidden">
+        <Box
+          position="relative"
+          minH={{ base: "340px", sm: "360px", md: "390px" }}
+          overflow="hidden"
+        >
           <Box
             position="absolute"
             inset={{ base: "16px 0", md: "14px" }}
@@ -122,7 +151,12 @@ const LandingHero = () => {
                   ml={{ base: 0, md: indice === 1 ? 10 : 0 }}
                   position="relative"
                 >
-                  <Circle size="54px" bg={indice === 1 ? "marca.primario" : "verde.50"} color={indice === 1 ? "white" : "marca.primario"} flexShrink={0}>
+                  <Circle
+                    size="54px"
+                    bg={indice === 1 ? "marca.primario" : "verde.50"}
+                    color={indice === 1 ? "white" : "marca.primario"}
+                    flexShrink={0}
+                  >
                     <IconoActor size="28px" aria-hidden="true" />
                   </Circle>
                   <Box flex="1">
