@@ -22,6 +22,7 @@ const ValidadorSesion = ({ children }) => {
   const [mensajeError, setMensajeError] = useState("");
   const verificacionIniciadaRef = useRef(false);
   const componenteActivoRef = useRef(true);
+  const esRutaLandingPublica = pathname === "/";
   const esRutaVerificacionPublica = pathname.startsWith(RUTA_VERIFICACION_PUBLICA);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const ValidadorSesion = ({ children }) => {
       };
     }
 
-    if (esRutaVerificacionPublica) {
+    if (esRutaLandingPublica || esRutaVerificacionPublica) {
       return () => {
         componenteActivoRef.current = false;
       };
@@ -42,7 +43,10 @@ const ValidadorSesion = ({ children }) => {
     if (!isSignedIn) {
       verificacionIniciadaRef.current = false;
 
-      if (!RUTAS_PUBLICAS.some((ruta) => pathname.startsWith(ruta))) {
+      const esRutaPublica =
+        pathname === "/" || RUTAS_PUBLICAS.some((ruta) => pathname.startsWith(ruta));
+
+      if (!esRutaPublica) {
         navigate("/seleccionar-rol", { replace: true });
       }
 
@@ -104,9 +108,9 @@ const ValidadorSesion = ({ children }) => {
     return () => {
       componenteActivoRef.current = false;
     };
-  }, [esRutaVerificacionPublica, getToken, isLoaded, isSignedIn, navigate, pathname]);
+  }, [esRutaLandingPublica, esRutaVerificacionPublica, getToken, isLoaded, isSignedIn, navigate, pathname]);
 
-  if (esRutaVerificacionPublica) {
+  if (esRutaLandingPublica || esRutaVerificacionPublica) {
     return children;
   }
 

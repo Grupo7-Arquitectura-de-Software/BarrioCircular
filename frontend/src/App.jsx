@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import PaginaLandingPublica from "@/paginas/PaginaLandingPublica.jsx";
 import PaginadeSeleccionRol from "@/paginas/PaginadeSeleccionRol.jsx";
 import PaginaAutenticacion from "@/paginas/PaginaAutenticacion.jsx";
 import PaginaCompletarPerfil from "@/paginas/PaginaCompletarPerfil.jsx";
@@ -37,7 +38,7 @@ function App() {
     <BrowserRouter>
       <ValidadorSesion>
         <Routes>
-          <Route path="/" element={<Navigate to="/seleccionar-rol" replace />} />
+          <Route path="/" element={<PaginaLandingPublica />} />
           <Route path="/seleccionar-rol" element={<PaginadeSeleccionRol />} />
           <Route path="/auth/*" element={<PaginaAutenticacion />} />
           <Route path="/verificar/:token" element={<PaginaVerificacionIdentidadPublica />} />
