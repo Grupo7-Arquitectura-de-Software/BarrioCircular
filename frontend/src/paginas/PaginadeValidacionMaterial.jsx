@@ -38,9 +38,7 @@ const MAX_OBSERVACIONES = 1000;
 const normalizarNumero = (valor) => Number(String(valor).replace(",", "."));
 
 const combinarObservaciones = (seleccionadas, observacionLibre) => {
-  const partes = [...seleccionadas, observacionLibre]
-    .map((texto) => texto?.trim())
-    .filter(Boolean);
+  const partes = [...seleccionadas, observacionLibre].map((texto) => texto?.trim()).filter(Boolean);
   const unicas = [...new Set(partes)];
   const combinadas = unicas.join(" ");
   return combinadas.length > 0 ? combinadas : null;
@@ -194,9 +192,7 @@ const PaginadeValidacionMaterial = () => {
           <Text fontFamily="heading" fontWeight="700" fontSize={{ base: "2xl", md: "3xl" }}>
             Verificar material recolectado
           </Text>
-          <Text color="gray.600">
-            Confirma el peso real antes de cerrar la operación.
-          </Text>
+          <Text color="gray.600">Confirma el peso real antes de cerrar la operación.</Text>
         </VStack>
 
         {cargando ? (
@@ -268,9 +264,7 @@ const PaginadeValidacionMaterial = () => {
                 </Flex>
                 <Flex justify="space-between" gap={3}>
                   <Text color="gray.600">Precio por kg</Text>
-                  <Text fontWeight="700">
-                    ${Number(publicacion.precioPorKilo).toFixed(2)}
-                  </Text>
+                  <Text fontWeight="700">${Number(publicacion.precioPorKilo).toFixed(2)}</Text>
                 </Flex>
               </VStack>
             </Box>

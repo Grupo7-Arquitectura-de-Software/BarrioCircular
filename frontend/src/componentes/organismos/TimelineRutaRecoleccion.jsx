@@ -100,7 +100,9 @@ const TimelineRutaRecoleccion = ({
 
             <Box
               flex="1"
-              bg={["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? "fondo.pagina" : "transparent"}
+              bg={
+                ["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? "fondo.pagina" : "transparent"
+              }
               border={["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? "1px solid" : "none"}
               borderColor="verde.300"
               borderRadius="lg"

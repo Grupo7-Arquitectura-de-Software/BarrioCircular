@@ -78,9 +78,10 @@ class LogisticaRecoleccionControllerTest {
             iniciarRutaRecoleccionUseCase,
             finalizarRutaRecoleccionUseCase,
             obtenerPerfilPorClerkIdUseCase);
-    mockMvc = MockMvcBuilders.standaloneSetup(controlador)
-        .setControllerAdvice(new GlobalExceptionHandler())
-        .build();
+    mockMvc =
+        MockMvcBuilders.standaloneSetup(controlador)
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .build();
   }
 
   @Test
@@ -133,7 +134,8 @@ class LogisticaRecoleccionControllerTest {
                     }
                     """))
         .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.error").value("No existen reservas activas para construir la ruta."));
+        .andExpect(
+            jsonPath("$.error").value("No existen reservas activas para construir la ruta."));
   }
 
   @Test

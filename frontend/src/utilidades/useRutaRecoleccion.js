@@ -76,7 +76,8 @@ export const useRutaRecoleccion = () => {
           setSinReservasElegibles(true);
           toaster.create({
             title: "Aún no tienes recolecciones reservadas",
-            description: "Reserva una publicación disponible y vuelve para construir tu ruta de hoy.",
+            description:
+              "Reserva una publicación disponible y vuelve para construir tu ruta de hoy.",
             type: "info",
             duration: 4500,
           });

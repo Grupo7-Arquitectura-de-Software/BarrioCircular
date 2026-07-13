@@ -164,9 +164,7 @@ const PaginaRutaRecoleccion = () => {
     };
     const rutaActualizada = await registrarLlegada(ruta.rutaId, paradaId, datosLlegada);
     if (rutaActualizada) {
-      const paradaActualizada = rutaActualizada.paradas?.find(
-        (item) => item.paradaId === paradaId,
-      );
+      const paradaActualizada = rutaActualizada.paradas?.find((item) => item.paradaId === paradaId);
       toaster.create({
         title: "Llegada registrada",
         description: "Verifica el material para completar la recolección.",
