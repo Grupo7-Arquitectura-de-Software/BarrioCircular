@@ -18,6 +18,10 @@ const ESTADO_PARADA = {
     etiqueta: "En curso",
     color: "azul",
   },
+  EN_PROGRESO: {
+    etiqueta: "En progreso",
+    color: "azul",
+  },
   PENDIENTE: {
     etiqueta: "Pendiente",
     color: "gray",
@@ -50,6 +54,13 @@ const IndicadorParada = ({ estado }) => {
       </Circle>
     );
   }
+  if (estado === "EN_PROGRESO") {
+    return (
+      <Circle size="28px" border="2px solid" borderColor="marca.primario" bg="fondo.tarjeta">
+        <MdOutlineLocalShipping size={16} color="var(--chakra-colors-marca-primario)" />
+      </Circle>
+    );
+  }
   return (
     <Circle size="28px" bg="fondo.cabeceraTarjeta" color="gray.500">
       <MdOutlineAccessTime size={15} />
@@ -57,7 +68,7 @@ const IndicadorParada = ({ estado }) => {
   );
 };
 
-const ESTADOS_PARA_REGISTRAR = ["PENDIENTE", "EN_CURSO"];
+const ESTADOS_PARA_REGISTRAR = ["PENDIENTE", "EN_PROGRESO"];
 
 const TimelineRutaRecoleccion = ({
   paradas = [],
@@ -89,12 +100,14 @@ const TimelineRutaRecoleccion = ({
 
             <Box
               flex="1"
-              bg={parada.estado === "EN_CURSO" ? "fondo.pagina" : "transparent"}
-              border={parada.estado === "EN_CURSO" ? "1px solid" : "none"}
+              bg={
+                ["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? "fondo.pagina" : "transparent"
+              }
+              border={["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? "1px solid" : "none"}
               borderColor="verde.300"
               borderRadius="lg"
-              px={parada.estado === "EN_CURSO" ? 4 : 0}
-              py={parada.estado === "EN_CURSO" ? 3 : 0}
+              px={["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? 4 : 0}
+              py={["EN_CURSO", "EN_PROGRESO"].includes(parada.estado) ? 3 : 0}
               mb={indice < paradas.length - 1 ? 5 : 0}
             >
               <Flex
@@ -143,9 +156,9 @@ const TimelineRutaRecoleccion = ({
                   rounded="lg"
                   loadingText="Registrando"
                   isLoading={registrandoLlegada && paradaRegistrando === parada.paradaId}
-                  onClick={() => onRegistrarLlegada(parada.paradaId)}
+                  onClick={() => onRegistrarLlegada(parada)}
                 >
-                  Registrar llegada
+                  {parada.estado === "EN_PROGRESO" ? "Continuar verificación" : "Registrar llegada"}
                 </Button>
               )}
             </Box>

@@ -44,6 +44,11 @@ public class PublicacionEntity {
   @Column(name = "reservado_por")
   private UUID reservadoPor;
 
+  private Double pesoRealVerificado;
+
+  @Column(length = 1000)
+  private String observacionesVerificacion;
+
   protected PublicacionEntity() {}
 
   public PublicacionEntity(
@@ -57,7 +62,9 @@ public class PublicacionEntity {
       String evidenciaUrl,
       Instant fechaCreacion,
       String estado,
-      UUID reservadoPor) {
+      UUID reservadoPor,
+      Double pesoRealVerificado,
+      String observacionesVerificacion) {
     this.id = id;
     this.creadorId = creadorId;
     this.tipoResiduo = tipoResiduo;
@@ -69,6 +76,8 @@ public class PublicacionEntity {
     this.fechaCreacion = fechaCreacion;
     this.estado = estado;
     this.reservadoPor = reservadoPor;
+    this.pesoRealVerificado = pesoRealVerificado;
+    this.observacionesVerificacion = observacionesVerificacion;
   }
 
   public UUID getId() {
@@ -113,5 +122,13 @@ public class PublicacionEntity {
 
   public UUID getReservadoPor() {
     return reservadoPor;
+  }
+
+  public Double getPesoRealVerificado() {
+    return pesoRealVerificado;
+  }
+
+  public String getObservacionesVerificacion() {
+    return observacionesVerificacion;
   }
 }

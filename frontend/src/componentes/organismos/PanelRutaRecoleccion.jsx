@@ -25,6 +25,7 @@ const obtenerEstadoRuta = (estado) =>
   ESTADOS_RUTA[estado] || { etiqueta: "Sin ruta", color: "gray" };
 
 const obtenerParadaActual = (paradas) =>
+  paradas.find((parada) => parada.estado === "EN_PROGRESO") ||
   paradas.find((parada) => parada.estado === "EN_CURSO") ||
   paradas.find((parada) => parada.estado === "PENDIENTE") ||
   paradas[0];
@@ -38,6 +39,13 @@ const IndicadorParada = ({ estado }) => {
     );
   }
   if (estado === "EN_CURSO") {
+    return (
+      <Circle size="22px" border="2px solid" borderColor="marca.primario" bg="fondo.tarjeta">
+        <MdOutlineLocalShipping size={13} color="var(--chakra-colors-marca-primario)" />
+      </Circle>
+    );
+  }
+  if (estado === "EN_PROGRESO") {
     return (
       <Circle size="22px" border="2px solid" borderColor="marca.primario" bg="fondo.tarjeta">
         <MdOutlineLocalShipping size={13} color="var(--chakra-colors-marca-primario)" />
@@ -113,7 +121,7 @@ const PanelRutaRecoleccion = ({ ruta, cargando = false, mensajeError = "", alVer
         ) : paradasResumen.length > 0 ? (
           <VStack align="stretch" gap={0}>
             {paradasResumen.map((parada, indice) => {
-              const esActual = parada.estado === "EN_CURSO";
+              const esActual = parada.estado === "EN_CURSO" || parada.estado === "EN_PROGRESO";
               return (
                 <Flex key={parada.paradaId || parada.publicacionId} gap={4} align="stretch">
                   <VStack gap={0} align="center">

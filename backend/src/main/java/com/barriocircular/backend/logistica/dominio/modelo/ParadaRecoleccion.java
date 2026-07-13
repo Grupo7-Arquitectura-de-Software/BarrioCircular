@@ -49,16 +49,16 @@ public class ParadaRecoleccion {
         EstadoParadaRecoleccion.PENDIENTE);
   }
 
-  void iniciar() {
+  void iniciar(HorarioParada horarioReal) {
     if (estado != EstadoParadaRecoleccion.PENDIENTE) {
       throw new IllegalStateException("Solo una parada pendiente puede iniciar.");
     }
+    this.horarioReal = Objects.requireNonNull(horarioReal, "El horario real es obligatorio.");
     estado = EstadoParadaRecoleccion.EN_PROGRESO;
   }
 
   void completar(HorarioParada horarioReal) {
-    if (estado != EstadoParadaRecoleccion.PENDIENTE
-        && estado != EstadoParadaRecoleccion.EN_PROGRESO) {
+    if (estado != EstadoParadaRecoleccion.EN_PROGRESO) {
       throw new IllegalStateException("La parada no puede completarse desde su estado actual.");
     }
     this.horarioReal = Objects.requireNonNull(horarioReal, "El horario real es obligatorio.");
@@ -71,6 +71,15 @@ public class ParadaRecoleccion {
       throw new IllegalStateException("La parada no puede omitirse desde su estado actual.");
     }
     estado = EstadoParadaRecoleccion.OMITIDA;
+  }
+
+  boolean estaEnProgreso() {
+    return estado == EstadoParadaRecoleccion.EN_PROGRESO;
+  }
+
+  boolean estaAtendida() {
+    return estado == EstadoParadaRecoleccion.COMPLETADA
+        || estado == EstadoParadaRecoleccion.OMITIDA;
   }
 
   private static int validarOrden(int orden) {

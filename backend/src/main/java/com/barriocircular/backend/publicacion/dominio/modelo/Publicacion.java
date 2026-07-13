@@ -25,6 +25,8 @@ public class Publicacion {
 
   private EstadoPublicacion estado;
   private ReservadorId reservadoPor;
+  private Double pesoRealVerificado;
+  private String observacionesVerificacion;
 
   private final transient List<EventoDominio> eventos = new ArrayList<>();
 
@@ -37,7 +39,9 @@ public class Publicacion {
       EvidenciaVisual evidencia,
       Instant fechaCreacion,
       EstadoPublicacion estado,
-      ReservadorId reservadoPor) {
+      ReservadorId reservadoPor,
+      Double pesoRealVerificado,
+      String observacionesVerificacion) {
     this.id = id;
     this.creador = creador;
     this.detalle = detalle;
@@ -47,6 +51,8 @@ public class Publicacion {
     this.fechaCreacion = fechaCreacion;
     this.estado = estado;
     this.reservadoPor = reservadoPor;
+    this.pesoRealVerificado = pesoRealVerificado;
+    this.observacionesVerificacion = normalizarObservaciones(observacionesVerificacion);
   }
 
   public static Publicacion crear(
@@ -73,6 +79,8 @@ public class Publicacion {
             evidencia,
             Instant.now(),
             EstadoPublicacion.DISPONIBLE,
+            null,
+            null,
             null);
     publicacion.registrar(new PublicacionCreada(id, creador, detalle.tipo(), Instant.now()));
     return publicacion;
@@ -87,7 +95,9 @@ public class Publicacion {
       EvidenciaVisual evidencia,
       Instant fechaCreacion,
       EstadoPublicacion estado,
-      ReservadorId reservadoPor) {
+      ReservadorId reservadoPor,
+      Double pesoRealVerificado,
+      String observacionesVerificacion) {
     return new Publicacion(
         id,
         creador,
@@ -97,7 +107,33 @@ public class Publicacion {
         evidencia,
         fechaCreacion,
         estado,
-        reservadoPor);
+        reservadoPor,
+        pesoRealVerificado,
+        observacionesVerificacion);
+  }
+
+  public static Publicacion reconstituir(
+      PublicacionId id,
+      CiudadanoId creador,
+      DetalleMaterial detalle,
+      PrecioPorKilo precioPorKilo,
+      UbicacionRecogida ubicacion,
+      EvidenciaVisual evidencia,
+      Instant fechaCreacion,
+      EstadoPublicacion estado,
+      ReservadorId reservadoPor) {
+    return reconstituir(
+        id,
+        creador,
+        detalle,
+        precioPorKilo,
+        ubicacion,
+        evidencia,
+        fechaCreacion,
+        estado,
+        reservadoPor,
+        null,
+        null);
   }
 
   public void reservarPublicacionPor(ReservadorId reservador) {
@@ -134,6 +170,16 @@ public class Publicacion {
     registrar(new PublicacionFinalizada(id, reservadoPor, Instant.now()));
   }
 
+  public void finalizarConVerificacion(double pesoRealVerificado, String observaciones) {
+    validarPesoReal(pesoRealVerificado);
+    String observacionesNormalizadas = normalizarObservaciones(observaciones);
+    EstadoPublicacion estadoFinal = estado.transicionarA(EstadoPublicacion.FINALIZADA);
+    this.pesoRealVerificado = pesoRealVerificado;
+    this.observacionesVerificacion = observacionesNormalizadas;
+    this.estado = estadoFinal;
+    registrar(new PublicacionFinalizada(id, reservadoPor, Instant.now()));
+  }
+
   public void cancelar() {
     this.estado = estado.transicionarA(EstadoPublicacion.CANCELADA);
     registrar(new PublicacionCancelada(id, Instant.now()));
@@ -143,6 +189,26 @@ public class Publicacion {
     if (!condicion) {
       throw new PublicacionInvalidaException(mensaje);
     }
+  }
+
+  private static void validarPesoReal(double pesoRealVerificado) {
+    exigir(
+        Double.isFinite(pesoRealVerificado) && pesoRealVerificado > 0,
+        "El peso real verificado debe ser mayor que 0 kg.");
+  }
+
+  private static String normalizarObservaciones(String observaciones) {
+    if (observaciones == null) {
+      return null;
+    }
+    String normalizadas = observaciones.trim();
+    if (normalizadas.isEmpty()) {
+      return null;
+    }
+    exigir(
+        normalizadas.length() <= 1000,
+        "Las observaciones de verificacion no pueden superar 1000 caracteres.");
+    return normalizadas;
   }
 
   private void registrar(EventoDominio evento) {
@@ -191,6 +257,14 @@ public class Publicacion {
 
   public ReservadorId reservadoPor() {
     return reservadoPor;
+  }
+
+  public Double pesoRealVerificado() {
+    return pesoRealVerificado;
+  }
+
+  public String observacionesVerificacion() {
+    return observacionesVerificacion;
   }
 
   @Override

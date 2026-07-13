@@ -2,6 +2,7 @@ package com.barriocircular.backend.logistica.aplicacion.casosdeuso;
 
 import com.barriocircular.backend.logistica.aplicacion.dto.ReservaCatalogo;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
+import com.barriocircular.backend.logistica.aplicacion.excepciones.SinReservasElegiblesException;
 import com.barriocircular.backend.logistica.aplicacion.puertos.AlmacenRutaRecoleccionPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.ReservasCatalogoPort;
 import com.barriocircular.backend.logistica.aplicacion.puertos.UbicacionRecicladorPort;
@@ -63,7 +64,8 @@ public class ConstruirRutaRecoleccionUseCase {
     List<ReservaCatalogo> reservas =
         reservasCatalogoPort.obtenerReservasActivasPorReciclador(recicladorId);
     if (reservas.isEmpty()) {
-      throw new IllegalStateException("No existen reservas activas para construir la ruta.");
+      throw new SinReservasElegiblesException(
+          "No existen reservas activas para construir la ruta.");
     }
 
     CoordenadaGPS ubicacionReciclador =

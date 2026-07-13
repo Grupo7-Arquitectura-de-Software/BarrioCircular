@@ -10,15 +10,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConfirmarRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.FinalizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.dto.ConfirmacionRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.CoordenadaRutaResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.ParadaRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
+import com.barriocircular.backend.logistica.aplicacion.excepciones.SinReservasElegiblesException;
 import com.barriocircular.backend.perfiles.aplicacion.casosdeuso.ObtenerPerfilPorClerkIdUseCase;
 import com.barriocircular.backend.perfiles.aplicacion.dto.PerfilResultado;
 import java.time.Instant;
@@ -45,6 +48,7 @@ class LogisticaRecoleccionControllerTest {
   private FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase;
   private ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
+  private ConfirmarRecoleccionUseCase confirmarRecoleccionUseCase;
   private ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
   private MockMvc mockMvc;
   private UUID recicladorId;
@@ -58,6 +62,7 @@ class LogisticaRecoleccionControllerTest {
     finalizarRutaRecoleccionUseCase = mock(FinalizarRutaRecoleccionUseCase.class);
     obtenerRutaPorIdUseCase = mock(ObtenerRutaPorIdUseCase.class);
     registrarLlegadaParadaUseCase = mock(RegistrarLlegadaParadaUseCase.class);
+    confirmarRecoleccionUseCase = mock(ConfirmarRecoleccionUseCase.class);
     obtenerPerfilPorClerkIdUseCase = mock(ObtenerPerfilPorClerkIdUseCase.class);
     recicladorId = UUID.randomUUID();
     when(obtenerPerfilPorClerkIdUseCase.ejecutar("user_123")).thenReturn(perfilReciclador());
@@ -69,10 +74,14 @@ class LogisticaRecoleccionControllerTest {
             actualizarRutaRecoleccionUseCase,
             obtenerRutaPorIdUseCase,
             registrarLlegadaParadaUseCase,
+            confirmarRecoleccionUseCase,
             iniciarRutaRecoleccionUseCase,
             finalizarRutaRecoleccionUseCase,
             obtenerPerfilPorClerkIdUseCase);
-    mockMvc = MockMvcBuilders.standaloneSetup(controlador).build();
+    mockMvc =
+        MockMvcBuilders.standaloneSetup(controlador)
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .build();
   }
 
   @Test
@@ -102,6 +111,31 @@ class LogisticaRecoleccionControllerTest {
         .andExpect(jsonPath("$.paradas[0].orden").value(1))
         .andExpect(jsonPath("$.paradas[0].tipoResiduo").value("CARTON"))
         .andExpect(jsonPath("$.paradas[0].pesoKg").value(12.5));
+  }
+
+  @Test
+  void construirRutaSinReservasElegiblesDevuelve422() throws Exception {
+    when(construirRutaRecoleccionUseCase.ejecutar(
+            eq(recicladorId), eq(LocalTime.of(9, 0)), eq(LocalDate.of(2026, 7, 9))))
+        .thenThrow(
+            new SinReservasElegiblesException(
+                "No existen reservas activas para construir la ruta."));
+
+    mockMvc
+        .perform(
+            post("/api/logistica/rutas")
+                .principal(autenticacion("user_123"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                      "fechaRuta": "2026-07-09",
+                      "horaInicioRuta": "09:00:00"
+                    }
+                    """))
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(
+            jsonPath("$.error").value("No existen reservas activas para construir la ruta."));
   }
 
   @Test
@@ -135,7 +169,7 @@ class LogisticaRecoleccionControllerTest {
   }
 
   @Test
-  void registrarLlegadaDevuelve200ConParadaCompletada() throws Exception {
+  void registrarLlegadaDevuelve200ConParadaEnProgreso() throws Exception {
     RutaRecoleccionResultado resultado = rutaResultadoConLlegada();
     UUID rutaId = resultado.rutaId();
     UUID paradaId = resultado.paradas().get(0).paradaId();
@@ -158,7 +192,41 @@ class LogisticaRecoleccionControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.origen.latitud").value(-0.180653))
         .andExpect(jsonPath("$.origen.longitud").value(-78.467838))
-        .andExpect(jsonPath("$.paradas[0].estado").value("COMPLETADA"));
+        .andExpect(jsonPath("$.paradas[0].estado").value("EN_PROGRESO"));
+  }
+
+  @Test
+  void confirmarRecoleccionDevuelve200ConResultadoMinimo() throws Exception {
+    UUID rutaId = UUID.randomUUID();
+    UUID paradaId = UUID.randomUUID();
+    UUID publicacionId = UUID.randomUUID();
+    ConfirmacionRecoleccionResultado resultado =
+        new ConfirmacionRecoleccionResultado(
+            rutaId, "EN_CURSO", paradaId, "COMPLETADA", publicacionId, "FINALIZADA", 11.4, false);
+    when(confirmarRecoleccionUseCase.ejecutar(
+            eq(recicladorId), eq(rutaId), eq(paradaId), eq(11.4), eq("Material humedo.")))
+        .thenReturn(resultado);
+
+    mockMvc
+        .perform(
+            post("/api/logistica/rutas/{rutaId}/paradas/{paradaId}/confirmar", rutaId, paradaId)
+                .principal(autenticacion("user_123"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                      "pesoRealVerificado": 11.4,
+                      "observaciones": "Material humedo."
+                    }
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.rutaId").value(rutaId.toString()))
+        .andExpect(jsonPath("$.paradaId").value(paradaId.toString()))
+        .andExpect(jsonPath("$.publicacionId").value(publicacionId.toString()))
+        .andExpect(jsonPath("$.estadoParada").value("COMPLETADA"))
+        .andExpect(jsonPath("$.estadoPublicacion").value("FINALIZADA"))
+        .andExpect(jsonPath("$.pesoRealVerificado").value(11.4))
+        .andExpect(jsonPath("$.rutaTerminada").value(false));
   }
 
   @Test
@@ -240,7 +308,7 @@ class LogisticaRecoleccionControllerTest {
                 parada.publicacionId(),
                 parada.tipoResiduo(),
                 parada.pesoKg(),
-                "COMPLETADA",
+                "EN_PROGRESO",
                 parada.orden(),
                 parada.horaLlegadaEstimada(),
                 java.time.ZonedDateTime.parse("2026-07-09T10:15:00-05:00[America/Guayaquil]"),

@@ -46,7 +46,13 @@ const CentrarMapa = ({ latitud, longitud }) => {
  * las coordenadas caigan dentro del área de Quito que acepta el backend.
  * `valor`: { latitud, longitud } | null. `alCambiar(latitud, longitud)`.
  */
-const SelectorUbicacionMapa = ({ valor, alCambiar }) => {
+const SelectorUbicacionMapa = ({
+  valor,
+  alCambiar,
+  textoPunto = "Punto de recogida",
+  instruccion = "Toca el mapa para marcar el punto de recogida.",
+  mensajeFueraDeQuito = "Selecciona un punto dentro del área de Quito para publicar el material.",
+}) => {
   const [obteniendoUbicacion, setObteniendoUbicacion] = useState(false);
   const posicion = valor ? [Number(valor.latitud), Number(valor.longitud)] : null;
 
@@ -54,7 +60,7 @@ const SelectorUbicacionMapa = ({ valor, alCambiar }) => {
     if (!estaDentroDeQuito(latitud, longitud)) {
       toaster.create({
         title: "Ubicación fuera de Quito",
-        description: "Selecciona un punto dentro del área de Quito para publicar el material.",
+        description: mensajeFueraDeQuito,
         type: "warning",
         duration: 4000,
       });
@@ -127,8 +133,8 @@ const SelectorUbicacionMapa = ({ valor, alCambiar }) => {
       >
         <Text fontSize="sm" color={posicion ? "gray.700" : "gray.500"}>
           {posicion
-            ? `Punto de recogida: ${barrioMasCercano(posicion[0], posicion[1])} (${posicion[0].toFixed(5)}, ${posicion[1].toFixed(5)})`
-            : "Toca el mapa para marcar el punto de recogida."}
+            ? `${textoPunto}: ${barrioMasCercano(posicion[0], posicion[1])} (${posicion[0].toFixed(5)}, ${posicion[1].toFixed(5)})`
+            : instruccion}
         </Text>
         <Button
           type="button"

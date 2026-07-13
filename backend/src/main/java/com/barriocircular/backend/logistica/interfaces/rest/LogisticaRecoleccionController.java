@@ -1,13 +1,17 @@
 package com.barriocircular.backend.logistica.interfaces.rest;
 
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ActualizarRutaRecoleccionUseCase;
+import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConfirmarRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ConstruirRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.FinalizarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.IniciarRutaRecoleccionUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaActivaUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.ObtenerRutaPorIdUseCase;
 import com.barriocircular.backend.logistica.aplicacion.casosdeuso.RegistrarLlegadaParadaUseCase;
+import com.barriocircular.backend.logistica.aplicacion.dto.ConfirmacionRecoleccionResultado;
 import com.barriocircular.backend.logistica.aplicacion.dto.RutaRecoleccionResultado;
+import com.barriocircular.backend.logistica.interfaces.rest.dto.ConfirmacionRecoleccionResponse;
+import com.barriocircular.backend.logistica.interfaces.rest.dto.ConfirmarRecoleccionRequest;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.ConstruirRutaRequest;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.RegistrarLlegadaParadaRequest;
 import com.barriocircular.backend.logistica.interfaces.rest.dto.RutaRecoleccionResponse;
@@ -41,6 +45,7 @@ public class LogisticaRecoleccionController {
   private final ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase;
   private final ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase;
   private final RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase;
+  private final ConfirmarRecoleccionUseCase confirmarRecoleccionUseCase;
   private final IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase;
   private final FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase;
   private final ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase;
@@ -51,6 +56,7 @@ public class LogisticaRecoleccionController {
       ActualizarRutaRecoleccionUseCase actualizarRutaRecoleccionUseCase,
       ObtenerRutaPorIdUseCase obtenerRutaPorIdUseCase,
       RegistrarLlegadaParadaUseCase registrarLlegadaParadaUseCase,
+      ConfirmarRecoleccionUseCase confirmarRecoleccionUseCase,
       IniciarRutaRecoleccionUseCase iniciarRutaRecoleccionUseCase,
       FinalizarRutaRecoleccionUseCase finalizarRutaRecoleccionUseCase,
       ObtenerPerfilPorClerkIdUseCase obtenerPerfilPorClerkIdUseCase) {
@@ -60,6 +66,7 @@ public class LogisticaRecoleccionController {
         Objects.requireNonNull(actualizarRutaRecoleccionUseCase);
     this.obtenerRutaPorIdUseCase = Objects.requireNonNull(obtenerRutaPorIdUseCase);
     this.registrarLlegadaParadaUseCase = Objects.requireNonNull(registrarLlegadaParadaUseCase);
+    this.confirmarRecoleccionUseCase = Objects.requireNonNull(confirmarRecoleccionUseCase);
     this.iniciarRutaRecoleccionUseCase = Objects.requireNonNull(iniciarRutaRecoleccionUseCase);
     this.finalizarRutaRecoleccionUseCase = Objects.requireNonNull(finalizarRutaRecoleccionUseCase);
     this.obtenerPerfilPorClerkIdUseCase = Objects.requireNonNull(obtenerPerfilPorClerkIdUseCase);
@@ -131,6 +138,23 @@ public class LogisticaRecoleccionController {
         registrarLlegadaParadaUseCase.ejecutar(
             rutaId, paradaId, solicitud.fechaLlegada(), solicitud.horaLlegada());
     return ResponseEntity.ok(RutaRecoleccionResponse.desde(resultado));
+  }
+
+  @PostMapping("/{rutaId}/paradas/{paradaId}/confirmar")
+  public ResponseEntity<ConfirmacionRecoleccionResponse> confirmarRecoleccion(
+      @PathVariable UUID rutaId,
+      @PathVariable UUID paradaId,
+      @RequestBody ConfirmarRecoleccionRequest solicitud,
+      Authentication autenticacion) {
+    UUID recicladorId = obtenerRecicladorAutenticado(autenticacion);
+    ConfirmacionRecoleccionResultado resultado =
+        confirmarRecoleccionUseCase.ejecutar(
+            recicladorId,
+            rutaId,
+            paradaId,
+            solicitud.pesoRealVerificado(),
+            solicitud.observaciones());
+    return ResponseEntity.ok(ConfirmacionRecoleccionResponse.desde(resultado));
   }
 
   private UUID obtenerRecicladorAutenticado(Authentication autenticacion) {

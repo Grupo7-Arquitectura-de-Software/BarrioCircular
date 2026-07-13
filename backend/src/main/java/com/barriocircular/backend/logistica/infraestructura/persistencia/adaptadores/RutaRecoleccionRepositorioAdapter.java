@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class RutaRecoleccionRepositorioAdapter implements AlmacenRutaRecoleccionPort {
@@ -33,6 +34,7 @@ public class RutaRecoleccionRepositorioAdapter implements AlmacenRutaRecoleccion
   }
 
   @Override
+  @Transactional
   public RutaRecoleccion guardar(RutaRecoleccion ruta) {
     Objects.requireNonNull(ruta, "La ruta a guardar es obligatoria.");
     Instant fechaCreacion =
@@ -71,6 +73,7 @@ public class RutaRecoleccionRepositorioAdapter implements AlmacenRutaRecoleccion
                         horaInicio.set(entidadExistente, entidadNueva.getHoraInicio());
                         estado.set(entidadExistente, entidadNueva.getEstado());
                         fechaCreacionField.set(entidadExistente, entidadNueva.getFechaCreacion());
+                        entidadExistente.sincronizarParadas(entidadNueva.getParadas());
                       } catch (ReflectiveOperationException ex) {
                         throw new IllegalStateException(
                             "No fue posible actualizar la entidad de ruta existente.", ex);
