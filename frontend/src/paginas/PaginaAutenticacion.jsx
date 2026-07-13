@@ -28,10 +28,28 @@ const aparienciaClerk = {
   },
 };
 
+const campoOculto = { display: "none" };
+
+const aparienciaClerkRegistro = {
+  ...aparienciaClerk,
+  elements: {
+    ...aparienciaClerk.elements,
+    formField__firstName: campoOculto,
+    formField__lastName: campoOculto,
+    formFieldInput__firstName: campoOculto,
+    formFieldInput__lastName: campoOculto,
+    formFieldLabel__firstName: campoOculto,
+    formFieldLabel__lastName: campoOculto,
+  },
+};
+
 const PESTANIAS = [
   { valor: "iniciar", etiqueta: "Iniciar Sesión" },
   { valor: "registrarse", etiqueta: "Registrarse" },
 ];
+
+const RUTA_POST_LOGIN = "/seleccionar-rol";
+const RUTA_POST_REGISTRO = "/completar-perfil";
 
 const PaginaAutenticacion = () => {
   const [pestaniaActiva, setPestaniaActiva] = useState("iniciar");
@@ -72,9 +90,19 @@ const PaginaAutenticacion = () => {
 
         <Box display="flex" justifyContent="center">
           {pestaniaActiva === "iniciar" ? (
-            <SignIn routing="hash" appearance={aparienciaClerk} />
+            <SignIn
+              routing="hash"
+              appearance={aparienciaClerk}
+              fallbackRedirectUrl={RUTA_POST_LOGIN}
+              forceRedirectUrl={RUTA_POST_LOGIN}
+            />
           ) : (
-            <SignUp routing="hash" appearance={aparienciaClerk} />
+            <SignUp
+              routing="hash"
+              appearance={aparienciaClerkRegistro}
+              fallbackRedirectUrl={RUTA_POST_REGISTRO}
+              forceRedirectUrl={RUTA_POST_REGISTRO}
+            />
           )}
         </Box>
       </VStack>
