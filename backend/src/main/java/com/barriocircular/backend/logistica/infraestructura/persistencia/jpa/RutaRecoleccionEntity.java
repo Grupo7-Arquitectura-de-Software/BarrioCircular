@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -90,5 +91,13 @@ public class RutaRecoleccionEntity {
 
   public List<ParadaRecoleccionEntity> getParadas() {
     return paradas;
+  }
+
+  public void sincronizarParadas(List<ParadaRecoleccionEntity> paradasActualizadas) {
+    Objects.requireNonNull(paradasActualizadas, "Las paradas actualizadas son obligatorias.");
+    paradas.clear();
+    paradasActualizadas.stream()
+        .map(parada -> Objects.requireNonNull(parada, "La parada actualizada no puede ser nula."))
+        .forEach(paradas::add);
   }
 }

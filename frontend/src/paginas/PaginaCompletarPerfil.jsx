@@ -12,6 +12,7 @@ import {
 
 import DiseniodeAutenticacion from "../componentes/plantillas/DiseniodeAutenticacion.jsx";
 import SelectorDeRol from "../componentes/moleculas/SelectorDeRol.jsx";
+import SelectorUbicacionMapa from "../componentes/organismos/SelectorUbicacionMapa.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { toaster } from "@/components/ui/toaster-instance";
 import { esErrorApiConEstado } from "@/servicios/clienteApi";
@@ -26,8 +27,14 @@ const ROLES = [
 ];
 
 const COORDENADAS_QUITO = {
-  latitud: -0.1807,
-  longitud: -78.4678,
+  latitud: null,
+  longitud: null,
+};
+
+const DESCRIPCIONES_UBICACION_POR_ROL = {
+  CIUDADANO: "Selecciona la ubicación habitual desde donde entregarás tus materiales.",
+  RECICLADOR: "Selecciona tu punto habitual de salida para organizar las recolecciones.",
+  CENTRO_RECOLECCION: "Selecciona la ubicación física del centro de acopio.",
 };
 
 const obtenerRolPreseleccionado = () => {
@@ -64,7 +71,25 @@ const PaginaCompletarPerfil = () => {
     ...COORDENADAS_QUITO,
   });
   const [estaEnviando, setEstaEnviando] = useState(false);
-  const [estaObteniendoUbicacion, setEstaObteniendoUbicacion] = useState(false);
+
+  const ubicacionSeleccionada =
+    datosFormulario.latitud !== null &&
+    datosFormulario.latitud !== undefined &&
+    datosFormulario.latitud !== "" &&
+    datosFormulario.longitud !== null &&
+    datosFormulario.longitud !== undefined &&
+    datosFormulario.longitud !== "" &&
+    Number.isFinite(Number(datosFormulario.latitud)) &&
+    Number.isFinite(Number(datosFormulario.longitud))
+      ? {
+          latitud: datosFormulario.latitud,
+          longitud: datosFormulario.longitud,
+        }
+      : null;
+
+  const descripcionUbicacion =
+    DESCRIPCIONES_UBICACION_POR_ROL[datosFormulario.rol] ||
+    "Selecciona tu ubicación habitual dentro de Quito.";
 
   const actualizarCampo = (evento) => {
     const { name, value } = evento.target;
@@ -78,56 +103,6 @@ const PaginaCompletarPerfil = () => {
     setDatosFormulario((datosActuales) => ({ ...datosActuales, rol }));
   };
 
-  const usarUbicacionActual = () => {
-    if (!navigator.geolocation) {
-      setDatosFormulario((datosActuales) => ({
-        ...datosActuales,
-        ...COORDENADAS_QUITO,
-      }));
-      toaster.create({
-        title: "Ubicación no disponible",
-        description:
-          "No se pudo obtener tu ubicación. Puedes escribir una dirección o referencia manualmente.",
-        type: "warning",
-        duration: 4000,
-      });
-      return;
-    }
-
-    setEstaObteniendoUbicacion(true);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setDatosFormulario((datosActuales) => ({
-          ...datosActuales,
-          latitud: coords.latitude,
-          longitud: coords.longitude,
-        }));
-        setEstaObteniendoUbicacion(false);
-        toaster.create({
-          title: "Ubicación detectada",
-          description: "Ubicación actual detectada correctamente.",
-          type: "success",
-          duration: 3000,
-        });
-      },
-      () => {
-        setDatosFormulario((datosActuales) => ({
-          ...datosActuales,
-          ...COORDENADAS_QUITO,
-        }));
-        setEstaObteniendoUbicacion(false);
-        toaster.create({
-          title: "No se pudo obtener la ubicación",
-          description:
-            "No se pudo obtener tu ubicación. Puedes escribir una dirección o referencia manualmente.",
-          type: "warning",
-          duration: 4000,
-        });
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
-  };
-
   const enviarFormulario = async (evento) => {
     evento.preventDefault();
 
@@ -137,6 +112,16 @@ const PaginaCompletarPerfil = () => {
         description: "Indica cómo te registras para continuar.",
         type: "warning",
         duration: 3000,
+      });
+      return;
+    }
+
+    if (!ubicacionSeleccionada) {
+      toaster.create({
+        title: "Selecciona tu ubicación",
+        description: "Marca un punto dentro de Quito en el mapa o usa tu ubicación actual.",
+        type: "warning",
+        duration: 3500,
       });
       return;
     }
@@ -155,8 +140,8 @@ const PaginaCompletarPerfil = () => {
         nombreComercial: datosFormulario.nombreComercial,
         correoElectronico: correoClerk || datosFormulario.correoElectronico,
         telefono: datosFormulario.telefono,
-        latitud: Number(datosFormulario.latitud),
-        longitud: Number(datosFormulario.longitud),
+        latitud: Number(ubicacionSeleccionada.latitud),
+        longitud: Number(ubicacionSeleccionada.longitud),
       };
       const perfilCreado = await completarPerfil(token, datosPerfil);
       const rutaPrincipal = obtenerRutaPrincipalPorRol(perfilCreado.rol);
@@ -296,7 +281,6 @@ const PaginaCompletarPerfil = () => {
               />
             </Field.Root>
 
-            {/* TODO: incorporar un selector con Google Maps/Places o Leaflet/OpenStreetMap. */}
             <Field.Root required>
               <Field.Label fontWeight="600">Ubicación en Quito</Field.Label>
               <Input
@@ -309,17 +293,25 @@ const PaginaCompletarPerfil = () => {
               />
             </Field.Root>
 
-            <Button
-              type="button"
-              variant="outline"
-              colorPalette="verde"
-              rounded="lg"
-              onClick={usarUbicacionActual}
-              loading={estaObteniendoUbicacion}
-              loadingText="Obteniendo ubicación"
-            >
-              Usar mi ubicación actual
-            </Button>
+            <Field.Root required>
+              <Field.Label fontWeight="600">Selecciona tu ubicación en el mapa</Field.Label>
+              <Text fontSize="sm" color="gray.600">
+                {descripcionUbicacion}
+              </Text>
+              <SelectorUbicacionMapa
+                valor={ubicacionSeleccionada}
+                alCambiar={(latitud, longitud) =>
+                  setDatosFormulario((datosActuales) => ({
+                    ...datosActuales,
+                    latitud,
+                    longitud,
+                  }))
+                }
+                textoPunto="Ubicación seleccionada"
+                instruccion="Toca el mapa para seleccionar tu ubicación habitual."
+                mensajeFueraDeQuito="Selecciona una ubicación dentro del área de Quito."
+              />
+            </Field.Root>
 
             <Flex justify="flex-end">
               <Button
