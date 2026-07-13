@@ -39,6 +39,7 @@ const DetallePublicacion = ({
   rotuloVendedor = "VENDEDOR (COLECTIVO)",
   calificacionVendedor = "4.9",
   detalleCalificacion = "(85 transacciones)",
+  telefonoCreador,
   ubicacion = "Sector La Carolina, Quito",
   imagenUrl,
   alReservar,
@@ -104,6 +105,7 @@ const DetallePublicacion = ({
           nombre={vendedor}
           calificacion={calificacionVendedor}
           detalleCalificacion={detalleCalificacion}
+          telefono={telefonoCreador}
         />
 
         <Box bg="fondo.tarjeta" border="1px solid" borderColor="gray.200" borderRadius="xl" p={5}>

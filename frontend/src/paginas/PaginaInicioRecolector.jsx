@@ -2,17 +2,17 @@ import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineQrCode2 } from "react-icons/md";
+import { FaWhatsapp } from "react-icons/fa";
 
 import DiseniodeAplicacion from "../componentes/plantillas/DiseniodeAplicacion";
 import PanelRutaRecoleccion from "../componentes/organismos/PanelRutaRecoleccion.jsx";
-import PanelCoordinacionMensajes from "../componentes/organismos/PanelCoordinacionMensajes.jsx";
 import Icono from "../componentes/atomos/Icono.jsx";
 import { NAVEGACION_RECOLECTOR, SUBTITULO_RECOLECTOR } from "@/utilidades/navegacionPanel";
 import { useRutaRecoleccion } from "@/utilidades/useRutaRecoleccion";
 
 /**
  * Inicio del reciclador híbrido (mockup "Gestión Híbrida"): resumen
- * operativo con ruta de recolección y mensajes de coordinación.
+ * operativo con ruta de recolección y recordatorio de coordinación por WhatsApp.
  */
 const PaginaInicioRecolector = () => {
   const navigate = useNavigate();
@@ -90,7 +90,28 @@ const PaginaInicioRecolector = () => {
             />
           </Box>
           <Box flex="1" minW={{ lg: "320px" }}>
-            <PanelCoordinacionMensajes alVerTodos={() => {}} />
+            <Box
+              bg="fondo.tarjeta"
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="xl"
+              p={5}
+              h="100%"
+            >
+              <VStack align="stretch" gap={4} textAlign="center" h="100%" justify="center">
+                <Box alignSelf="center" color="#25D366" bg="green.50" p={4} borderRadius="full">
+                  <FaWhatsapp size={48} />
+                </Box>
+                <Text fontFamily="heading" fontWeight="700" fontSize="lg">
+                  Coordinación Directa
+                </Text>
+                <Text color="gray.600" fontSize="sm">
+                  Ahora puedes contactar a los ciudadanos directamente a través de WhatsApp para
+                  coordinar los retiros más fácilmente. Encuentra el botón de WhatsApp en cada
+                  publicación y reserva.
+                </Text>
+              </VStack>
+            </Box>
           </Box>
         </Flex>
       </VStack>

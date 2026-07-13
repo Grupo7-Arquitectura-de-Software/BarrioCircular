@@ -16,9 +16,16 @@ public record PublicacionResultado(
     String evidenciaUrl,
     String estado,
     Instant fechaCreacion,
-    UUID reservadoPor) {
+    UUID reservadoPor,
+    String nombreCreador,
+    String telefonoCreador) {
 
   public static PublicacionResultado desde(Publicacion publicacion) {
+    return desde(publicacion, null, null);
+  }
+
+  public static PublicacionResultado desde(
+      Publicacion publicacion, String nombreCreador, String telefonoCreador) {
     return new PublicacionResultado(
         publicacion.id().valor(),
         publicacion.creador().valor(),
@@ -30,6 +37,8 @@ public record PublicacionResultado(
         publicacion.evidencia().url(),
         publicacion.estado().name(),
         publicacion.fechaCreacion(),
-        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor());
+        publicacion.reservadoPor() == null ? null : publicacion.reservadoPor().valor(),
+        nombreCreador,
+        telefonoCreador);
   }
 }
