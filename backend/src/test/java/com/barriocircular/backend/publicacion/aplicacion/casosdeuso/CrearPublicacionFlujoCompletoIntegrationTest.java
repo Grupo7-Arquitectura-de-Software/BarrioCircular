@@ -3,6 +3,7 @@ package com.barriocircular.backend.publicacion.aplicacion.casosdeuso;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.barriocircular.backend.publicacion.aplicacion.comandos.CrearPublicacionCommand;
+import com.barriocircular.backend.publicacion.aplicacion.dto.InfoContactoCreador;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PerfilCapacidades;
 import com.barriocircular.backend.publicacion.aplicacion.dto.PublicacionResultado;
 import com.barriocircular.backend.publicacion.aplicacion.puertos.PerfilConsultor;
@@ -84,10 +85,19 @@ class CrearPublicacionFlujoCompletoIntegrationTest {
     @Bean
     @Primary
     PerfilConsultor perfilConsultorSimulado() {
-      return clerkId ->
-          CLERK_ID_PUBLICADOR.equals(clerkId)
+      return new PerfilConsultor() {
+        @Override
+        public Optional<PerfilCapacidades> obtenerCapacidadesPorClerkId(String clerkId) {
+          return CLERK_ID_PUBLICADOR.equals(clerkId)
               ? Optional.of(new PerfilCapacidades(PERFIL_ID_PUBLICADOR, true, false, "RECICLADOR"))
               : Optional.empty();
+        }
+
+        @Override
+        public Optional<InfoContactoCreador> obtenerInfoContactoPorPerfilId(UUID perfilId) {
+          return Optional.empty();
+        }
+      };
     }
   }
 }
