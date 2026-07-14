@@ -39,8 +39,14 @@ public class RegistrarCuentaCasoUso {
           cuenta.getCuentaId().uuid(), cuenta.getEstadoSesion(), false);
     }
 
-    if (repositorio.existePorCorreo(datos.correoElectronico().correoElectronico())) {
-      throw new CorreoDuplicadoException(datos.correoElectronico().correoElectronico());
+    Optional<CuentaAcceso> existentePorCorreo = repositorio.buscarPorCorreo(datos.correoElectronico().correoElectronico());
+    if (existentePorCorreo.isPresent()) {
+      CuentaAcceso cuenta = existentePorCorreo.get();
+      // Si el correo ya existe, actualizamos el clerk ID (en caso de que haya cambiado)
+      cuenta.actualizarClerkId(datos.clerkId());
+      repositorio.guardar(cuenta);
+      return new RegistrarCuentaRespuesta(
+          cuenta.getCuentaId().uuid(), cuenta.getEstadoSesion(), false);
     }
 
     CuentaAcceso nueva =

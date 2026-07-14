@@ -40,4 +40,9 @@ public class CuentaAccesoRepositorioImpl implements CuentaAccesoRepositorio {
   public boolean existePorCorreo(String correo) {
     return datacuentarepositorio.existsByCorreoElectronico(correo);
   }
+
+  @Override
+  public Optional<CuentaAcceso> buscarPorCorreo(String correo) {
+    return datacuentarepositorio.findByCorreoElectronico(correo).map(cuentaAccesoMapper::alDominio);
+  }
 }

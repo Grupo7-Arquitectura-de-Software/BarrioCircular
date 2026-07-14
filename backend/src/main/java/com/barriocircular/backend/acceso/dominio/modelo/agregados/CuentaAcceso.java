@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CuentaAcceso {
   private final IdentificadorCuenta cuentaId;
-  private final IdentificadorUsuarioClerk clerkId;
+  private IdentificadorUsuarioClerk clerkId;
   private final CorreoElectronico correoElectronico;
   private EstadoSesion estadoSesion;
   private final List<EventoDominio> eventosDominio = new ArrayList<>();
@@ -83,5 +83,9 @@ public class CuentaAcceso {
 
   public EstadoSesion getEstadoSesion() {
     return estadoSesion;
+  }
+
+  public void actualizarClerkId(IdentificadorUsuarioClerk nuevoClerkId) {
+    this.clerkId = nuevoClerkId;
   }
 }

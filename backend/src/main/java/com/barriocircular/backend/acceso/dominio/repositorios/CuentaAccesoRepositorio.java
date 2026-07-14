@@ -12,4 +12,6 @@ public interface CuentaAccesoRepositorio {
   Optional<CuentaAcceso> buscarPorClerkId(String id);
 
   boolean existePorCorreo(String correo);
+
+  Optional<CuentaAcceso> buscarPorCorreo(String correo);
 }

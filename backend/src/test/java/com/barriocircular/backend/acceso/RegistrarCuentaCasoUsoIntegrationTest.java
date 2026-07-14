@@ -96,14 +96,14 @@ class RegistrarCuentaCasoUsoIntegrationTest {
   }
 
   @Test
-  void correoDuplicadoConDistintoClerkIdLanzaExcepcionYNoPersiste() {
+  void correoDuplicadoConDistintoClerkIdVinculaLaCuenta() {
     when(validadorIdentidad.validarUsuario(any()))
         .thenReturn(
             new DatosUsuarioVerificado(
                 new IdentificadorUsuarioClerk("user_original"),
                 new CorreoElectronico("af6726991@gmail.com"),
                 true));
-    casoUso.ejecutar(
+    RegistrarCuentaRespuesta original = casoUso.ejecutar(
         new RegistrarCuentaCommand(
             "eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDIyMkFBQSIsImtpZCI6Imluc18zRlFXcTY2OWRiVnFNaXJpcWJuMEtmRG9mbU4iLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6ImFmNjcyNjk5MUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6Int7dXNlci5wcmltYXJ5X2VtYWlsX2FkZHJlc3NfdmVyaWZpZWR9fSIsImV4cCI6MTc4MjI1MjM0NiwiaWF0IjoxNzgyMjUxODQ2LCJpc3MiOiJodHRwczovL2NvbW11bmFsLWNyYWItNDguY2xlcmsuYWNjb3VudHMuZGV2IiwianRpIjoiYzc4ZGQyYzViOWZlZDhhNGNjMjAiLCJuYmYiOjE3ODIyNTE4NDEsInN1YiI6InVzZXJfM0ZUVWxPVHVFMlk1WDFQR2Rwcm0zZktIT0w3In0.dSkqFC8pxwABdEsqB3-AhydlMdSUBUkVUa7PSaBFDj54HYmpx4paUzOwzb3_8w3craMsKtXyvEnb3cRfxmAVhF5FthzrjtLdVz45XL1LwFgxyq93oBRKY8bflCwCsPn4S8lZ6525UvmwADhyn_lsb1GZU8AFMu0ktZU8XMt8IMTXJjQOoVUzj-7zczsYwemPNL7CQ2io4rwYnXd-5TupVhC4uq9hupxOGFCNrS35XDJDZfu8ZaOGp0qRdJiKhqnDD39nGv9YRVy_aQxc7OtZ-h8aj5nK9vtdbLy5VjGLb7xqzkKT2zyFwKAb1Udf0vhQ7OP_iXTNkyDoSQg1KMwTbw"));
 
@@ -114,13 +114,15 @@ class RegistrarCuentaCasoUsoIntegrationTest {
                 new CorreoElectronico("af6726991@gmail.com"),
                 true));
 
-    assertThatThrownBy(
-            () ->
-                casoUso.ejecutar(
-                    new RegistrarCuentaCommand(
-                        "eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDIyMkFBQSIsImtpZCI6Imluc18zRlFXcTY2OWRiVnFNaXJpcWJuMEtmRG9mbU4iLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6ImFmNjcyNjk5MUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6Int7dXNlci5wcmltYXJ5X2VtYWlsX2FkZHJlc3NfdmVyaWZpZWR9fSIsImV4cCI6MTc4MjI1MjM0NiwiaWF0IjoxNzgyMjUxODQ2LCJpc3MiOiJodHRwczovL2NvbW11bmFsLWNyYWItNDguY2xlcmsuYWNjb3VudHMuZGV2IiwianRpIjoiYzc4ZGQyYzViOWZlZDhhNGNjMjAiLCJuYmYiOjE3ODIyNTE4NDEsInN1YiI6InVzZXJfM0ZUVWxPVHVFMlk1WDFQR2Rwcm0zZktIT0w3In0.dSkqFC8pxwABdEsqB3-AhydlMdSUBUkVUa7PSaBFDj54HYmpx4paUzOwzb3_8w3craMsKtXyvEnb3cRfxmAVhF5FthzrjtLdVz45XL1LwFgxyq93oBRKY8bflCwCsPn4S8lZ6525UvmwADhyn_lsb1GZU8AFMu0ktZU8XMt8IMTXJjQOoVUzj-7zczsYwemPNL7CQ2io4rwYnXd-5TupVhC4uq9hupxOGFCNrS35XDJDZfu8ZaOGp0qRdJiKhqnDD39nGv9YRVy_aQxc7OtZ-h8aj5nK9vtdbLy5VjGLb7xqzkKT2zyFwKAb1Udf0vhQ7OP_iXTNkyDoSQg1KMwTbw")))
-        .isInstanceOf(CorreoDuplicadoException.class);
+    RegistrarCuentaRespuesta vinculada = casoUso.ejecutar(
+        new RegistrarCuentaCommand(
+            "eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDIyMkFBQSIsImtpZCI6Imluc18zRlFXcTY2OWRiVnFNaXJpcWJuMEtmRG9mbU4iLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6ImFmNjcyNjk5MUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6Int7dXNlci5wcmltYXJ5X2VtYWlsX2FkZHJlc3NfdmVyaWZpZWR9fSIsImV4cCI6MTc4MjI1MjM0NiwiaWF0IjoxNzgyMjUxODQ2LCJpc3MiOiJodHRwczovL2NvbW11bmFsLWNyYWItNDguY2xlcmsuYWNjb3VudHMuZGV2IiwianRpIjoiYzc4ZGQyYzViOWZlZDhhNGNjMjAiLCJuYmYiOjE3ODIyNTE4NDEsInN1YiI6InVzZXJfM0ZUVWxPVHVFMlk1WDFQR2Rwcm0zZktIT0w3In0.dSkqFC8pxwABdEsqB3-AhydlMdSUBUkVUa7PSaBFDj54HYmpx4paUzOwzb3_8w3craMsKtXyvEnb3cRfxmAVhF5FthzrjtLdVz45XL1LwFgxyq93oBRKY8bflCwCsPn4S8lZ6525UvmwADhyn_lsb1GZU8AFMu0ktZU8XMt8IMTXJjQOoVUzj-7zczsYwemPNL7CQ2io4rwYnXd-5TupVhC4uq9hupxOGFCNrS35XDJDZfu8ZaOGp0qRdJiKhqnDD39nGv9YRVy_aQxc7OtZ-h8aj5nK9vtdbLy5VjGLb7xqzkKT2zyFwKAb1Udf0vhQ7OP_iXTNkyDoSQg1KMwTbw"));
 
-    assertThat(repositorio.buscarPorClerkId("user_3FTUlOTuE2Y5X1PGdprm3fKHOL7")).isEmpty();
+    assertThat(vinculada.esNueva()).isFalse();
+    assertThat(vinculada.cuentaId()).isEqualTo(original.cuentaId());
+
+    Optional<CuentaAcceso> cuenta = repositorio.buscarPorClerkId("user_3FTUlOTuE2Y5X1PGdprm3fKHOL7");
+    assertThat(cuenta).isPresent();
+    assertThat(cuenta.get().getClerkId().valor()).isEqualTo("user_3FTUlOTuE2Y5X1PGdprm3fKHOL7");
   }
 }
