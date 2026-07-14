@@ -1,13 +1,3 @@
-# Docker Compose — Base de datos PostgreSQL local para BarrioCircular
-# Uso:
-#   docker compose up -d        Levanta PostgreSQL en segundo plano
-#   docker compose logs -f db   Sigue los logs
-#   docker compose down         Detiene y elimina el contenedor (conserva el volumen)
-#   docker compose down -v      Detiene y BORRA también los datos del volumen
-#
-# La imagen postgis/postgis incluye la extensión PostGIS, requerida por
-# LogisticaRepositorio para las consultas geoespaciales (ST_DWithin).
-
 services:
   db:
     image: postgis/postgis:16-3.4
@@ -17,15 +7,11 @@ services:
       POSTGRES_DB: barriocircular
       POSTGRES_USER: barriocircular
       POSTGRES_PASSWORD: barriocircular
-      # Codificación y locale recomendados
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     ports:
-      # host:contenedor — expone PostgreSQL en localhost:5432
       - "5432:5432"
     volumes:
-      # Persistencia de datos entre reinicios
       - barriocircular_pgdata:/var/lib/postgresql/data
-      # Scripts ejecutados UNA sola vez al inicializar un volumen vacío
       - ./backend/docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U barriocircular -d barriocircular"]
@@ -33,6 +19,39 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/barriocircular
+      SPRING_DATASOURCE_USERNAME: barriocircular
+      SPRING_DATASOURCE_PASSWORD: barriocircular
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   barriocircular_pgdata:

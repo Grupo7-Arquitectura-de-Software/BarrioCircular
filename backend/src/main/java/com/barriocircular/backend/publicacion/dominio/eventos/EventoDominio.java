@@ -4,5 +4,5 @@ import java.time.Instant;
 
 public interface EventoDominio {
 
-    Instant ocurridoEn();
+  Instant ocurridoEn();
 }

@@ -1,0 +1,45 @@
+{
+  "name": "barriocircular",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.36.0",
+    "@clerk/clerk-react": "^5.61.8",
+    "@clerk/localizations": "^4.12.0",
+    "@emotion/react": "^11.14.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
+    "@supabase/supabase-js": "^2.110.0",
+    "leaflet": "^1.9.4",
+    "next-themes": "^0.4.6",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-icons": "^5.6.0",
+    "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.18.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "prettier": "^3.9.4",
+    "vite": "^8.0.12",
+    "vite-tsconfig-paths": "^6.1.1"
+  }
+}

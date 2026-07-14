@@ -1,0 +1,41 @@
+package com.barriocircular.backend.publicacion.aplicacion.casosdeuso;
+
+import com.barriocircular.backend.publicacion.aplicacion.dto.InfoContactoCreador;
+import com.barriocircular.backend.publicacion.aplicacion.dto.PublicacionResultado;
+import com.barriocircular.backend.publicacion.aplicacion.puertos.PerfilConsultor;
+import com.barriocircular.backend.publicacion.dominio.modelo.EstadoPublicacion;
+import com.barriocircular.backend.publicacion.dominio.repositorios.PublicacionRepositorio;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class ListarPublicacionesDisponiblesUseCase {
+
+  private final PublicacionRepositorio publicacionRepositorio;
+  private final PerfilConsultor perfilConsultor;
+
+  public ListarPublicacionesDisponiblesUseCase(
+      PublicacionRepositorio publicacionRepositorio,
+      @Qualifier("perfilConsultorPublicacion") PerfilConsultor perfilConsultor) {
+    this.publicacionRepositorio = publicacionRepositorio;
+    this.perfilConsultor = perfilConsultor;
+  }
+
+  @Transactional(readOnly = true)
+  public List<PublicacionResultado> ejecutar() {
+    return publicacionRepositorio.listarPorEstado(EstadoPublicacion.DISPONIBLE).stream()
+        .map(
+            publicacion -> {
+              InfoContactoCreador contacto =
+                  perfilConsultor
+                      .obtenerInfoContactoPorPerfilId(publicacion.creador().valor())
+                      .orElse(null);
+              String nombre = contacto != null ? contacto.nombre() : null;
+              String telefono = contacto != null ? contacto.telefono() : null;
+              return PublicacionResultado.desde(publicacion, nombre, telefono);
+            })
+        .toList();
+  }
+}

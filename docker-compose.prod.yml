@@ -1,0 +1,56 @@
+name: barriocircular-production
+
+services:
+  backend:
+    image: "${DOCKERHUB_USERNAME:-local}/barriocircular-backend:${IMAGE_TAG:-latest}"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      SUPABASE_DB_URL: "${SUPABASE_DB_URL:?Define SUPABASE_DB_URL}"
+      SUPABASE_DB_USERNAME: "${SUPABASE_DB_USERNAME:?Define SUPABASE_DB_USERNAME}"
+      SUPABASE_DB_PASSWORD: "${SUPABASE_DB_PASSWORD:?Define SUPABASE_DB_PASSWORD}"
+      DB_MAX_POOL_SIZE: "${DB_MAX_POOL_SIZE:-3}"
+      DB_MIN_IDLE: "${DB_MIN_IDLE:-0}"
+      CLERK_JWKS_URI: "${CLERK_JWKS_URI:?Define CLERK_JWKS_URI}"
+      CLERK_ISSUER: "${CLERK_ISSUER:?Define CLERK_ISSUER}"
+      GROQ_API_KEY: "${GROQ_API_KEY:?Define GROQ_API_KEY}"
+      GROQ_MODEL: "${GROQ_MODEL:-llama-3.1-8b-instant}"
+      GROQ_VISION_MODEL: "${GROQ_VISION_MODEL:-meta-llama/llama-4-scout-17b-16e-instruct}"
+      GROQ_BASE_URL: "${GROQ_BASE_URL:-https://api.groq.com/openai/v1}"
+      PRECIO_KG_PET: "${PRECIO_KG_PET:-0.30}"
+      PRECIO_KG_CARTON: "${PRECIO_KG_CARTON:-0.10}"
+      PRECIO_KG_VIDRIO: "${PRECIO_KG_VIDRIO:-0.03}"
+      PRECIO_KG_CHATARRA: "${PRECIO_KG_CHATARRA:-0.25}"
+      FRONTEND_BASE_URL: "${FRONTEND_BASE_URL:-https://barriocircular.site}"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-https://www.barriocircular.site,https://barriocircular.site}"
+    expose:
+      - "8080"
+    networks:
+      - application-network
+
+  frontend:
+    image: "${DOCKERHUB_USERNAME:-local}/barriocircular-frontend:${IMAGE_TAG:-latest}"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_CLERK_PUBLISHABLE_KEY: "${VITE_CLERK_PUBLISHABLE_KEY:?Define VITE_CLERK_PUBLISHABLE_KEY}"
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:?Define VITE_API_BASE_URL}"
+        VITE_SUPABASE_URL: "${VITE_SUPABASE_URL:?Define VITE_SUPABASE_URL}"
+        VITE_SUPABASE_ANON_KEY: "${VITE_SUPABASE_ANON_KEY:?Define VITE_SUPABASE_ANON_KEY}"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/ssl/barriocircular:/etc/nginx/ssl/barriocircular:ro
+    networks:
+      - application-network
+
+networks:
+  application-network:
+    driver: bridge
