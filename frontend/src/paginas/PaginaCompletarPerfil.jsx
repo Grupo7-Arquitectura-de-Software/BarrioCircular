@@ -18,6 +18,12 @@ import { toaster } from "@/components/ui/toaster-instance";
 import { esErrorApiConEstado } from "@/servicios/clienteApi";
 import { completarPerfil } from "@/servicios/perfilService";
 import { obtenerRutaPrincipalPorRol } from "@/utilidades/rutasPerfil";
+import {
+  esDocumentoValido,
+  esTelefonoValido,
+  normalizarDocumento,
+  normalizarTelefono,
+} from "@/utilidades/validacionesPerfil";
 import { CLAVE_ROL_PRESELECCIONADO } from "./PaginadeSeleccionRol.jsx";
 
 const ROLES = [
@@ -43,6 +49,9 @@ const obtenerRolPreseleccionado = () => {
 };
 
 const obtenerMensajeError = (error) => {
+  if (esErrorApiConEstado(error, 400)) {
+    return error.message || "Los datos enviados no son válidos. Revisa el formulario.";
+  }
   if (esErrorApiConEstado(error, 403)) {
     return "La sesión no está autorizada para completar este perfil.";
   }
@@ -116,6 +125,26 @@ const PaginaCompletarPerfil = () => {
       return;
     }
 
+    if (!esDocumentoValido(datosFormulario.documentoIdentificacion)) {
+      toaster.create({
+        title: "Documento inválido",
+        description: "Ingresa una cédula de 10 dígitos o un RUC de 13 dígitos, sin letras.",
+        type: "warning",
+        duration: 3500,
+      });
+      return;
+    }
+
+    if (!esTelefonoValido(datosFormulario.telefono)) {
+      toaster.create({
+        title: "Teléfono inválido",
+        description: "Usa un número ecuatoriano válido, ej. 0991234567, 022345678 o +593991234567.",
+        type: "warning",
+        duration: 3500,
+      });
+      return;
+    }
+
     if (!ubicacionSeleccionada) {
       toaster.create({
         title: "Selecciona tu ubicación",
@@ -135,11 +164,11 @@ const PaginaCompletarPerfil = () => {
       // TODO: enviar direccionTexto cuando el contrato de Perfiles lo soporte.
       const datosPerfil = {
         rol: datosFormulario.rol,
-        documentoIdentificacion: datosFormulario.documentoIdentificacion,
+        documentoIdentificacion: normalizarDocumento(datosFormulario.documentoIdentificacion),
         nombreCompleto: datosFormulario.nombreCompleto,
         nombreComercial: datosFormulario.nombreComercial,
         correoElectronico: correoClerk || datosFormulario.correoElectronico,
-        telefono: datosFormulario.telefono,
+        telefono: normalizarTelefono(datosFormulario.telefono),
         latitud: Number(ubicacionSeleccionada.latitud),
         longitud: Number(ubicacionSeleccionada.longitud),
       };
@@ -273,12 +302,15 @@ const PaginaCompletarPerfil = () => {
               <Input
                 name="telefono"
                 type="tel"
-                placeholder="+593 99 123 4567"
+                placeholder="ej., 0991234567"
                 value={datosFormulario.telefono}
                 onChange={actualizarCampo}
                 bg="fondo.pagina"
                 required
               />
+              <Field.HelperText>
+                Número ecuatoriano: 0991234567 o +593991234567. Los espacios se eliminan al guardar.
+              </Field.HelperText>
             </Field.Root>
 
             <Field.Root required>
