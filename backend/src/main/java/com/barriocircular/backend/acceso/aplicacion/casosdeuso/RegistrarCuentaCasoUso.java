@@ -3,7 +3,6 @@ package com.barriocircular.backend.acceso.aplicacion.casosdeuso;
 import com.barriocircular.backend.acceso.aplicacion.comandos.RegistrarCuentaCommand;
 import com.barriocircular.backend.acceso.aplicacion.dto.RegistrarCuentaRespuesta;
 import com.barriocircular.backend.acceso.dominio.modelo.agregados.CuentaAcceso;
-import com.barriocircular.backend.acceso.dominio.modelo.excepciones.CorreoDuplicadoException;
 import com.barriocircular.backend.acceso.dominio.modelo.objetosValor.DatosUsuarioVerificado;
 import com.barriocircular.backend.acceso.dominio.repositorios.CuentaAccesoRepositorio;
 import com.barriocircular.backend.acceso.dominio.servicios.ValidadorIdentidad;
@@ -39,7 +38,8 @@ public class RegistrarCuentaCasoUso {
           cuenta.getCuentaId().uuid(), cuenta.getEstadoSesion(), false);
     }
 
-    Optional<CuentaAcceso> existentePorCorreo = repositorio.buscarPorCorreo(datos.correoElectronico().correoElectronico());
+    Optional<CuentaAcceso> existentePorCorreo =
+        repositorio.buscarPorCorreo(datos.correoElectronico().correoElectronico());
     if (existentePorCorreo.isPresent()) {
       CuentaAcceso cuenta = existentePorCorreo.get();
       // Si el correo ya existe, actualizamos el clerk ID (en caso de que haya cambiado)
